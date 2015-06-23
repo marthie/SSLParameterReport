@@ -52,9 +52,6 @@ package de.thiemann.ssltest;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Formatter;
 
 public class IOUtil {
 
@@ -103,29 +100,6 @@ public class IOUtil {
 			}
 			off += rlen;
 			len -= rlen;
-		}
-	}
-
-	/*
-	 * Compute the SHA-1 hash of some bytes, returning the hash value in
-	 * hexadecimal.
-	 */
-	static String doSHA1(byte[] buf) {
-		return doSHA1(buf, 0, buf.length);
-	}
-
-	static String doSHA1(byte[] buf, int off, int len) {
-		try {
-			MessageDigest md = MessageDigest.getInstance("SHA1");
-			md.update(buf, off, len);
-			byte[] hv = md.digest();
-			Formatter f = new Formatter();
-			for (byte b : hv) {
-				f.format("%02x", b & 0xFF);
-			}
-			return f.toString();
-		} catch (NoSuchAlgorithmException nsae) {
-			throw new Error(nsae);
 		}
 	}
 }

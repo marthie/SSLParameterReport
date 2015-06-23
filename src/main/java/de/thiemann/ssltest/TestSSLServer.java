@@ -101,6 +101,8 @@ public class TestSSLServer {
 		
 		sb.append(NL).append("Report from: ").append(String.format("%1$tF %1$tT", System.currentTimeMillis()));
 		
+		sb.append(NL).append("--------------------------------------------------------------------------------");
+				
 		sb.append(NL).append("Supported protocol versions:");
 		for (int version : supportedVersions) {
 			sb.append(" ").append(versionString(version));
@@ -108,6 +110,8 @@ public class TestSSLServer {
 
 		sb.append(NL).append("Deflate compression: ")
 				.append((compress ? "YES" : "no"));
+		
+		sb.append(NL).append("--------------------------------------------------------------------------------");
 
 		sb.append(NL).append("Supported cipher suites")
 				.append(" (ORDER IS NOT SIGNIFICANT):");
@@ -151,7 +155,7 @@ public class TestSSLServer {
 
 		}
 
-		sb.append(NL).append("----------------------");
+		sb.append(NL).append("--------------------------------------------------------------------------------");
 		if (certID.size() == 0) {
 			sb.append(NL).append("No server certificate !");
 		} else {

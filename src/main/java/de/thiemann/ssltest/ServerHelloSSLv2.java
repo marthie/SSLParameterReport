@@ -83,7 +83,7 @@ public class ServerHelloSSLv2 {
 			X509Certificate xc = (X509Certificate) cf
 					.generateCertificate(new ByteArrayInputStream(cert));
 			serverCertName = xc.getSubjectX500Principal().toString();
-			serverCertHash = IOUtil.doSHA1(cert);
+			serverCertHash = Certificate.doSHA1(cert);
 		} catch (CertificateException e) {
 			// ignored
 		}
