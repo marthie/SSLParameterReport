@@ -48,6 +48,8 @@ import java.util.TreeSet;
 
 public class TestSSLServer {
 
+	private static String NL = System.getProperty("line.separator");
+
 	static void usage() {
 		System.err.println("usage: TestSSLServer servername [ port ]");
 		System.exit(1);
@@ -71,6 +73,7 @@ public class TestSSLServer {
 		}
 		InetSocketAddress isa = new InetSocketAddress(name, port);
 
+		// check support for versions SSL3, TLS1.0, TLS1.1, TLS1.2
 		Set<Integer> supportedVersions = new TreeSet<Integer>();
 		boolean compress = false;
 		for (int v = 0x0300; v <= 0x0303; v++) {
@@ -82,9 +85,10 @@ public class TestSSLServer {
 			compress = serverHello.compression;
 		}
 
-		ServerHelloSSLv2 sh2 = connectV2(isa);
+		// check support for version SSL2
+		ServerHelloSSLv2 serverHelloV2 = connectV2(isa);
 
-		if (sh2 != null) {
+		if (serverHelloV2 != null) {
 			supportedVersions.add(0x0200);
 		}
 
@@ -92,62 +96,69 @@ public class TestSSLServer {
 			System.out.println("No SSL/TLS server at " + isa);
 			System.exit(1);
 		}
-		System.out.print("Supported versions:");
-		for (int version : supportedVersions) {
-			System.out.print(" ");
-			System.out.print(versionString(version));
-		}
-		System.out.println();
-		System.out.println("Deflate compression: " + (compress ? "YES" : "no"));
 
-		System.out.println("Supported cipher suites"
-				+ " (ORDER IS NOT SIGNIFICANT):");
+		StringBuffer sb = new StringBuffer();
+		sb.append(NL).append("Supported versions:");
+		for (int version : supportedVersions) {
+			sb.append(" ").append(versionString(version));
+		}
+
+		sb.append(NL).append("Deflate compression: ")
+				.append((compress ? "YES" : "no"));
+
+		sb.append(NL).append("Supported cipher suites")
+				.append(" (ORDER IS NOT SIGNIFICANT):");
 
 		Set<Integer> lastSupportedCipherSuite = null;
 		Map<Integer, Set<Integer>> supportedCipherSuite = new TreeMap<Integer, Set<Integer>>();
 		Set<String> certID = new TreeSet<String>();
 
-		if (sh2 != null) {
-			System.out.println("  " + versionString(0x0200));
+		if (serverHelloV2 != null) {
+			sb.append(NL).append("  ").append(versionString(0x0200));
 			Set<Integer> vc2 = new TreeSet<Integer>();
-			for (int c : sh2.cipherSuites) {
+			for (int c : serverHelloV2.cipherSuites) {
 				vc2.add(c);
 			}
 			for (int c : vc2) {
-				System.out.println("     " + cipherSuiteStringV2(c));
+				sb.append(NL).append("     ").append(cipherSuiteStringV2(c));
 			}
+
 			supportedCipherSuite.put(0x0200, vc2);
-			if (sh2.serverCertName != null) {
-				certID.add(sh2.serverCertHash + ": " + sh2.serverCertName);
+
+			if (serverHelloV2.serverCertName != null) {
+				certID.add(serverHelloV2.serverCertHash + ": "
+						+ serverHelloV2.serverCertName);
 			}
 		}
 
-		for (int v : supportedVersions) {
-			if (v == 0x0200) {
+		for (int version : supportedVersions) {
+
+			if (version == 0x0200) {
 				continue;
 			}
-			Set<Integer> vsc = supportedSuites(isa, v, certID);
-			supportedCipherSuite.put(v, vsc);
-			if (lastSupportedCipherSuite == null
-					|| !lastSupportedCipherSuite.equals(vsc)) {
-				System.out.println("  " + versionString(v));
-				for (int c : vsc) {
-					System.out.println("     " + cipherSuiteString(c));
-				}
-				lastSupportedCipherSuite = vsc;
-			} else {
-				System.out.println("  (" + versionString(v) + ": idem)");
+
+			Set<Integer> versionSupportedCiphers = supportedSuites(isa,
+					version, certID);
+			supportedCipherSuite.put(version, versionSupportedCiphers);
+
+			sb.append(NL).append("  ").append(versionString(version));
+			for (int c : versionSupportedCiphers) {
+				sb.append(NL).append("     ").append(cipherSuiteString(c));
 			}
+
 		}
-		System.out.println("----------------------");
+
+		sb.append(NL).append("----------------------");
 		if (certID.size() == 0) {
-			System.out.println("No server certificate !");
+			sb.append(NL).append("No server certificate !");
 		} else {
-			System.out.println("Server certificate(s):");
+			sb.append(NL).append("Server certificate(s):");
 			for (String cc : certID) {
-				System.out.println("  " + cc);
+				sb.append(NL).append("  ").append(cc);
 			}
 		}
+
+		System.out.println(sb.toString());
 	}
 
 	static final int CHANGE_CIPHER_SPEC = 20;
