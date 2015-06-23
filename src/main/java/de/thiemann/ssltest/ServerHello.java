@@ -2,7 +2,6 @@ package de.thiemann.ssltest;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,6 +110,7 @@ public class ServerHello {
 			return;
 		}
 
+		// Certificate List byte size
 		int len1 = Util.dec24be(buf, 0);
 		ptr += 3;
 
@@ -118,9 +118,11 @@ public class ServerHello {
 			return;
 		}
 
+		// Output order of certificate chain
 		int certOrder = 1;
 
 		while (ptr < buf.length) {
+			// certificate byte size
 			int len2 = Util.dec24be(buf, ptr);
 			if (len2 > buf.length - ptr) {
 				return;
@@ -132,14 +134,12 @@ public class ServerHello {
 			System.arraycopy(buf, ptr, ec, 0, len2);
 
 			ptr += len2;
-			try {
-				Certificate cert = new Certificate(certOrder, ec);
-				certOrder += 1;
 
-				certificateChain.add(cert);
-			} catch (CertificateException e) {
-				// ignored
-			}
+			Certificate cert = new Certificate(certOrder, ec);
+			certOrder += 1;
+
+			certificateChain.add(cert);
+
 		}
 	}
 }

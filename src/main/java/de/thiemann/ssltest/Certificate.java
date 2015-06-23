@@ -14,7 +14,6 @@ public class Certificate implements Comparable<Integer> {
 			cf = CertificateFactory.getInstance("X.509");
 		} catch (CertificateException e) {
 			e.printStackTrace();
-			System.exit(1);
 		}
 	}
 
@@ -24,10 +23,10 @@ public class Certificate implements Comparable<Integer> {
 	String name;
 	String hash;
 
-	public Certificate(int i, byte[] ec) throws CertificateException {
+	public Certificate(int i, byte[] ec) {
 		this.order = new Integer(i);
 		this.ec = ec;
-		this.certificate = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(ec));
+		this.certificate = null;
 		this.name = null;
 		this.hash = null;
 	}
@@ -36,7 +35,7 @@ public class Certificate implements Comparable<Integer> {
 		if (name != null && !name.isEmpty())
 			return name;
 
-		return name = certificate.getSubjectX500Principal().toString();
+		return name = getX509Certificate().getSubjectX500Principal().toString();
 	}
 
 	public String getHash() {
@@ -44,6 +43,19 @@ public class Certificate implements Comparable<Integer> {
 			return hash;
 
 		return hash = Util.doSHA1(ec);
+	}
+
+	public X509Certificate getX509Certificate() {
+		if (this.certificate == null && cf != null) {
+			try {
+				this.certificate = (X509Certificate) cf
+						.generateCertificate(new ByteArrayInputStream(ec));
+			} catch (CertificateException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return this.certificate;
 	}
 
 	public String toString() {
