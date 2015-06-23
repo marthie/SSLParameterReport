@@ -98,7 +98,10 @@ public class TestSSLServer {
 		}
 
 		StringBuffer sb = new StringBuffer();
-		sb.append(NL).append("Supported versions:");
+		
+		sb.append(NL).append("Report from: ").append(String.format("%1$tF %1$tT", System.currentTimeMillis()));
+		
+		sb.append(NL).append("Supported protocol versions:");
 		for (int version : supportedVersions) {
 			sb.append(" ").append(versionString(version));
 		}
@@ -162,11 +165,8 @@ public class TestSSLServer {
 	}
 
 	static final int CHANGE_CIPHER_SPEC = 20;
-	static final int ALERT = 21;
 	static final int HANDSHAKE = 22;
 	static final int APPLICATION = 23;
-
-	static final int MAX_RECORD_LEN = 16384;
 
 	/*
 	 * Get cipher suites supported by the server. This is done by repeatedly
