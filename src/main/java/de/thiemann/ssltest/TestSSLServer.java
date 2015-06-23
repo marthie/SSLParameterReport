@@ -1,7 +1,7 @@
 package de.thiemann.ssltest;
 
 /*
- * Command-line tool to test a SSL/TLS server for some vulnerabilities.
+ * Command-line tool to test a SSL/TLS parameter on a server.
  * =====================================================================
  *
  * This application connects to the provided SSL/TLS server (by name and
@@ -9,22 +9,6 @@ package de.thiemann.ssltest;
  * - supported versions (SSL 2.0, SSL 3.0, TLS 1.0 to 1.2)
  * - support of Deflate compression
  * - list of supported cipher suites (for each protocol version)
- * - BEAST/CRIME vulnerabilities.
- *
- * BEAST and CRIME are client-side attack, but the server can protect the
- * client by refusing to use the feature combinations which can be
- * attacked. For CRIME, the weakness is Deflate compression. For BEAST,
- * the attack conditions are more complex: it works with CBC ciphers with
- * SSL 3.0 and TLS 1.0. Hence, a server fails to protect the client against
- * BEAST if it does not enforce usage of RC4 over CBC ciphers under these
- * protocol versions, if given the choice.
- *
- * (The BEAST test considers only the cipher suites with strong
- * encryption; if the server supports none, then there are bigger
- * problems. We also assume that all clients support RC4-128; thus, the
- * server protects the client if it selects RC4-128 even if some strong
- * CBC-based ciphers are announced as supported by the client with a
- * higher preference level.)
  *
  * ----------------------------------------------------------------------
  * Copyright (c) 2012  Thomas Pornin <pornin@bolet.org>
@@ -118,7 +102,7 @@ public class TestSSLServer {
 
 		System.out.println("Supported cipher suites"
 				+ " (ORDER IS NOT SIGNIFICANT):");
-		
+
 		Set<Integer> lastSupportedCipherSuite = null;
 		Map<Integer, Set<Integer>> supportedCipherSuite = new TreeMap<Integer, Set<Integer>>();
 		Set<String> certID = new TreeSet<String>();
@@ -144,7 +128,8 @@ public class TestSSLServer {
 			}
 			Set<Integer> vsc = supportedSuites(isa, v, certID);
 			supportedCipherSuite.put(v, vsc);
-			if (lastSupportedCipherSuite == null || !lastSupportedCipherSuite.equals(vsc)) {
+			if (lastSupportedCipherSuite == null
+					|| !lastSupportedCipherSuite.equals(vsc)) {
 				System.out.println("  " + versionString(v));
 				for (int c : vsc) {
 					System.out.println("     " + cipherSuiteString(c));
@@ -164,7 +149,7 @@ public class TestSSLServer {
 			}
 		}
 	}
-	
+
 	static final int CHANGE_CIPHER_SPEC = 20;
 	static final int ALERT = 21;
 	static final int HANDSHAKE = 22;
@@ -199,7 +184,7 @@ public class TestSSLServer {
 			if (sh.certificateChain != null) {
 				for (Certificate cert : sh.certificateChain) {
 					serverCertID.add(cert.toString());
-				}		
+				}
 			}
 		}
 		return rs;
@@ -406,11 +391,7 @@ public class TestSSLServer {
 			0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54,
 			0x54 };
 
-
-
 	static Map<Integer, CipherSuite> CIPHER_SUITES = new TreeMap<Integer, CipherSuite>();
-
-
 
 	static final int CLEAR = 0; // no encryption
 	static final int WEAK = 1; // weak encryption: 40-bit key
