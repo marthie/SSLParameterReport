@@ -42,7 +42,7 @@ public class Certificate implements Comparable<Integer> {
 		if (hash != null && !hash.isEmpty())
 			return hash;
 
-		return hash = Util.doSHA1(ec);
+		return hash = IOUtil.doSHA1(ec);
 	}
 
 	public X509Certificate getX509Certificate() {

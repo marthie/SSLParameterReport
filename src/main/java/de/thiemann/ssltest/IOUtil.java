@@ -56,7 +56,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 
-public class Util {
+public class IOUtil {
 
 	static final void enc16be(int val, byte[] buf, int off) {
 		buf[off] = (byte) (val >>> 8);

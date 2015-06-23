@@ -60,11 +60,11 @@ public class InputRecord extends InputStream {
 
 	private void refill() throws IOException {
 		for (;;) {
-			Util.readFully(in, buffer, 0, 5);
+			IOUtil.readFully(in, buffer, 0, 5);
 			type = buffer[0] & 0xFF;
-			version = Util.dec16be(buffer, 1);
-			end = Util.dec16be(buffer, 3);
-			Util.readFully(in, buffer, 0, end);
+			version = IOUtil.dec16be(buffer, 1);
+			end = IOUtil.dec16be(buffer, 3);
+			IOUtil.readFully(in, buffer, 0, end);
 			ptr = 0;
 			if (type != expectedType) {
 				if (type == ALERT) {

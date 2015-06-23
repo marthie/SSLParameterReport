@@ -74,18 +74,18 @@ public class ServerHello {
 		 * be 2 ("ServerHello"), then comes the message size (over 3 bytes).
 		 */
 		byte[] buf = new byte[4];
-		Util.readFully(rec, buf);
+		IOUtil.readFully(rec, buf);
 		recordVersion = rec.getVersion();
 		if (buf[0] != 2) {
 			throw new IOException("unexpected handshake" + " message type: "
 					+ (buf[0] & 0xFF));
 		}
-		buf = new byte[Util.dec24be(buf, 1)];
+		buf = new byte[IOUtil.dec24be(buf, 1)];
 
 		/*
 		 * Read the complete message in RAM.
 		 */
-		Util.readFully(rec, buf);
+		IOUtil.readFully(rec, buf);
 		int ptr = 0;
 
 		/*
@@ -94,7 +94,7 @@ public class ServerHello {
 		if (ptr + 2 > buf.length) {
 			throw new IOException("invalid ServerHello");
 		}
-		protoVersion = Util.dec16be(buf, 0);
+		protoVersion = IOUtil.dec16be(buf, 0);
 		ptr += 2;
 
 		/*
@@ -104,7 +104,7 @@ public class ServerHello {
 		if (ptr + 32 > buf.length) {
 			throw new IOException("invalid ServerHello");
 		}
-		serverTime = 1000L * (Util.dec32be(buf, ptr) & 0xFFFFFFFFL);
+		serverTime = 1000L * (IOUtil.dec32be(buf, ptr) & 0xFFFFFFFFL);
 		ptr += 32;
 
 		/*
@@ -121,7 +121,7 @@ public class ServerHello {
 		if (ptr + 3 > buf.length) {
 			throw new IOException("invalid ServerHello");
 		}
-		cipherSuite = Util.dec16be(buf, ptr);
+		cipherSuite = IOUtil.dec16be(buf, ptr);
 		compression = (buf[ptr + 2] & 0xFF) == 1 ? true : false;
 
 		/*
@@ -134,10 +134,10 @@ public class ServerHello {
 		 */
 		for (;;) {
 			buf = new byte[4];
-			Util.readFully(rec, buf);
+			IOUtil.readFully(rec, buf);
 			int mt = buf[0] & 0xFF;
-			buf = new byte[Util.dec24be(buf, 1)];
-			Util.readFully(rec, buf);
+			buf = new byte[IOUtil.dec24be(buf, 1)];
+			IOUtil.readFully(rec, buf);
 			switch (mt) {
 			case 11:
 				certificateChain = new ArrayList<Certificate>();
@@ -158,7 +158,7 @@ public class ServerHello {
 		}
 
 		// Certificate List byte size
-		int len1 = Util.dec24be(buf, 0);
+		int len1 = IOUtil.dec24be(buf, 0);
 		ptr += 3;
 
 		if (len1 != buf.length - 3) {
@@ -170,7 +170,7 @@ public class ServerHello {
 
 		while (ptr < buf.length) {
 			// certificate byte size
-			int len2 = Util.dec24be(buf, ptr);
+			int len2 = IOUtil.dec24be(buf, ptr);
 			if (len2 > buf.length - ptr) {
 				return;
 			}

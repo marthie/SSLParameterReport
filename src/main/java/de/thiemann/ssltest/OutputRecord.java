@@ -56,8 +56,8 @@ public class OutputRecord extends OutputStream {
 
 	public void flush() throws IOException {
 		buffer[0] = (byte) type;
-		Util.enc16be(version, buffer, 1);
-		Util.enc16be(ptr - 5, buffer, 3);
+		IOUtil.enc16be(version, buffer, 1);
+		IOUtil.enc16be(ptr - 5, buffer, 3);
 		out.write(buffer, 0, ptr);
 		out.flush();
 		ptr = 5;

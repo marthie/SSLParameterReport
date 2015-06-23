@@ -30,6 +30,5 @@ public class CipherSuite {
 
 	int suite;
 	String name;
-	boolean isCBC;
-	int strength;
+	
 }
