@@ -1,12 +1,32 @@
 package de.thiemann.ssltest;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.Formatter;
+
+import javax.security.auth.x500.X500Principal;
+import javax.swing.DefaultListSelectionModel;
+
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Integer;
+import org.bouncycastle.asn1.ASN1Object;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERBitString;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
 public class Certificate implements Comparable<Integer> {
 
@@ -19,7 +39,7 @@ public class Certificate implements Comparable<Integer> {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static String NL = System.getProperty("line.separator");
 
 	Integer order;
@@ -34,13 +54,6 @@ public class Certificate implements Comparable<Integer> {
 		this.certificate = null;
 		this.name = null;
 		this.hash = null;
-	}
-
-	public String getName() {
-		if (name != null && !name.isEmpty())
-			return name;
-
-		return name = getX509Certificate().getSubjectX500Principal().toString();
 	}
 
 	public String getHash() {
@@ -64,18 +77,65 @@ public class Certificate implements Comparable<Integer> {
 	}
 
 	public String toString() {
-
-		return "(" + order.toString() + ")" + getHash() + ": " + getName();
+		return certificateReport();
 	}
-	
-	private String report() {
+
+	public String certificateReport() {
 		StringBuffer sb = new StringBuffer();
-		
+
 		X509Certificate cert = getX509Certificate();
+
+		sb.append(NL)
+				.append("=========================== Server Certificate #")
+				.append(order).append(" ==============================");
+
+		// certificate version
+		sb.append(NL).append("Certificate Version: ").append(cert.getVersion());
+
+		// common name
+		X500Principal subject = cert.getSubjectX500Principal();
+		X500Name name = new X500Name(subject.getName(X500Principal.RFC2253));
+
+		RDN cn = name.getRDNs(BCStyle.CN)[0];
+
+		if (cn != null)
+			sb.append(NL).append("Common Name: ")
+					.append(cn.getFirst().getValue());
+
+		// not before
+		Date notBefore = cert.getNotBefore();
+
+		if (notBefore != null)
+			sb.append(NL).append("Not Before: ")
+					.append(String.format("%1$tF %1$tT", notBefore));
+
+		// not after
+		Date notAfter = cert.getNotAfter();
+
+		if (notAfter != null)
+			sb.append(NL).append("Not After: ")
+					.append(String.format("%1$tF %1$tT", notAfter));
+
+		// public key algorithm & size
+		PublicKey pubKey = cert.getPublicKey();
 		
-		sb.append(NL).append("Order send by Server: ").append(order);
-		
-		return null;
+		try {
+			SubjectPublicKeyInfo subPubKeyInfo = new SubjectPublicKeyInfo((ASN1Sequence) ASN1Object.fromByteArray(pubKey.getEncoded()));
+			AlgorithmIdentifier aid = subPubKeyInfo.getAlgorithmId();
+			
+			DERSequence seq = (DERSequence) subPubKeyInfo.getPublicKey();
+			ASN1Integer modulus = (ASN1Integer) seq.getObjectAt(0);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if (pubKey != null)
+			sb.append(NL).append("Public Key Information: ")
+					.append(pubKey.getAlgorithm()).append('(').append(0).append(" bits)");
+		sb.append(NL)
+				.append("================================================================================");
+
+		return sb.toString();
 	}
 
 	@Override
