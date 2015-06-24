@@ -2,6 +2,7 @@ package de.thiemann.ssltest;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -9,23 +10,17 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Formatter;
 
 import javax.security.auth.x500.X500Principal;
-import javax.swing.DefaultListSelectionModel;
 
-import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Object;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
 public class Certificate implements Comparable<Integer> {
@@ -118,20 +113,41 @@ public class Certificate implements Comparable<Integer> {
 
 		// public key algorithm & size
 		PublicKey pubKey = cert.getPublicKey();
-		
-		try {
-			SubjectPublicKeyInfo subPubKeyInfo = new SubjectPublicKeyInfo((ASN1Sequence) ASN1Object.fromByteArray(pubKey.getEncoded()));
-			AlgorithmIdentifier aid = subPubKeyInfo.getAlgorithmId();
-			
-			DERSequence seq = (DERSequence) subPubKeyInfo.getPublicKey();
-			ASN1Integer modulus = (ASN1Integer) seq.getObjectAt(0);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
-		if (pubKey != null)
-			sb.append(NL).append("Public Key Information: ")
-					.append(pubKey.getAlgorithm()).append('(').append(0).append(" bits)");
+		if (pubKey != null) {
+			sb.append(NL).append("Public Key Information: ");
+
+			try {
+				SubjectPublicKeyInfo subPubKeyInfo = new SubjectPublicKeyInfo(
+						(ASN1Sequence) ASN1Object.fromByteArray(pubKey
+								.getEncoded()));
+				String asn1Id = subPubKeyInfo.getAlgorithmId().getAlgorithm()
+						.getId();
+
+				if (asn1Id.equals(ASN1PublicKeyIds.RSA.getId())) {
+					DERSequence seq = (DERSequence) subPubKeyInfo
+							.getPublicKey();
+					ASN1Integer iModulus = (ASN1Integer) seq.getObjectAt(0);
+					BigInteger modulus = iModulus.getPositiveValue();
+
+					sb.append(ASN1PublicKeyIds.RSA.name()).append(" (")
+							.append(modulus.bitLength()).append(')');
+				} else if (asn1Id.equals(ASN1PublicKeyIds.DSA.getId())) {
+					sb.append(ASN1PublicKeyIds.DSA.name());
+				} else if (asn1Id.equals(ASN1PublicKeyIds.Diffie_Hellman
+						.getId())) {
+					sb.append(ASN1PublicKeyIds.Diffie_Hellman.name());
+				} else if (asn1Id.equals(ASN1PublicKeyIds.KEA.getId())) {
+					sb.append(ASN1PublicKeyIds.KEA.name());
+				} else if (asn1Id.equals(ASN1PublicKeyIds.ECDH.getId())) {
+					sb.append(ASN1PublicKeyIds.ECDH.name());
+				}
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
 		sb.append(NL)
 				.append("================================================================================");
 
