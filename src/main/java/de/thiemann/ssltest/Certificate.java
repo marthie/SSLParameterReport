@@ -8,9 +8,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Formatter;
+import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -18,9 +21,7 @@ import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
 public class Certificate implements Comparable<Integer> {
@@ -40,22 +41,11 @@ public class Certificate implements Comparable<Integer> {
 	Integer order;
 	byte[] ec;
 	X509Certificate certificate;
-	String name;
-	String hash;
 
 	public Certificate(int i, byte[] ec) {
 		this.order = new Integer(i);
 		this.ec = ec;
 		this.certificate = null;
-		this.name = null;
-		this.hash = null;
-	}
-
-	public String getHash() {
-		if (hash != null && !hash.isEmpty())
-			return hash;
-
-		return hash = doSHA1(ec);
 	}
 
 	public X509Certificate getX509Certificate() {
@@ -89,13 +79,22 @@ public class Certificate implements Comparable<Integer> {
 
 		// common name
 		X500Principal subject = cert.getSubjectX500Principal();
-		X500Name name = new X500Name(subject.getName(X500Principal.RFC2253));
+		X500Name subjectName = new X500Name(
+				subject.getName(X500Principal.RFC2253));
 
-		RDN cn = name.getRDNs(BCStyle.CN)[0];
+		sb.append(NL).append("Subject: ").append(subjectName.toString());
 
-		if (cn != null)
-			sb.append(NL).append("Common Name: ")
-					.append(cn.getFirst().getValue());
+		// alternative names
+		Collection<List<?>> alternativeNames = null;
+		try {
+			alternativeNames = cert.getSubjectAlternativeNames();
+		} catch (CertificateParsingException e) {
+			e.printStackTrace();
+		}
+
+		if (alternativeNames != null)
+			sb.append(NL).append("Alternative Names: ")
+					.append(getAlternativeNamesString(alternativeNames));
 
 		// not before
 		Date notBefore = cert.getNotBefore();
@@ -115,41 +114,99 @@ public class Certificate implements Comparable<Integer> {
 		PublicKey pubKey = cert.getPublicKey();
 
 		if (pubKey != null) {
-			sb.append(NL).append("Public Key Information: ");
-
-			try {
-				SubjectPublicKeyInfo subPubKeyInfo = new SubjectPublicKeyInfo(
-						(ASN1Sequence) ASN1Object.fromByteArray(pubKey
-								.getEncoded()));
-				String asn1Id = subPubKeyInfo.getAlgorithmId().getAlgorithm()
-						.getId();
-
-				if (asn1Id.equals(ASN1PublicKeyIds.RSA.getId())) {
-					DERSequence seq = (DERSequence) subPubKeyInfo
-							.getPublicKey();
-					ASN1Integer iModulus = (ASN1Integer) seq.getObjectAt(0);
-					BigInteger modulus = iModulus.getPositiveValue();
-
-					sb.append(ASN1PublicKeyIds.RSA.name()).append(" (")
-							.append(modulus.bitLength()).append(')');
-				} else if (asn1Id.equals(ASN1PublicKeyIds.DSA.getId())) {
-					sb.append(ASN1PublicKeyIds.DSA.name());
-				} else if (asn1Id.equals(ASN1PublicKeyIds.Diffie_Hellman
-						.getId())) {
-					sb.append(ASN1PublicKeyIds.Diffie_Hellman.name());
-				} else if (asn1Id.equals(ASN1PublicKeyIds.KEA.getId())) {
-					sb.append(ASN1PublicKeyIds.KEA.name());
-				} else if (asn1Id.equals(ASN1PublicKeyIds.ECDH.getId())) {
-					sb.append(ASN1PublicKeyIds.ECDH.name());
-				}
-				
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
+			sb.append(NL).append("Key: ")
+					.append(getKeyString(pubKey.getEncoded()));
 		}
+
+		// issuer
+		X500Principal issuer = cert.getIssuerX500Principal();
+		X500Name issuerName = new X500Name(
+				issuer.getName(X500Principal.RFC2253));
+		sb.append(NL).append("Issuer: ").append(issuerName.toString());
+
+		// signature algorithm
+		sb.append(NL).append("Signature Algorithm: ").append(getSignatureAlgorithmString(cert.getSigAlgOID()));
+		
+		// fingerprint
+		sb.append(NL).append("Fingerprint: ").append(doSHA1(ec));
+		
 		sb.append(NL)
 				.append("================================================================================");
+
+		return sb.toString();
+	}
+
+	public static String getAlternativeNamesString(
+			Collection<List<?>> alternativeNames) {
+		if (alternativeNames == null)
+			return new String();
+
+		StringBuffer sb = new StringBuffer();
+		for (List<?> entry : alternativeNames) {
+			sb.append(' ').append(entry.get(1).toString()).append(',');
+		}
+
+		sb.deleteCharAt(sb.length() - 1);
+		return sb.toString();
+	}
+
+	public static String getKeyString(byte[] encodedPublicKey) {
+		StringBuffer sb = new StringBuffer();
+
+		try {
+			SubjectPublicKeyInfo subPubKeyInfo = new SubjectPublicKeyInfo(
+					(ASN1Sequence) ASN1Object.fromByteArray(encodedPublicKey));
+			String asn1PubKeyId = subPubKeyInfo.getAlgorithmId().getAlgorithm()
+					.getId();
+
+			if (asn1PubKeyId.equals(ASN1PublicKeyIds.RSA.getOid())) {
+				DERSequence seq = (DERSequence) subPubKeyInfo.getPublicKey();
+				ASN1Integer iModulus = (ASN1Integer) seq.getObjectAt(0);
+				BigInteger modulus = iModulus.getPositiveValue();
+
+				sb.append(ASN1PublicKeyIds.RSA.name()).append(" (")
+						.append(modulus.bitLength()).append(')');
+			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.DSA.getOid())) {
+				sb.append(ASN1PublicKeyIds.DSA.name());
+			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.Diffie_Hellman
+					.getOid())) {
+				sb.append(ASN1PublicKeyIds.Diffie_Hellman.name());
+			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.KEA.getOid())) {
+				sb.append(ASN1PublicKeyIds.KEA.name());
+			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.ECDH.getOid())) {
+				sb.append(ASN1PublicKeyIds.ECDH.name());
+			} else
+				sb.append("Unknown public key! OID: ").append(asn1PubKeyId);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return sb.toString();
+	}
+	
+	public static String getSignatureAlgorithmString(String oid) {
+		StringBuffer sb = new StringBuffer();
+
+
+			if (ASN1SignatureAlgorithmsIds.MD2.getOid().equals(oid)) {
+				sb.append(ASN1SignatureAlgorithmsIds.MD2.name());
+			} else if (ASN1SignatureAlgorithmsIds.MD5.getOid().equals(oid)) {
+				sb.append(ASN1SignatureAlgorithmsIds.MD5.name());
+			} else if (ASN1SignatureAlgorithmsIds.SHA1.getOid().equals(oid)) {
+				sb.append(ASN1SignatureAlgorithmsIds.SHA1.name());
+			} else if (ASN1SignatureAlgorithmsIds.MD2WithRSAEncryption.getOid().equals(oid)) {
+				sb.append(ASN1SignatureAlgorithmsIds.MD2WithRSAEncryption.name());
+			} else if (ASN1SignatureAlgorithmsIds.MD5WithRSAEncryption.getOid().equals(oid)) {
+				sb.append(ASN1SignatureAlgorithmsIds.MD5WithRSAEncryption.name());
+			} else if (ASN1SignatureAlgorithmsIds.SHA1WithRSAEncryption.getOid().equals(oid)) {
+				sb.append(ASN1SignatureAlgorithmsIds.SHA1WithRSAEncryption.name());
+			} else if (ASN1SignatureAlgorithmsIds.DSAWithSHA1.getOid().equals(oid)) {
+				sb.append(ASN1SignatureAlgorithmsIds.DSAWithSHA1.name());
+			} else if (ASN1SignatureAlgorithmsIds.ECDSAWithSHA1.getOid().equals(oid)) {
+				sb.append(ASN1SignatureAlgorithmsIds.ECDSAWithSHA1.name());
+			}else
+				sb.append("Unknown signature algorithm! OID: ").append(oid);
 
 		return sb.toString();
 	}

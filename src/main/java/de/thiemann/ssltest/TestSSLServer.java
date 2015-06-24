@@ -77,7 +77,8 @@ public class TestSSLServer {
 		Set<Integer> supportedVersions = new TreeSet<Integer>();
 		boolean compress = false;
 		for (int v = 0x0300; v <= 0x0303; v++) {
-			ServerHello serverHello = connect(isa, v, CipherSuiteUtil.CIPHER_SUITES.keySet());
+			ServerHello serverHello = connect(isa, v,
+					CipherSuiteUtil.CIPHER_SUITES.keySet());
 			if (serverHello == null) {
 				continue;
 			}
@@ -98,11 +99,14 @@ public class TestSSLServer {
 		}
 
 		StringBuffer sb = new StringBuffer();
-		
-		sb.append(NL).append("Report from: ").append(String.format("%1$tF %1$tT", System.currentTimeMillis()));
-		
-		sb.append(NL).append("--------------------------------------------------------------------------------");
-				
+
+		sb.append(NL)
+				.append("Report from: ")
+				.append(String.format("%1$tF %1$tT", System.currentTimeMillis()));
+
+		sb.append(NL)
+				.append("--------------------------------------------------------------------------------");
+
 		sb.append(NL).append("Supported protocol versions:");
 		for (int version : supportedVersions) {
 			sb.append(" ").append(versionString(version));
@@ -110,12 +114,12 @@ public class TestSSLServer {
 
 		sb.append(NL).append("Deflate compression: ")
 				.append((compress ? "YES" : "no"));
-		
-		sb.append(NL).append("--------------------------------------------------------------------------------");
+
+		sb.append(NL)
+				.append("--------------------------------------------------------------------------------");
 
 		sb.append(NL).append("Supported cipher suites")
 				.append(" (ORDER IS NOT SIGNIFICANT):");
-
 
 		Map<Integer, Set<Integer>> supportedCipherSuite = new TreeMap<Integer, Set<Integer>>();
 		Set<String> certID = new TreeSet<String>();
@@ -127,7 +131,8 @@ public class TestSSLServer {
 				vc2.add(c);
 			}
 			for (int c : vc2) {
-				sb.append(NL).append("     ").append(CipherSuiteUtil.cipherSuiteStringV2(c));
+				sb.append(NL).append("     ")
+						.append(CipherSuiteUtil.cipherSuiteStringV2(c));
 			}
 
 			supportedCipherSuite.put(0x0200, vc2);
@@ -144,18 +149,21 @@ public class TestSSLServer {
 				continue;
 			}
 
-			Set<Integer> versionSupportedCiphers = supportedSuites(isa,
-					version, certID);
+			Set<Integer> versionSupportedCiphers = supportedSuites(isa, version);
 			supportedCipherSuite.put(version, versionSupportedCiphers);
 
+			addCertificates(certID, isa, version);
+			
 			sb.append(NL).append("  ").append(versionString(version));
 			for (int c : versionSupportedCiphers) {
-				sb.append(NL).append("     ").append(CipherSuiteUtil.cipherSuiteString(c));
+				sb.append(NL).append("     ")
+						.append(CipherSuiteUtil.cipherSuiteString(c));
 			}
 
 		}
 
-		sb.append(NL).append("--------------------------------------------------------------------------------");
+		sb.append(NL)
+				.append("--------------------------------------------------------------------------------");
 		if (certID.size() == 0) {
 			sb.append(NL).append("No server certificate !");
 		} else {
@@ -178,9 +186,9 @@ public class TestSSLServer {
 	 * suites the suite which the server just selected. We keep on until the
 	 * server can no longer respond to us with a ServerHello.
 	 */
-	static Set<Integer> supportedSuites(InetSocketAddress isa, int version,
-			Set<String> serverCertID) {
-		Set<Integer> cs = new TreeSet<Integer>(CipherSuiteUtil.CIPHER_SUITES.keySet());
+	static Set<Integer> supportedSuites(InetSocketAddress isa, int version) {
+		Set<Integer> cs = new TreeSet<Integer>(
+				CipherSuiteUtil.CIPHER_SUITES.keySet());
 		Set<Integer> rs = new TreeSet<Integer>();
 		for (;;) {
 			ServerHello sh = connect(isa, version, cs);
@@ -196,13 +204,20 @@ public class TestSSLServer {
 			}
 			cs.remove(sh.cipherSuite);
 			rs.add(sh.cipherSuite);
-			if (sh.certificateChain != null) {
-				for (Certificate cert : sh.certificateChain) {
-					serverCertID.add(cert.toString());
-				}
-			}
 		}
 		return rs;
+	}
+
+	public static void addCertificates(Set<String> serverCerts,
+			InetSocketAddress isa, int version) {
+		ServerHello sh = connect(isa, version,
+				CipherSuiteUtil.CIPHER_SUITES.keySet());
+
+		if (sh != null && sh.certificateChain != null) {
+			for (Certificate cert : sh.certificateChain) {
+				serverCerts.add(cert.toString());
+			}
+		}
 	}
 
 	static String versionString(int version) {

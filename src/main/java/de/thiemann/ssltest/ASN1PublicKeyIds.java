@@ -10,13 +10,13 @@ public enum ASN1PublicKeyIds {
 	KEA("2.16.840.1.101.2.1.1.22"),
 	ECDH("1.2.840.10045.2.1");
 
-	private String id;
+	private String oid;
 	
-	private ASN1PublicKeyIds(String id) {
-		this.id = id;
+	private ASN1PublicKeyIds(String oid) {
+		this.oid = oid;
 	}
 
-	public String getId() {
-		return id;
+	public String getOid() {
+		return oid;
 	}
 }
