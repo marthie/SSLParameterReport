@@ -59,8 +59,10 @@ public class SSLParameterReport {
 		if (args.length == 0 || args.length > 2) {
 			usage();
 		}
-		String name = args[0];
+
+		String webName = args[0];
 		int port = 443;
+
 		if (args.length == 2) {
 			try {
 				port = Integer.parseInt(args[1]);
@@ -71,13 +73,36 @@ public class SSLParameterReport {
 				usage();
 			}
 		}
-		InetSocketAddress isa = new InetSocketAddress(name, port);
+
+		SSLParameterReport reportObject = new SSLParameterReport(webName, port);
+		System.out.println(reportObject.generateReport());
+	}
+
+	private String webName;
+	private int port;
+
+	public SSLParameterReport(String webName, int port) {
+		super();
+		this.webName = webName;
+		this.port = port;
+	}
+
+	public String generateReport() {
+		StringBuffer sb = new StringBuffer();
+
+		InetSocketAddress isa = new InetSocketAddress(this.webName, this.port);
 
 		// check support for versions SSL3, TLS1.0, TLS1.1, TLS1.2
+		int sslVersions[] = { 0x0200, 0x0300, 0x0301, 0x0302, 0x0303 };
+
 		Set<Integer> supportedVersions = new TreeSet<Integer>();
 		boolean compress = false;
-		for (int v = 0x0300; v <= 0x0303; v++) {
-			ServerHello serverHello = connect(isa, v,
+		for (int version : sslVersions) {
+
+			if (version == 0x0200)
+				continue;
+
+			ServerHello serverHello = connect(isa, version,
 					CipherSuiteUtil.CIPHER_SUITES.keySet());
 			if (serverHello == null) {
 				continue;
@@ -94,18 +119,26 @@ public class SSLParameterReport {
 		}
 
 		if (supportedVersions.size() == 0) {
-			System.out.println("No SSL/TLS server at " + isa);
-			System.exit(1);
+			sb.append(NL).append("No SSL/TLS server at " + isa);
+			return sb.toString();
 		}
 
-		StringBuffer sb = new StringBuffer();
+		sb.append(NL)
+				.append("**************************** SSL Parameter Report *****************************");
+		sb.append(NL)
+				.append(NL)
+				.append("----------------------------- Common Information -------------------------------");
 
+		// output common values
 		sb.append(NL)
 				.append("Report from: ")
 				.append(String.format("%1$tF %1$tT", System.currentTimeMillis()));
+		sb.append(NL).append("Web-Name: ").append(webName);
+		sb.append(NL).append("IP-Address: ").append(isa);
+		sb.append(NL).append("Port: ").append(port);
 
-		sb.append(NL)
-				.append("--------------------------------------------------------------------------------");
+		sb.append(NL).append(NL)
+				.append("--------------------------------- Protocol -------------------------------------");
 
 		sb.append(NL).append("Supported protocol versions:");
 		for (int version : supportedVersions) {
@@ -115,11 +148,8 @@ public class SSLParameterReport {
 		sb.append(NL).append("Deflate compression: ")
 				.append((compress ? "YES" : "no"));
 
-		sb.append(NL)
-				.append("--------------------------------------------------------------------------------");
-
-		sb.append(NL).append("Supported cipher suites")
-				.append(" (ORDER IS NOT SIGNIFICANT):");
+		sb.append(NL).append(NL)
+				.append("-------------------------- Supported Cipher Suites -----------------------------");
 
 		Map<Integer, Set<Integer>> supportedCipherSuite = new TreeMap<Integer, Set<Integer>>();
 		Set<String> certID = new TreeSet<String>();
@@ -153,27 +183,26 @@ public class SSLParameterReport {
 			supportedCipherSuite.put(version, versionSupportedCiphers);
 
 			addCertificates(certID, isa, version);
-			
+
 			sb.append(NL).append("  ").append(versionString(version));
 			for (int c : versionSupportedCiphers) {
-				sb.append(NL).append("     ")
+				sb.append(NL).append("      ")
 						.append(CipherSuiteUtil.cipherSuiteString(c));
 			}
 
 		}
 
-		sb.append(NL)
-				.append("--------------------------------------------------------------------------------");
+		sb.append(NL).append(NL)
+				.append("---------------------------- Server certificates -------------------------------");
 		if (certID.size() == 0) {
-			sb.append(NL).append("No server certificate !");
+			sb.append(NL).append("No server certificate!");
 		} else {
-			sb.append(NL).append("Server certificate(s):");
 			for (String cc : certID) {
 				sb.append(NL).append("  ").append(cc);
 			}
 		}
 
-		System.out.println(sb.toString());
+		return sb.toString();
 	}
 
 	static final int CHANGE_CIPHER_SPEC = 20;
