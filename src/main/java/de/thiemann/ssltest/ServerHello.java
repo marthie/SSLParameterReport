@@ -67,7 +67,7 @@ public class ServerHello {
 
 	ServerHello(InputStream in) throws IOException {
 		InputRecord rec = new InputRecord(in);
-		rec.setExpectedType(TestSSLServer.HANDSHAKE);
+		rec.setExpectedType(SSLParameterOutput.HANDSHAKE);
 
 		/*
 		 * First, get the handshake message header (4 bytes). First byte should
