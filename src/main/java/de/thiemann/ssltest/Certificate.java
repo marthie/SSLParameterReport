@@ -12,16 +12,23 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Formatter;
 import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.DistributionPoint;
+import org.bouncycastle.asn1.x509.DistributionPointName;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
 public class Certificate implements Comparable<Integer> {
@@ -125,15 +132,86 @@ public class Certificate implements Comparable<Integer> {
 		sb.append(NL).append("Issuer: ").append(issuerName.toString());
 
 		// signature algorithm
-		sb.append(NL).append("Signature Algorithm: ").append(getSignatureAlgorithmString(cert.getSigAlgOID()));
-		
+		sb.append(NL).append("Signature Algorithm: ")
+				.append(getSignatureAlgorithmString(cert.getSigAlgOID()));
+
 		// fingerprint
 		sb.append(NL).append("Fingerprint: ").append(doSHA1(ec));
-		
+
+		// CRL Distribution Points
+
+		byte[] extension = cert
+				.getExtensionValue(ASN1CertificateExtensionsIds.CRLDistributionPoints
+						.getOid());
+
+		String crlDistributionPoints = getDistributionPointsString(extension);
+
+		sb.append(NL).append("CRL Distribution Points: ");
+		if (crlDistributionPoints != null)
+			sb.append(crlDistributionPoints);
+		else
+			sb.append("No");
+
 		sb.append(NL)
 				.append("================================================================================");
 
 		return sb.toString();
+	}
+
+	public static String getDistributionPointsString(byte[] extension) {
+		if (extension == null)
+			return null;
+
+		ASN1Sequence crlDistributionPoints = null;
+
+		try {
+			ASN1Object o = null;
+
+			o = (DEROctetString) ASN1Object.fromByteArray(extension);
+			if (o instanceof DEROctetString) {
+				DEROctetString octStr = (DEROctetString) o;
+
+				o = ASN1Object.fromByteArray(octStr.getOctets());
+				if (o instanceof ASN1Sequence) {
+					crlDistributionPoints = (ASN1Sequence) o;
+				}
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if (crlDistributionPoints == null)
+			return null;
+
+		StringBuffer sb = new StringBuffer();
+		Enumeration<?> e = crlDistributionPoints.getObjects();
+		while (e.hasMoreElements()) {
+			Object o = e.nextElement();
+
+			if (o instanceof ASN1Sequence) {
+				ASN1Sequence seqDP = (ASN1Sequence) o;
+				DistributionPoint dp = new DistributionPoint(seqDP);
+
+				DistributionPointName dpn = dp.getDistributionPoint();
+				ASN1Encodable enc = dpn.getName();
+
+				if (enc instanceof GeneralNames) {
+					GeneralNames gns = (GeneralNames) enc;
+					
+					for(GeneralName gn : gns.getNames()) {
+						sb.append(' ').append(gn.toString()).append(',');
+					}
+				}
+			}
+		}
+		
+		sb.deleteCharAt(sb.length() - 1);
+
+		if(sb.length() > 0)
+			return sb.toString();
+		else
+			return null;
 	}
 
 	public static String getAlternativeNamesString(
@@ -184,29 +262,22 @@ public class Certificate implements Comparable<Integer> {
 
 		return sb.toString();
 	}
-	
+
 	public static String getSignatureAlgorithmString(String oid) {
 		StringBuffer sb = new StringBuffer();
 
+		boolean foundAlgorithm = false;
+		for (ASN1SignatureAlgorithmsIds sa : ASN1SignatureAlgorithmsIds
+				.values()) {
+			if (sa.getOid().equals(oid)) {
+				sb.append(sa.name()).append(" (").append(oid).append(')');
+				foundAlgorithm = true;
+				break;
+			}
+		}
 
-			if (ASN1SignatureAlgorithmsIds.MD2.getOid().equals(oid)) {
-				sb.append(ASN1SignatureAlgorithmsIds.MD2.name());
-			} else if (ASN1SignatureAlgorithmsIds.MD5.getOid().equals(oid)) {
-				sb.append(ASN1SignatureAlgorithmsIds.MD5.name());
-			} else if (ASN1SignatureAlgorithmsIds.SHA1.getOid().equals(oid)) {
-				sb.append(ASN1SignatureAlgorithmsIds.SHA1.name());
-			} else if (ASN1SignatureAlgorithmsIds.MD2WithRSAEncryption.getOid().equals(oid)) {
-				sb.append(ASN1SignatureAlgorithmsIds.MD2WithRSAEncryption.name());
-			} else if (ASN1SignatureAlgorithmsIds.MD5WithRSAEncryption.getOid().equals(oid)) {
-				sb.append(ASN1SignatureAlgorithmsIds.MD5WithRSAEncryption.name());
-			} else if (ASN1SignatureAlgorithmsIds.SHA1WithRSAEncryption.getOid().equals(oid)) {
-				sb.append(ASN1SignatureAlgorithmsIds.SHA1WithRSAEncryption.name());
-			} else if (ASN1SignatureAlgorithmsIds.DSAWithSHA1.getOid().equals(oid)) {
-				sb.append(ASN1SignatureAlgorithmsIds.DSAWithSHA1.name());
-			} else if (ASN1SignatureAlgorithmsIds.ECDSAWithSHA1.getOid().equals(oid)) {
-				sb.append(ASN1SignatureAlgorithmsIds.ECDSAWithSHA1.name());
-			}else
-				sb.append("Unknown signature algorithm! OID: ").append(oid);
+		if (!foundAlgorithm)
+			sb.append("Unknown signature algorithm! OID: ").append(oid);
 
 		return sb.toString();
 	}
