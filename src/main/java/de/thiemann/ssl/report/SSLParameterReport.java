@@ -155,7 +155,7 @@ public class SSLParameterReport {
 		Set<String> certID = new TreeSet<String>();
 
 		if (serverHelloV2 != null) {
-			sb.append(NL).append("  ").append(versionString(0x0200));
+			sb.append(NL).append(NL).append("  ").append(versionString(0x0200));
 			Set<Integer> vc2 = new TreeSet<Integer>();
 			for (int c : serverHelloV2.cipherSuites) {
 				vc2.add(c);
@@ -184,7 +184,7 @@ public class SSLParameterReport {
 
 			addCertificates(certID, isa, version);
 
-			sb.append(NL).append("  ").append(versionString(version));
+			sb.append(NL).append(NL).append("  ").append(versionString(version));
 			for (int c : versionSupportedCiphers) {
 				sb.append(NL).append("      ")
 						.append(CipherSuiteUtil.cipherSuiteString(c));
