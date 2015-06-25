@@ -1,5 +1,9 @@
 package de.thiemann.ssl.report;
 
+/*
+ * Copyright (c) 2015  Marius Thiemann <marius dot thiemann at ploin dot de>
+ */
+
 public enum ASN1PublicKeyIds {
 	
 	// From RFC3279
