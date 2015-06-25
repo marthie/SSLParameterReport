@@ -46,12 +46,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class SSLParameterOutput {
+public class SSLParameterReport {
 
 	private static String NL = System.getProperty("line.separator");
 
 	static void usage() {
-		System.err.println("usage: SSLParameterOutput servername [ port ]");
+		System.err.println("usage: SSLParameterReport servername [ port ]");
 		System.exit(1);
 	}
 
