@@ -1,4 +1,4 @@
-package de.thiemann.ssltest;
+package de.thiemann.ssl.report;
 
 /*
  * A custom stream which expects SSL/TLS records (no encryption) and

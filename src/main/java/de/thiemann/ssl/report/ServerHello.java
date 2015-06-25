@@ -1,4 +1,4 @@
-package de.thiemann.ssltest;
+package de.thiemann.ssl.report;
 
 /*
  * This class decodes a ServerHello message from the server. The fields we

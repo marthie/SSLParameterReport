@@ -1,4 +1,4 @@
-package de.thiemann.ssltest;
+package de.thiemann.ssl.report;
 
 public enum ASN1PublicKeyIds {
 	

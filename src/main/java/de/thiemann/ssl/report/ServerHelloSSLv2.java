@@ -1,4 +1,4 @@
-package de.thiemann.ssltest;
+package de.thiemann.ssl.report;
 
 /*
  * This class represents the response of a server which knows $ SSLv2. It

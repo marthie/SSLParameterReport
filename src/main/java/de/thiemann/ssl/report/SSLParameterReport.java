@@ -1,4 +1,4 @@
-package de.thiemann.ssltest;
+package de.thiemann.ssl.report;
 
 /*
  * Command-line tool to test a SSL/TLS parameter on a server.
