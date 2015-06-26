@@ -56,10 +56,7 @@ public class CipherSuiteUtil {
 	}
 
 	private static final void makeCS(int suite, String name) {
-		CipherSuite cs = new CipherSuite();
-		cs.suite = suite;
-		cs.name = name;
-
+		CipherSuite cs = new CipherSuite(suite, name);
 		CIPHER_SUITES.put(suite, cs);
 	}
 
@@ -76,7 +73,7 @@ public class CipherSuiteUtil {
 		makeCS(0x0700C0, "DES_192_EDE3_CBC_WITH_MD5");
 
 		/*
-		 * Original suites (SSLv3, TLS 1.0).
+		 * Original suites (SSLv3, TLS 1.0 see RFC2246).
 		 */
 		makeCS(0x0000, "NULL_WITH_NULL_NULL");
 		makeCS(0x0001, "RSA_WITH_NULL_MD5");
@@ -144,7 +141,7 @@ public class CipherSuiteUtil {
 		makeCS(0x002E, "RSA_PSK_WITH_NULL_SHA");
 
 		/*
-		 * AES-based suites (TLS 1.1).
+		 * AES-based suites (TLS 1.1 see RFC 3268 and RFC 4346).
 		 */
 		makeCS(0x002F, "RSA_WITH_AES_128_CBC_SHA");
 		makeCS(0x0030, "DH_DSS_WITH_AES_128_CBC_SHA");

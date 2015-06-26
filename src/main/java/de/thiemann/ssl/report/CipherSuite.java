@@ -27,11 +27,17 @@ package de.thiemann.ssl.report;
  */
 
 public class CipherSuite implements Comparable<Integer> {
-
+	
 	int suite;
 	String name;
-	@Override
 	
+	public CipherSuite(int suite, String name) {
+		super();
+		this.suite = suite;
+		this.name = name;
+	}
+
+	@Override
 	public int compareTo(Integer i) {
 		return new Integer(suite).compareTo(i);
 	}
