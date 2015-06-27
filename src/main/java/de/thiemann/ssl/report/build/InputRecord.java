@@ -1,8 +1,9 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.build;
 
 /*
- * A custom stream which encodes data bytes into SSL/TLS records (no
- * encryption).
+ * A custom stream which expects SSL/TLS records (no encryption) and
+ * rebuilds the encoded data stream. Incoming records MUST have the expected
+ * type (e.g. "handshake"); alert messages are skipped.
  * ----------------------------------------------------------------------
  * Copyright (c) 2012  Thomas Pornin <pornin@bolet.org>
  * 
@@ -29,57 +30,71 @@ package de.thiemann.ssl.report;
  */
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 
-public class OutputRecord extends OutputStream {
+import de.thiemann.ssl.report.util.IOUtil;
+
+public class InputRecord extends InputStream {
 
 	private static final int MAX_RECORD_LEN = 16384;
+	private static final int ALERT = 21;
 
-	private OutputStream out;
+	private InputStream in;
 	private byte[] buffer = new byte[MAX_RECORD_LEN + 5];
-	private int ptr;
+	private int ptr, end;
 	private int version;
 	private int type;
+	private int expectedType;
 
-	OutputRecord(OutputStream out) {
-		this.out = out;
-		ptr = 5;
+	public InputRecord(InputStream in) {
+		this.in = in;
+		ptr = 0;
+		end = 0;
 	}
 
-	void setType(int type) {
-		this.type = type;
+	public void setExpectedType(int expectedType) {
+		this.expectedType = expectedType;
 	}
 
-	void setVersion(int version) {
-		this.version = version;
+	public int getVersion() {
+		return version;
 	}
 
-	public void flush() throws IOException {
-		buffer[0] = (byte) type;
-		IOUtil.enc16be(version, buffer, 1);
-		IOUtil.enc16be(ptr - 5, buffer, 3);
-		out.write(buffer, 0, ptr);
-		out.flush();
-		ptr = 5;
-	}
-
-	public void write(int b) throws IOException {
-		buffer[ptr++] = (byte) b;
-		if (ptr == buffer.length) {
-			flush();
-		}
-	}
-
-	public void write(byte[] buf, int off, int len) throws IOException {
-		while (len > 0) {
-			int clen = Math.min(buffer.length - ptr, len);
-			System.arraycopy(buf, off, buffer, ptr, clen);
-			ptr += clen;
-			off += clen;
-			len -= clen;
-			if (ptr == buffer.length) {
-				flush();
+	private void refill() throws IOException {
+		for (;;) {
+			IOUtil.readFully(in, buffer, 0, 5);
+			type = buffer[0] & 0xFF;
+			version = IOUtil.dec16be(buffer, 1);
+			end = IOUtil.dec16be(buffer, 3);
+			IOUtil.readFully(in, buffer, 0, end);
+			ptr = 0;
+			if (type != expectedType) {
+				if (type == ALERT) {
+					/*
+					 * We just ignore alert messages.
+					 */
+					continue;
+				}
+				throw new IOException("unexpected record type: " + type);
 			}
+			return;
 		}
+	}
+
+	public int read() throws IOException {
+		while (ptr == end) {
+			refill();
+		}
+		return buffer[ptr++] & 0xFF;
+	}
+
+	public int read(byte[] buf, int off, int len) throws IOException {
+		while (ptr == end) {
+			refill();
+		}
+		int clen = Math.min(end - ptr, len);
+		System.arraycopy(buffer, ptr, buf, off, clen);
+		ptr += clen;
+		return clen;
 	}
 }

@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.model;
 
 /*
  * This class decodes a ServerHello message from the server. The fields we
@@ -33,18 +33,21 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.thiemann.ssl.report.build.InputRecord;
+import de.thiemann.ssl.report.util.IOUtil;
+
 public class ServerHello {
 
-	int recordVersion;
-	int protoVersion;
-	long serverTime;
-	int cipherSuite;
-	boolean compression;
-	List<Certificate> certificateChain;
+	public int recordVersion;
+	public int protoVersion;
+	public long serverTime;
+	public int cipherSuite;
+	public boolean compression;
+	public List<Certificate> certificateChain;
 	
 	static final int HANDSHAKE = 22;
 
-	ServerHello(InputStream in) throws IOException {
+	public ServerHello(InputStream in) throws IOException {
 		InputRecord rec = new InputRecord(in);
 		rec.setExpectedType(HANDSHAKE);
 

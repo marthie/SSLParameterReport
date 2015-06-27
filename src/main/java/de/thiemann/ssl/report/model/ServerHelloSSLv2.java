@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.model;
 
 /*
  * This class represents the response of a server which knows $ SSLv2. It
@@ -36,13 +36,16 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import de.thiemann.ssl.report.util.CertificateUtil;
+import de.thiemann.ssl.report.util.IOUtil;
+
 public class ServerHelloSSLv2 {
 
-	int[] cipherSuites;
-	String serverCertName;
-	String serverCertHash;
+	public int[] cipherSuites;
+	public String serverCertName;
+	public String serverCertHash;
 
-	ServerHelloSSLv2(InputStream in) throws IOException {
+	public ServerHelloSSLv2(InputStream in) throws IOException {
 		// Record length
 		byte[] buf = new byte[2];
 		IOUtil.readFully(in, buf);
@@ -83,7 +86,7 @@ public class ServerHelloSSLv2 {
 			X509Certificate xc = (X509Certificate) cf
 					.generateCertificate(new ByteArrayInputStream(cert));
 			serverCertName = xc.getSubjectX500Principal().toString();
-			serverCertHash = Certificate.doSHA1(cert);
+			serverCertHash = CertificateUtil.computeFingerprint(cert);
 		} catch (CertificateException e) {
 			// ignored
 		}

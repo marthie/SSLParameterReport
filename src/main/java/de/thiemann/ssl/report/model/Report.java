@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.model;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -10,13 +10,13 @@ import java.util.Set;
 
 public class Report {
 	
-	String webName;
-	int port;
-	InetSocketAddress isa;
-	Set<Integer> supportedSSLVersions;
-	boolean compress;
-	Map<Integer, Set<Integer>> supportedCipherSuite;
-	Map<Integer, Set<String>> serverCert;
+	public String webName;
+	public int port;
+	public InetSocketAddress isa;
+	public Set<Integer> supportedSSLVersions;
+	public boolean compress;
+	public Map<Integer, Set<Integer>> supportedCipherSuite;
+	public Map<Integer, Set<String>> serverCert;
 
 	public Report(String webName, int port) {
 		super();

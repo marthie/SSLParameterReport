@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.build;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,6 +9,14 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import de.thiemann.ssl.report.model.Certificate;
+import de.thiemann.ssl.report.model.Report;
+import de.thiemann.ssl.report.model.ServerHello;
+import de.thiemann.ssl.report.model.ServerHelloSSLv2;
+import de.thiemann.ssl.report.util.CipherSuiteUtil;
+import de.thiemann.ssl.report.util.IOUtil;
+import de.thiemann.ssl.report.util.SSLVersions;
 
 /*
  * ----------------------------------------------------------------------
@@ -37,8 +45,6 @@ import java.util.TreeSet;
  */
 
 public class ReportBuilder {
-
-	private static String NL = System.getProperty("line.separator");
 
 	/*
 	 * A constant SSLv2 CLIENT-HELLO message. Only one connection is needed for
@@ -157,96 +163,7 @@ public class ReportBuilder {
 		return report;
 	}
 
-	public String generateReportText(Report report) {
-		StringBuffer sb = new StringBuffer();
-
-		if (report.supportedSSLVersions.size() == 0) {
-			sb.append(NL).append("No SSL/TLS server at " + report.isa);
-			return sb.toString();
-		}
-
-		sb.append(NL)
-				.append("**************************** SSL Parameter Report *****************************");
-		sb.append(NL)
-				.append(NL)
-				.append("----------------------------- Common Information -------------------------------");
-
-		// output common values
-		sb.append(NL)
-				.append("Report from: ")
-				.append(String.format("%1$tF %1$tT", System.currentTimeMillis()));
-		sb.append(NL).append("Web-Name: ").append(report.webName);
-		sb.append(NL).append("IP-Address: ").append(report.isa);
-		sb.append(NL).append("Port: ").append(report.port);
-
-		sb.append(NL)
-				.append(NL)
-				.append("--------------------------------- Protocol -------------------------------------");
-
-		sb.append(NL).append("Supported protocol versions:");
-		for (int version : report.supportedSSLVersions) {
-			sb.append(" ").append(versionString(version));
-		}
-
-		sb.append(NL).append("Deflate compression: ")
-				.append((report.compress ? "YES" : "no"));
-
-		sb.append(NL)
-				.append(NL)
-				.append("-------------------------- Supported Cipher Suites -----------------------------");
-
-		for (int version : report.supportedSSLVersions) {
-
-			if (version == SSLVersions.SSLv2.getIntVersion()) {
-				sb.append(NL)
-						.append(NL)
-						.append("  ")
-						.append(versionString(SSLVersions.SSLv2.getIntVersion()));
-
-				for (int cipherSuite : report.supportedCipherSuite.get(version)) {
-					sb.append(NL)
-							.append("     ")
-							.append(CipherSuiteUtil
-									.cipherSuiteStringV2(cipherSuite));
-				}
-			}
-
-			sb.append(NL).append(NL).append("  ")
-					.append(versionString(version));
-			for (int c : report.supportedCipherSuite.get(version)) {
-				sb.append(NL).append("      ")
-						.append(CipherSuiteUtil.cipherSuiteString(c));
-			}
-
-		}
-
-		sb.append(NL)
-				.append(NL)
-				.append("---------------------------- Server certificates -------------------------------");
-		if (report.serverCert.size() == 0) {
-			sb.append(NL).append("No server certificate!");
-		} else {
-
-			Set<String> serverCertificates = null;
-			SSLVersions[] versions = SSLVersions.values();
-			for (int i = versions.length - 1; i >= 0; i--) {
-				serverCertificates = report.serverCert.get(versions[i]
-						.getIntVersion());
-
-				if (serverCertificates != null)
-					break;
-			}
-
-			if (serverCertificates != null) {
-				for (String serverCertificate : serverCertificates) {
-					sb.append(NL).append("  ").append(serverCertificate);
-				}
-			} else
-				sb.append(NL).append("No server certificate!");
-		}
-
-		return sb.toString();
-	}
+	
 
 	/*
 	 * Get cipher suites supported by the server. This is done by repeatedly
@@ -291,17 +208,6 @@ public class ReportBuilder {
 		return serverCerts;
 	}
 
-	public String versionString(int version) {
-		if (version == 0x0200) {
-			return "SSLv2";
-		} else if (version == 0x0300) {
-			return "SSLv3";
-		} else if ((version >>> 8) == 0x03) {
-			return "TLSv1." + ((version & 0xFF) - 1);
-		} else {
-			return String.format("UNKNOWN_VERSION:0x%04X", version);
-		}
-	}
 
 	/*
 	 * Connect to the server, send a ClientHello, and decode the response
@@ -309,22 +215,26 @@ public class ReportBuilder {
 	 */
 	public ServerHello connect(InetSocketAddress isa, int version,
 			Collection<Integer> cipherSuites) {
+		
 		Socket s = null;
+		
 		try {
 			s = new Socket();
 			try {
 				s.connect(isa);
-			} catch (IOException ioe) {
-				System.err.println("could not connect to " + isa + ": "
-						+ ioe.toString());
+			} catch (IOException e) {
+				e.printStackTrace();
 				return null;
 			}
+			
 			byte[] ch = makeClientHello(version, cipherSuites);
+			
 			OutputRecord orec = new OutputRecord(s.getOutputStream());
 			orec.setType(HANDSHAKE);
 			orec.setVersion(version);
 			orec.write(ch);
 			orec.flush();
+			
 			return new ServerHello(s.getInputStream());
 		} catch (IOException ioe) {
 			// ignored

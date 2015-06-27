@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.model;
 
 /*
  * ----------------------------------------------------------------------
@@ -28,8 +28,8 @@ package de.thiemann.ssl.report;
 
 public class CipherSuite implements Comparable<Integer> {
 	
-	int suite;
-	String name;
+	public int suite;
+	public String name;
 	
 	public CipherSuite(int suite, String name) {
 		super();

@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.model;
 
 /*
  * ----------------------------------------------------------------------
@@ -32,8 +32,6 @@ package de.thiemann.ssl.report;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -42,7 +40,6 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Formatter;
 import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
@@ -60,6 +57,11 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
+import de.thiemann.ssl.report.util.ASN1CertificateExtensionsIds;
+import de.thiemann.ssl.report.util.ASN1PublicKeyIds;
+import de.thiemann.ssl.report.util.ASN1SignatureAlgorithmsIds;
+import de.thiemann.ssl.report.util.CertificateUtil;
+
 public class Certificate implements Comparable<Integer> {
 
 	static CertificateFactory cf = null;
@@ -74,9 +76,9 @@ public class Certificate implements Comparable<Integer> {
 
 	private static String NL = System.getProperty("line.separator");
 
-	Integer order;
-	byte[] ec;
-	X509Certificate certificate;
+	public Integer order;
+	public byte[] ec;
+	public X509Certificate certificate;
 
 	public Certificate(int i, byte[] ec) {
 		this.order = new Integer(i);
@@ -165,7 +167,7 @@ public class Certificate implements Comparable<Integer> {
 				.append(getSignatureAlgorithmString(cert.getSigAlgOID()));
 
 		// fingerprint
-		sb.append(NL).append("Fingerprint: ").append(doSHA1(ec));
+		sb.append(NL).append("Fingerprint: ").append(CertificateUtil.computeFingerprint(ec));
 
 		// CRL Distribution Points
 
@@ -314,37 +316,5 @@ public class Certificate implements Comparable<Integer> {
 	@Override
 	public int compareTo(Integer i) {
 		return order.compareTo(i);
-	}
-
-	/*
-	 * Compute the SHA-1 hash of some bytes, returning the hash value in
-	 * hexadecimal.
-	 */
-	static String doSHA1(byte[] buf) {
-		return doSHA1(buf, 0, buf.length);
-	}
-
-	static String doSHA1(byte[] buf, int off, int len) {
-		Formatter f = null;
-
-		try {
-			MessageDigest md = MessageDigest.getInstance("SHA1");
-			md.update(buf, off, len);
-			byte[] fingerprintVector = md.digest();
-
-			f = new Formatter();
-			for (int i = 0; i < fingerprintVector.length; i++) {
-				if (i == fingerprintVector.length - 1)
-					f.format("%02x", fingerprintVector[i] & 0xFF);
-				else
-					f.format("%02x:", fingerprintVector[i] & 0xFF);
-			}
-			return f.toString();
-		} catch (NoSuchAlgorithmException e) {
-			throw new Error(e);
-		} finally {
-			if (f != null)
-				f.close();
-		}
 	}
 }

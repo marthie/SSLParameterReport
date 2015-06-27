@@ -37,6 +37,10 @@ package de.thiemann.ssl.report;
 
 import java.io.IOException;
 
+import de.thiemann.ssl.report.build.ReportBuilder;
+import de.thiemann.ssl.report.model.Report;
+import de.thiemann.ssl.report.output.ReportConsoleOutput;
+
 public class SSLParameterReport {
 
 	static void usage() {
@@ -66,6 +70,7 @@ public class SSLParameterReport {
 		ReportBuilder builder = new ReportBuilder();
 		Report report = builder.generateReport(webName, port);
 		
-		System.out.println(builder.generateReportText(report));
+		ReportConsoleOutput rco = new ReportConsoleOutput();
+		rco.consoleOutput(report);
 	}
 }

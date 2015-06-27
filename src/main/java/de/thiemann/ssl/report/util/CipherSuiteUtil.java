@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.util;
 
 /*
  * ----------------------------------------------------------------------
@@ -29,11 +29,13 @@ package de.thiemann.ssl.report;
 import java.util.Map;
 import java.util.TreeMap;
 
+import de.thiemann.ssl.report.model.CipherSuite;
+
 public class CipherSuiteUtil {
 
-	static Map<Integer, CipherSuite> CIPHER_SUITES = new TreeMap<Integer, CipherSuite>();
+	public static Map<Integer, CipherSuite> CIPHER_SUITES = new TreeMap<Integer, CipherSuite>();
 
-	static final String cipherSuiteString(int suite) {
+	public static String cipherSuiteString(int suite) {
 		CipherSuite cs = CIPHER_SUITES.get(suite);
 		if (cs == null) {
 			return String.format("UNKNOWN_SUITE:0x%04X", cs);
@@ -43,7 +45,7 @@ public class CipherSuiteUtil {
 		}
 	}
 
-	static final String cipherSuiteStringV2(int suite) {
+	public static String cipherSuiteStringV2(int suite) {
 		CipherSuite cs = CIPHER_SUITES.get(suite);
 		if (cs == null) {
 			return String.format("UNKNOWN_SUITE:%02X,%02X,%02X", suite >> 16,

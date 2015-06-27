@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.util;
 
 /*
  * ----------------------------------------------------------------------
@@ -32,43 +32,43 @@ import java.io.InputStream;
 
 public class IOUtil {
 
-	static final void enc16be(int val, byte[] buf, int off) {
+	public static void enc16be(int val, byte[] buf, int off) {
 		buf[off] = (byte) (val >>> 8);
 		buf[off + 1] = (byte) val;
 	}
 
-	static final void enc24be(int val, byte[] buf, int off) {
+	public static void enc24be(int val, byte[] buf, int off) {
 		buf[off] = (byte) (val >>> 16);
 		buf[off + 1] = (byte) (val >>> 8);
 		buf[off + 2] = (byte) val;
 	}
 
-	static final void enc32be(int val, byte[] buf, int off) {
+	public static void enc32be(int val, byte[] buf, int off) {
 		buf[off] = (byte) (val >>> 24);
 		buf[off + 1] = (byte) (val >>> 16);
 		buf[off + 2] = (byte) (val >>> 8);
 		buf[off + 3] = (byte) val;
 	}
 
-	static final int dec16be(byte[] buf, int off) {
+	public static int dec16be(byte[] buf, int off) {
 		return ((buf[off] & 0xFF) << 8) | (buf[off + 1] & 0xFF);
 	}
 
-	static final int dec24be(byte[] buf, int off) {
+	public static int dec24be(byte[] buf, int off) {
 		return ((buf[off] & 0xFF) << 16) | ((buf[off + 1] & 0xFF) << 8)
 				| (buf[off + 2] & 0xFF);
 	}
 
-	static final int dec32be(byte[] buf, int off) {
+	public static int dec32be(byte[] buf, int off) {
 		return ((buf[off] & 0xFF) << 24) | ((buf[off + 1] & 0xFF) << 16)
 				| ((buf[off + 2] & 0xFF) << 8) | (buf[off + 3] & 0xFF);
 	}
 
-	static void readFully(InputStream in, byte[] buf) throws IOException {
+	public static void readFully(InputStream in, byte[] buf) throws IOException {
 		readFully(in, buf, 0, buf.length);
 	}
 
-	static void readFully(InputStream in, byte[] buf, int off, int len)
+	public static void readFully(InputStream in, byte[] buf, int off, int len)
 			throws IOException {
 		while (len > 0) {
 			int rlen = in.read(buf, off, len);
