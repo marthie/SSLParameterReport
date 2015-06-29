@@ -43,7 +43,7 @@ public class ServerHello {
 	public long serverTime;
 	public int cipherSuite;
 	public boolean compression;
-	public List<Certificate> certificateChain;
+	public List<CertificateV3> certificateChain;
 	
 	static final int HANDSHAKE = 22;
 
@@ -122,7 +122,7 @@ public class ServerHello {
 			IOUtil.readFully(rec, buf);
 			switch (mt) {
 			case 11:
-				certificateChain = new ArrayList<Certificate>();
+				certificateChain = new ArrayList<CertificateV3>();
 				processCertificate(buf);
 				return;
 			case 14:
@@ -164,7 +164,7 @@ public class ServerHello {
 
 			ptr += len2;
 
-			Certificate cert = new Certificate(certOrder, ec);
+			CertificateV3 cert = new CertificateV3(certOrder, ec);
 			certOrder += 1;
 
 			certificateChain.add(cert);

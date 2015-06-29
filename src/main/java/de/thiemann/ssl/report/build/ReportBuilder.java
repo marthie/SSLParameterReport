@@ -11,7 +11,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import de.thiemann.ssl.report.model.Certificate;
+import de.thiemann.ssl.report.model.CertificateV3;
 import de.thiemann.ssl.report.model.Report;
+import de.thiemann.ssl.report.model.SSLv2Certificate;
 import de.thiemann.ssl.report.model.ServerHello;
 import de.thiemann.ssl.report.model.ServerHelloSSLv2;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
@@ -125,7 +127,7 @@ public class ReportBuilder {
 		// check cipher suites
 
 		report.supportedCipherSuite = new TreeMap<Integer, Set<Integer>>();
-		report.serverCert = new TreeMap<Integer, Set<String>>();
+		report.serverCert = new TreeMap<Integer, Set<Certificate>>();
 
 		if (serverHelloV2 != null) {
 			Set<Integer> supportedSSL2CipherSuites = new TreeSet<Integer>();
@@ -137,12 +139,12 @@ public class ReportBuilder {
 					supportedSSL2CipherSuites);
 
 			if (serverHelloV2.serverCertName != null) {
-				Set<String> certReports = new TreeSet<String>();
-				certReports.add(serverHelloV2.serverCertHash + ": "
-						+ serverHelloV2.serverCertName);
+				Set<Certificate> certs = new TreeSet<Certificate>();
+				SSLv2Certificate cert = new SSLv2Certificate(serverHelloV2.serverCertName, serverHelloV2.serverCertHash);
+				certs.add(cert);
 
 				report.serverCert.put(SSLVersions.SSLv2.getIntVersion(),
-						certReports);
+						certs);
 			}
 		}
 
@@ -155,7 +157,7 @@ public class ReportBuilder {
 					version);
 			report.supportedCipherSuite.put(version, versionSupportedCiphers);
 
-			Set<String> versionCertificates = addCertificates(report.isa,
+			Set<Certificate> versionCertificates = addCertificates(report.isa,
 					version);
 			report.serverCert.put(version, versionCertificates);
 		}
@@ -193,15 +195,15 @@ public class ReportBuilder {
 		return rs;
 	}
 
-	public Set<String> addCertificates(InetSocketAddress isa, int version) {
-		Set<String> serverCerts = null;
+	public Set<Certificate> addCertificates(InetSocketAddress isa, int version) {
+		Set<Certificate> serverCerts = null;
 		ServerHello sh = connect(isa, version,
 				CipherSuiteUtil.CIPHER_SUITES.keySet());
 
 		if (sh != null && sh.certificateChain != null) {
-			serverCerts = new TreeSet<String>();
-			for (Certificate cert : sh.certificateChain) {
-				serverCerts.add(cert.toString());
+			serverCerts = new TreeSet<Certificate>();
+			for (CertificateV3 cert : sh.certificateChain) {
+				serverCerts.add(cert);
 			}
 		}
 

@@ -28,6 +28,8 @@ package de.thiemann.ssl.report.output;
 
 import java.util.Set;
 
+import de.thiemann.ssl.report.model.Certificate;
+import de.thiemann.ssl.report.model.CertificateV3;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
@@ -106,7 +108,7 @@ public class ReportTextOutput extends ReportOutput {
 			sb.append(NL).append("No server certificate!");
 		} else {
 
-			Set<String> serverCertificates = null;
+			Set<Certificate> serverCertificates = null;
 			SSLVersions[] versions = SSLVersions.values();
 			for (int i = versions.length - 1; i >= 0; i--) {
 				serverCertificates = report.serverCert.get(versions[i]
@@ -117,8 +119,9 @@ public class ReportTextOutput extends ReportOutput {
 			}
 
 			if (serverCertificates != null) {
-				for (String serverCertificate : serverCertificates) {
-					sb.append(NL).append("  ").append(serverCertificate);
+				for (Certificate serverCertificate : serverCertificates) {
+					
+					sb.append(NL).append("  ").append(serverCertificate.certificateReport());
 				}
 			} else
 				sb.append(NL).append("No server certificate!");

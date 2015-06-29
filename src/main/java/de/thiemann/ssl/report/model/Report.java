@@ -16,7 +16,7 @@ public class Report {
 	public Set<Integer> supportedSSLVersions;
 	public boolean compress;
 	public Map<Integer, Set<Integer>> supportedCipherSuite;
-	public Map<Integer, Set<String>> serverCert;
+	public Map<Integer, Set<Certificate>> serverCert;
 
 	public Report(String webName, int port) {
 		super();
