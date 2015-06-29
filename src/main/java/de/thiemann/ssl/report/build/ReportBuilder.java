@@ -140,7 +140,7 @@ public class ReportBuilder {
 
 			if (serverHelloV2.serverCertName != null) {
 				Set<Certificate> certs = new TreeSet<Certificate>();
-				SSLv2Certificate cert = new SSLv2Certificate(serverHelloV2.serverCertName, serverHelloV2.serverCertHash);
+				SSLv2Certificate cert = new SSLv2Certificate(1, serverHelloV2.serverCertName, serverHelloV2.serverCertHash);
 				certs.add(cert);
 
 				report.serverCert.put(SSLVersions.SSLv2.getIntVersion(),
@@ -201,10 +201,7 @@ public class ReportBuilder {
 				CipherSuiteUtil.CIPHER_SUITES.keySet());
 
 		if (sh != null && sh.certificateChain != null) {
-			serverCerts = new TreeSet<Certificate>();
-			for (CertificateV3 cert : sh.certificateChain) {
-				serverCerts.add(cert);
-			}
+			serverCerts = sh.certificateChain;
 		}
 
 		return serverCerts;

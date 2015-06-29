@@ -30,8 +30,8 @@ package de.thiemann.ssl.report.model;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import de.thiemann.ssl.report.build.InputRecord;
 import de.thiemann.ssl.report.util.IOUtil;
@@ -43,7 +43,7 @@ public class ServerHello {
 	public long serverTime;
 	public int cipherSuite;
 	public boolean compression;
-	public List<CertificateV3> certificateChain;
+	public Set<Certificate> certificateChain;
 	
 	static final int HANDSHAKE = 22;
 
@@ -122,7 +122,7 @@ public class ServerHello {
 			IOUtil.readFully(rec, buf);
 			switch (mt) {
 			case 11:
-				certificateChain = new ArrayList<CertificateV3>();
+				certificateChain = new TreeSet<Certificate>();
 				processCertificate(buf);
 				return;
 			case 14:

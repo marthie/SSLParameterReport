@@ -63,7 +63,7 @@ import de.thiemann.ssl.report.util.ASN1PublicKeyIds;
 import de.thiemann.ssl.report.util.ASN1SignatureAlgorithmsIds;
 import de.thiemann.ssl.report.util.CertificateUtil;
 
-public class CertificateV3 extends Certificate implements Comparable<Integer> {
+public class CertificateV3 extends Certificate {
 
 	static CertificateFactory cf = null;
 
@@ -77,7 +77,6 @@ public class CertificateV3 extends Certificate implements Comparable<Integer> {
 
 	private static String NL = System.getProperty("line.separator");
 
-	public Integer order;
 	public byte[] ec;
 	// layz initialisation
 	public boolean initialized;
@@ -373,10 +372,5 @@ public class CertificateV3 extends Certificate implements Comparable<Integer> {
 			sb.append("Unknown signature algorithm! OID: ").append(oid);
 
 		return sb.toString();
-	}
-
-	@Override
-	public int compareTo(Integer i) {
-		return order.compareTo(i);
 	}
 }
