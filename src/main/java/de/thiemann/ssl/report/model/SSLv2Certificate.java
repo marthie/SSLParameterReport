@@ -1,5 +1,9 @@
 package de.thiemann.ssl.report.model;
 
+/*
+ * Copyright (c) 2015  Marius Thiemann <marius dot thiemann at ploin dot de>
+ */
+
 public class SSLv2Certificate extends Certificate {
 	
 	public String name;
