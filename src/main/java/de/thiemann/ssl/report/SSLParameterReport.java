@@ -37,6 +37,7 @@ package de.thiemann.ssl.report;
 
 import java.io.IOException;
 
+import joptsimple.OptionParser;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.ReportConsoleOutput;
@@ -49,6 +50,8 @@ public class SSLParameterReport {
 	}
 
 	public static void main(String[] args) throws IOException {
+		OptionParser optParser = new OptionParser();
+		
 		if (args.length == 0 || args.length > 2) {
 			usage();
 		}
