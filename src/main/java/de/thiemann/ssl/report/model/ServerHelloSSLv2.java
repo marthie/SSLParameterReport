@@ -46,41 +46,89 @@ public class ServerHelloSSLv2 {
 	public String serverCertHash;
 
 	public ServerHelloSSLv2(InputStream in) throws IOException {
-		// Record length
+		// assume a the 2-byte record without padding
 		byte[] buf = new byte[2];
 		IOUtil.readFully(in, buf);
+
+		// check for record without padding
 		int len = IOUtil.dec16be(buf, 0);
 		if ((len & 0x8000) == 0) {
 			throw new IOException("not a SSLv2 record");
 		}
+
+		// read record length
 		len &= 0x7FFF;
 		if (len < 11) {
 			throw new IOException("not a SSLv2 server hello");
 		}
+
+		/*
+		 * buf[0] = char MSG-SERVER-HELLO
+		 * 
+		 * buf[1] = char SESSION-ID-HIT
+		 * 
+		 * buf[2] = char CERTIFICATE-TYPE
+		 * 
+		 * buf[3] = char SERVER-VERSION-MSB
+		 * 
+		 * buf[4] = char SERVER-VERSION-LSB
+		 * 
+		 * buf[5] = char CERTIFICATE-LENGTH-MSB
+		 * 
+		 * buf[6] = char CERTIFICATE-LENGTH-LSB
+		 * 
+		 * buf[7] = char CIPHER-SPECS-LENGTH-MSB
+		 * 
+		 * buf[8] = char CIPHER-SPECS-LENGTH-LSB
+		 * 
+		 * buf[9] = char CONNECTION-ID-LENGTH-MSB
+		 * 
+		 * buf[10] = char CONNECTION-ID-LENGTH-LSB
+		 */
 		buf = new byte[11];
 		IOUtil.readFully(in, buf);
 		if (buf[0] != 0x04) {
 			throw new IOException("not a SSLv2 server hello");
 		}
+
+		// read certificate data length
 		int certLen = IOUtil.dec16be(buf, 5);
+
+		// read cipher suites data length
 		int csLen = IOUtil.dec16be(buf, 7);
+
+		// read connection id data length
 		int connIdLen = IOUtil.dec16be(buf, 9);
+
+		// check server hello message
 		if (len != 11 + certLen + csLen + connIdLen) {
 			throw new IOException("not a SSLv2 server hello");
 		}
+
 		if (csLen == 0 || csLen % 3 != 0) {
 			throw new IOException("not a SSLv2 server hello");
 		}
+
+		/*
+		 * char CERTIFICATE-DATA[MSB<<8|LSB]
+		 * 
+		 * char CIPHER-SPECS-DATA[MSB<<8|LSB]
+		 * 
+		 * char CONNECTION-ID-DATA[MSB<<8|LSB]
+		 */
+
 		byte[] cert = new byte[certLen];
 		IOUtil.readFully(in, cert);
 		byte[] cs = new byte[csLen];
 		IOUtil.readFully(in, cs);
 		byte[] connId = new byte[connIdLen];
 		IOUtil.readFully(in, connId);
+
 		cipherSuites = new int[csLen / 3];
 		for (int i = 0, j = 0; i < csLen; i += 3, j++) {
 			cipherSuites[j] = IOUtil.dec24be(cs, i);
 		}
+		
 		try {
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
 			X509Certificate xc = (X509Certificate) cf

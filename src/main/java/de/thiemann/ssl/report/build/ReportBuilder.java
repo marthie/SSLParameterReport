@@ -11,7 +11,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import de.thiemann.ssl.report.model.Certificate;
-import de.thiemann.ssl.report.model.CertificateV3;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.model.SSLv2Certificate;
 import de.thiemann.ssl.report.model.ServerHello;
