@@ -38,42 +38,58 @@ package de.thiemann.ssl.report;
 import java.io.IOException;
 
 import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.ReportConsoleOutput;
+import de.thiemann.ssl.report.util.Util;
 
 public class SSLParameterReport {
 
-	static void usage() {
-		System.err.println("usage: SSLParameterReport servername [ port ]");
-		System.exit(1);
-	}
-
 	public static void main(String[] args) throws IOException {
-		OptionParser optParser = new OptionParser();
-		
-		if (args.length == 0 || args.length > 2) {
-			usage();
+		OptionParser optParser = new OptionParser() {
+			{
+				acceptsAll(Util.asList("?", "h", "help"), "Show help message");
+				accepts("server", "start server for self services");
+			}
+		};
+
+		OptionSpec<String> optWebName = optParser
+				.acceptsAll(Util.asList("wn", "webName"),
+						"create report for the webName").withRequiredArg()
+				.ofType(String.class);
+		OptionSpec<Integer> optPort = optParser
+				.acceptsAll(Util.asList("p", "port"),
+						"use the given port in place of port 443 for report creation")
+				.withRequiredArg().ofType(Integer.class);
+
+		OptionSet os = optParser.parse(args);
+
+		if (os.has("?")) {
+			optParser.printHelpOn(System.out);
+			System.exit(1);
 		}
 
-		String webName = args[0];
-		int port = 443;
+		if (os.has(optWebName)) {
+			String webName = os.valueOf(optWebName);
+			int port = 443;
 
-		if (args.length == 2) {
-			try {
-				port = Integer.parseInt(args[1]);
-			} catch (NumberFormatException nfe) {
-				usage();
+			if (os.has(optPort)) {
+				port = os.valueOf(optPort);
+
+				if (port <= 0 || port > 65535) {
+					throw new Error("Wrong port! Port range is [0;65535]");
+				}
 			}
-			if (port <= 0 || port > 65535) {
-				usage();
-			}
+
+			ReportBuilder builder = new ReportBuilder();
+			Report report = builder.generateReport(webName, port);
+
+			ReportConsoleOutput rco = new ReportConsoleOutput();
+			rco.consoleOutput(report);
+		} else if (os.has("server")) {
+
 		}
-
-		ReportBuilder builder = new ReportBuilder();
-		Report report = builder.generateReport(webName, port);
-		
-		ReportConsoleOutput rco = new ReportConsoleOutput();
-		rco.consoleOutput(report);
 	}
 }
