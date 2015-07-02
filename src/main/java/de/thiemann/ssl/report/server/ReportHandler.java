@@ -5,6 +5,8 @@ package de.thiemann.ssl.report.server;
  */
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -13,14 +15,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import com.google.inject.Inject;
+
 import de.thiemann.ssl.report.build.ReportBuilder;
+import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.ReportJsonOutput;
+import de.thiemann.ssl.report.output.ReportOutput;
 
 public class ReportHandler extends AbstractHandler {
 	
 	private ReportBuilder builder;
-	private ReportJsonOutput output;
+	private ReportOutput output;
 
+	@Inject
 	public ReportHandler(ReportBuilder builder, ReportJsonOutput output) {
 		super();
 		this.builder = builder;
@@ -32,6 +39,14 @@ public class ReportHandler extends AbstractHandler {
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		
+		Report report = builder.generateReport("www.googel.de", 443);
+		String jsonOutput = output.outputReport(report);
+		
+		response.setContentType("text/json;charset=utf-8");
+		response.setStatus(HttpServletResponse.SC_OK);
+		baseRequest.setHandled(true);
+		OutputStream os = response.getOutputStream();
+		os.write(jsonOutput.getBytes(Charset.forName("UTF-8")));
 		
 	}
 

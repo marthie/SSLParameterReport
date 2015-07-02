@@ -48,6 +48,7 @@ import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.ReportJsonOutput;
 import de.thiemann.ssl.report.output.ReportOutput;
+import de.thiemann.ssl.report.server.ReportHandler;
 import de.thiemann.ssl.report.util.Util;
 
 public class SSLParameterReport {
@@ -97,7 +98,10 @@ public class SSLParameterReport {
 			System.out.println(output.outputReport(report));
 		} else if (os.has("server")) {
 			
+			ReportHandler reportHandler = injector.getInstance(ReportHandler.class);
+			
 			Server server = new Server(8080);
+			server.setHandler(reportHandler);
 			server.start();
 			server.join();
 
