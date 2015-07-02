@@ -13,11 +13,17 @@ public class SSLv2Certificate extends Certificate {
 		this.order = i;
 		this.name = name;
 		this.hash = hash;
+		this.isProcessed = false;
 	}
 
 	@Override
 	public String certificateReport() {
 		return hash + ": " + name;
+	}
+
+	@Override
+	public Certificate processCertificateBytes() {
+		return this;
 	}
 
 }

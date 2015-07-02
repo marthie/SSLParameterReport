@@ -78,10 +78,9 @@ public class CertificateV3 extends Certificate {
 	private static String NL = System.getProperty("line.separator");
 
 	public byte[] ec;
-	// layz initialisation
-	public boolean initialized;
-	
 	public X509Certificate jseX509Cert;
+	
+	
 	public int certificateVersion;
 	public String subjectName;
 	public List<String> alternativeNames;
@@ -89,7 +88,7 @@ public class CertificateV3 extends Certificate {
 	public long notAfter = 0L;
 
 	public static class PubKeyInfo {
-		public String pubKey;
+		public String pubKeyAlgorithm;
 		public int pubKeySize = 0;
 	}
 
@@ -101,10 +100,11 @@ public class CertificateV3 extends Certificate {
 	public CertificateV3(int i, byte[] ec) {
 		this.order = new Integer(i);
 		this.ec = ec;
-		this.initialized = false;
+		this.isProcessed = false;
 	}
 
-	public void init() {
+	@Override
+	public Certificate processCertificateBytes() {
 		this.jseX509Cert = null;
 
 		if (cf != null) {
@@ -170,12 +170,13 @@ public class CertificateV3 extends Certificate {
 
 		this.crlDistributionPoints = transferDistributionPoints(extension);
 
+		return this;
 	}
 
 	@Override
 	public String certificateReport() {
-		if(!this.initialized) {
-			this.init();
+		if(!this.isProcessed) {
+			this.processCertificateBytes();
 		}
 		
 		StringBuffer sb = new StringBuffer();
@@ -208,8 +209,8 @@ public class CertificateV3 extends Certificate {
 
 		// public key algorithm & size
 		if (this.pubKeyInfo != null) {
-			if (this.pubKeyInfo.pubKey != null)
-				sb.append(NL).append("Key: ").append(this.pubKeyInfo.pubKey);
+			if (this.pubKeyInfo.pubKeyAlgorithm != null)
+				sb.append(NL).append("Key: ").append(this.pubKeyInfo.pubKeyAlgorithm);
 
 			if (this.pubKeyInfo.pubKeySize > 0)
 				sb.append(" (").append(this.pubKeyInfo.pubKeySize).append(')');
@@ -334,19 +335,19 @@ public class CertificateV3 extends Certificate {
 				ASN1Integer iModulus = (ASN1Integer) seq.getObjectAt(0);
 				BigInteger modulus = iModulus.getPositiveValue();
 
-				info.pubKey = ASN1PublicKeyIds.RSA.name();
+				info.pubKeyAlgorithm = ASN1PublicKeyIds.RSA.name();
 				info.pubKeySize = modulus.bitLength();
 			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.DSA.getOid())) {
-				info.pubKey = ASN1PublicKeyIds.DSA.name();
+				info.pubKeyAlgorithm = ASN1PublicKeyIds.DSA.name();
 			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.Diffie_Hellman
 					.getOid())) {
-				info.pubKey = ASN1PublicKeyIds.Diffie_Hellman.name();
+				info.pubKeyAlgorithm = ASN1PublicKeyIds.Diffie_Hellman.name();
 			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.KEA.getOid())) {
-				info.pubKey = ASN1PublicKeyIds.KEA.name();
+				info.pubKeyAlgorithm = ASN1PublicKeyIds.KEA.name();
 			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.ECDH.getOid())) {
-				info.pubKey = ASN1PublicKeyIds.ECDH.name();
+				info.pubKeyAlgorithm = ASN1PublicKeyIds.ECDH.name();
 			} else
-				info.pubKey = "Unknown public key! OID: " + asn1PubKeyId;
+				info.pubKeyAlgorithm = "Unknown public key! OID: " + asn1PubKeyId;
 
 		} catch (IOException e) {
 			e.printStackTrace();
