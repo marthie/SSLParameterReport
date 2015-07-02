@@ -104,7 +104,7 @@ public class CertificateV3 extends Certificate {
 		this.initialized = false;
 	}
 
-	private void init() {
+	public void init() {
 		this.jseX509Cert = null;
 
 		if (cf != null) {

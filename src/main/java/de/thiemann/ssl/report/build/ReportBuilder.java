@@ -139,11 +139,12 @@ public class ReportBuilder {
 
 			if (serverHelloV2.serverCertName != null) {
 				Set<Certificate> certs = new TreeSet<Certificate>();
-				SSLv2Certificate cert = new SSLv2Certificate(1, serverHelloV2.serverCertName, serverHelloV2.serverCertHash);
+				SSLv2Certificate cert = new SSLv2Certificate(1,
+						serverHelloV2.serverCertName,
+						serverHelloV2.serverCertHash);
 				certs.add(cert);
 
-				report.serverCert.put(SSLVersions.SSLv2.getIntVersion(),
-						certs);
+				report.serverCert.put(SSLVersions.SSLv2.getIntVersion(), certs);
 			}
 		}
 
@@ -163,8 +164,6 @@ public class ReportBuilder {
 
 		return report;
 	}
-
-	
 
 	/*
 	 * Get cipher suites supported by the server. This is done by repeatedly
@@ -206,16 +205,15 @@ public class ReportBuilder {
 		return serverCerts;
 	}
 
-
 	/*
 	 * Connect to the server, send a ClientHello, and decode the response
 	 * (ServerHello). On error, null is returned.
 	 */
 	public ServerHello connect(InetSocketAddress isa, int version,
 			Collection<Integer> cipherSuites) {
-		
+
 		Socket s = null;
-		
+
 		try {
 			s = new Socket();
 			try {
@@ -224,15 +222,15 @@ public class ReportBuilder {
 				e.printStackTrace();
 				return null;
 			}
-			
+
 			byte[] ch = makeClientHello(version, cipherSuites);
-			
+
 			OutputRecord orec = new OutputRecord(s.getOutputStream());
 			orec.setType(HANDSHAKE);
 			orec.setVersion(version);
 			orec.write(ch);
 			orec.flush();
-			
+
 			return new ServerHello(s.getInputStream());
 		} catch (IOException ioe) {
 			// ignored

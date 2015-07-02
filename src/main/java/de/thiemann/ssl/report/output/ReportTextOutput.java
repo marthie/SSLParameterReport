@@ -29,16 +29,15 @@ package de.thiemann.ssl.report.output;
 import java.util.Set;
 
 import de.thiemann.ssl.report.model.Certificate;
-import de.thiemann.ssl.report.model.CertificateV3;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
 
-public class ReportTextOutput extends ReportOutput {
+public class ReportTextOutput extends AbstractReportOutput {
 
 	private static String NL = System.getProperty("line.separator");
 
-	public String generateReportText(Report report) {
+	public String outputReport(Report report) {
 		StringBuffer sb = new StringBuffer();
 
 		if (report.supportedSSLVersions.size() == 0) {
@@ -90,13 +89,13 @@ public class ReportTextOutput extends ReportOutput {
 							.append(CipherSuiteUtil
 									.cipherSuiteStringV2(cipherSuite));
 				}
-			}
-
-			sb.append(NL).append(NL).append("  ")
-					.append(versionString(version));
-			for (int c : report.supportedCipherSuite.get(version)) {
-				sb.append(NL).append("      ")
-						.append(CipherSuiteUtil.cipherSuiteString(c));
+			} else {
+				sb.append(NL).append(NL).append("  ")
+						.append(versionString(version));
+				for (int c : report.supportedCipherSuite.get(version)) {
+					sb.append(NL).append("      ")
+							.append(CipherSuiteUtil.cipherSuiteString(c));
+				}
 			}
 
 		}
@@ -120,8 +119,9 @@ public class ReportTextOutput extends ReportOutput {
 
 			if (serverCertificates != null) {
 				for (Certificate serverCertificate : serverCertificates) {
-					
-					sb.append(NL).append("  ").append(serverCertificate.certificateReport());
+
+					sb.append(NL).append("  ")
+							.append(serverCertificate.certificateReport());
 				}
 			} else
 				sb.append(NL).append("No server certificate!");

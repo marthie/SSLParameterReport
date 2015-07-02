@@ -35,19 +35,24 @@ package de.thiemann.ssl.report;
  * ----------------------------------------------------------------------
  */
 
-import java.io.IOException;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+
+import org.eclipse.jetty.server.Server;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
-import de.thiemann.ssl.report.output.ReportConsoleOutput;
+import de.thiemann.ssl.report.output.ReportJsonOutput;
+import de.thiemann.ssl.report.output.ReportOutput;
 import de.thiemann.ssl.report.util.Util;
 
 public class SSLParameterReport {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		OptionParser optParser = new OptionParser() {
 			{
 				acceptsAll(Util.asList("?", "h", "help"), "Show help message");
@@ -70,6 +75,8 @@ public class SSLParameterReport {
 			optParser.printHelpOn(System.out);
 			System.exit(1);
 		}
+		
+		Injector injector = Guice.createInjector(new ReportServerModul());
 
 		if (os.has(optWebName)) {
 			String webName = os.valueOf(optWebName);
@@ -86,9 +93,13 @@ public class SSLParameterReport {
 			ReportBuilder builder = new ReportBuilder();
 			Report report = builder.generateReport(webName, port);
 
-			ReportConsoleOutput rco = new ReportConsoleOutput();
-			rco.consoleOutput(report);
+			ReportOutput output = new ReportJsonOutput();
+			System.out.println(output.outputReport(report));
 		} else if (os.has("server")) {
+			
+			Server server = new Server(8080);
+			server.start();
+			server.join();
 
 		}
 	}

@@ -8,7 +8,9 @@ import de.thiemann.ssl.report.model.Report;
 
 public class ReportConsoleOutput extends ReportTextOutput {
 
-	public void consoleOutput(Report report) {
-		System.out.println(generateReportText(report));
+	public String outputReport(Report report) {
+		System.out.println(super.outputReport(report));
+		
+		return null;
 	}
 }
