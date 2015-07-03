@@ -6,8 +6,14 @@ package de.thiemann.ssl.report.server;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -22,10 +28,10 @@ public class ServerController {
 
 	public void startServer() {
 		
-		Handler reportHandler = createRportHandler();
+		HandlerList list = createHandlerList();
 		
 		Server server = new Server(8080);
-		server.setHandler(reportHandler);
+		server.setHandler(list);
 
 		try {
 			server.start();
@@ -35,14 +41,29 @@ public class ServerController {
 		}
 	}
 	
-	private Handler createRportHandler() {
+	private HandlerList createHandlerList() {
+		HandlerList list = new HandlerList();
+		
+		// servlet
 		ReportServlet reportServlet = injector.getInstance(ReportServlet.class);
 		
-		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setContextPath("/");
+		ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		servletContext.setContextPath("/service");
 		
-		context.addServlet(new ServletHolder(reportServlet), "/sslReport");
+		servletContext.addServlet(new ServletHolder(reportServlet), "/sslReport");
 		
-		return context;
+		list.addHandler(servletContext);
+		
+		// static content
+		ResourceHandler resApp = new ResourceHandler();
+		resApp.setBaseResource(Resource.newClassPathResource("/sslReportApp"));
+		//resApp.setDirectoriesListed(true);
+		resApp.setWelcomeFiles(new String[] {"index.html"});
+		
+		list.addHandler(resApp);
+		
+		
+		return list;
 	}
+	
 }

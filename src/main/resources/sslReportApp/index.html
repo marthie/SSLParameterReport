@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>SSL Parameter Report WebApp</title>
+
+<link rel="stylesheet"
+	href="lib/bootstrap-3.3.5-dist/css/bootstrap.min.css" />
+<link rel="stylesheet"
+	href="lib/bootstrap-3.3.5-dist/css/bootstrap-theme.min.css" />
+
+<script src="lib/jquery-2.1.4.min.js"></script>
+<script src="lib/bootstrap-3.3.5-dist/js/bootstrap.min.js"></script>
+<script src="script/app.js"></script>
+</head>
+
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="page-header">
+				<h1>
+					SSL Parameter Report
+				</h1>
+			</div>
+		</div>
+		<div class="row">
+			<form class="form-inline">
+				<div class="form-group">
+					<label for="webName">WebName:</label> <input type="text"
+						id="webName" class="form-control"
+						placeholder="e.g. www.googel.com">
+				</div>
+				<div class="form-group">
+					<label for="port">Port:</label> <input type="text" id="port"
+						class="form-control" placeholder="e.g. 443">
+				</div>
+				<button class="btn btn-primary" id="getReport">Get SSL Report!</button>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
