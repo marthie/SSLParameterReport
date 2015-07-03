@@ -38,17 +38,11 @@ package de.thiemann.ssl.report;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-
-import org.eclipse.jetty.server.Server;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.ReportJsonOutput;
 import de.thiemann.ssl.report.output.ReportOutput;
-import de.thiemann.ssl.report.server.ReportHandler;
+import de.thiemann.ssl.report.server.ServerController;
 import de.thiemann.ssl.report.util.Util;
 
 public class SSLParameterReport {
@@ -77,7 +71,7 @@ public class SSLParameterReport {
 			System.exit(1);
 		}
 		
-		Injector injector = Guice.createInjector(new ReportServerModul());
+		
 
 		if (os.has(optWebName)) {
 			String webName = os.valueOf(optWebName);
@@ -96,15 +90,8 @@ public class SSLParameterReport {
 
 			ReportOutput output = new ReportJsonOutput();
 			System.out.println(output.outputReport(report));
-		} else if (os.has("server")) {
-			
-			ReportHandler reportHandler = injector.getInstance(ReportHandler.class);
-			
-			Server server = new Server(8080);
-			server.setHandler(reportHandler);
-			server.start();
-			server.join();
-
+		} else if (os.has("server")) {	
+			new ServerController().startServer();
 		}
 	}
 }

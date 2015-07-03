@@ -26,6 +26,7 @@ package de.thiemann.ssl.report.util;
  * ----------------------------------------------------------------------
  */
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,5 +79,20 @@ public class IOUtil {
 			off += rlen;
 			len -= rlen;
 		}
+	}
+	
+	public static byte[] readFully(InputStream is) throws IOException {
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+		int nRead;
+		byte[] data = new byte[16384];
+
+		while ((nRead = is.read(data, 0, data.length)) != -1) {
+		  buffer.write(data, 0, nRead);
+		}
+
+		buffer.flush();
+
+		return buffer.toByteArray();
 	}
 }

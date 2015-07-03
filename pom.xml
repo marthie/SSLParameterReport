@@ -30,6 +30,11 @@
 			<version>9.3.0.v20150612</version>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlet</artifactId>
+			<version>9.3.0.v20150612</version>
+		</dependency>
+		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>4.0</version>

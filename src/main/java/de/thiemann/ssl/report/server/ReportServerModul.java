@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report;
+package de.thiemann.ssl.report.server;
 
 /*
  * Copyright (c) 2015  Marius Thiemann <marius dot thiemann at ploin dot de>
