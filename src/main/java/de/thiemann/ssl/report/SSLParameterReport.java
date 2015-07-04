@@ -40,6 +40,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
+import de.thiemann.ssl.report.output.ReportConsoleOutput;
 import de.thiemann.ssl.report.output.ReportJsonOutput;
 import de.thiemann.ssl.report.output.ReportOutput;
 import de.thiemann.ssl.report.server.ServerController;
@@ -88,8 +89,8 @@ public class SSLParameterReport {
 			ReportBuilder builder = new ReportBuilder();
 			Report report = builder.generateReport(webName, port);
 
-			ReportOutput output = new ReportJsonOutput();
-			System.out.println(output.outputReport(report));
+			ReportOutput output = new ReportConsoleOutput();
+			output.outputReport(report);
 		} else if (os.has("server")) {	
 			new ServerController().startServer();
 		}

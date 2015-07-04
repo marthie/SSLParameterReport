@@ -11,6 +11,7 @@
 	href="lib/bootstrap-3.3.5-dist/css/bootstrap-theme.min.css" />
 
 <script src="lib/jquery-2.1.4.min.js"></script>
+<script src="lib/jquery.json.min.js"></script>
 <script src="lib/bootstrap-3.3.5-dist/js/bootstrap.min.js"></script>
 <script src="script/app.js"></script>
 </head>
@@ -19,9 +20,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="page-header">
-				<h1>
-					SSL Parameter Report
-				</h1>
+				<h1>SSL Parameter Report</h1>
 			</div>
 		</div>
 		<div class="row">
@@ -35,9 +34,81 @@
 					<label for="port">Port:</label> <input type="text" id="port"
 						class="form-control" placeholder="e.g. 443">
 				</div>
-				<button class="btn btn-primary" id="getReport">Get SSL Report!</button>
+				<button class="btn btn-primary" id="getReport">Get SSL
+					Report!</button>
 			</form>
+		</div>
+		<div class="row">
+			<div id="reportOutput" class="hidden">
+
+				<div class="page-header">
+					<h2>Common Information</h2>
+				</div>
+				<form class="form-horizontal">
+					<div class="form-group">
+						<label for="out_from" class="col-sm-4 control-label">Report
+							created on:</label>
+						<div class="col-sm-8">
+							<p class="form-control-static" id="out_from"></p>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="out_webName" class="col-sm-4 control-label">Web-Name:</label>
+						<div class="col-sm-8">
+							<p class="form-control-static" id="out_webName"></p>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="out_ip" class="col-sm-4 control-label">IP-Address:</label>
+						<div class="col-sm-8">
+							<p class="form-control-static" id="out_ip"></p>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="out_port" class="col-sm-4 control-label">Port:</label>
+						<div class="col-sm-8">
+							<p class="form-control-static" id="out_port"></p>
+						</div>
+					</div>
+				</form>
+
+				<div class="page-header">
+					<h2>Protocol</h2>
+				</div>
+				<form class="form-horizontal">
+					<div class="form-group">
+						<label for="out_supportedVersions" class="col-sm-4 control-label">Supported
+							protocol versions:</label>
+						<div class="col-sm-8">
+							<p class="form-control-static" id="out_supportedVersions"></p>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="out_compress" class="col-sm-4 control-label">Deflate
+							compression:</label>
+						<div class="col-sm-8">
+							<p class="form-control-static" id="out_compress"></p>
+						</div>
+					</div>
+				</form>
+
+				<div class="page-header" id="cipherSuites">
+					<h2>Cipher Suites <small>order is not relevant</small></h2>
+				</div>
+
+			</div>
 		</div>
 	</div>
 </body>
+
+<script type="text/html" id="cipherSuiteTemplate">
+	<div id="cipherSuite">
+		<div class="page-header">
+			<h3 id="cipherSuiteHeader"></h3>
+		</div>
+
+		<ul class="list-group">
+		</ul>
+	</div>
+</script>
 </html>

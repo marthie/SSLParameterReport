@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -43,19 +44,19 @@ public class ReportServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
-		Map<String, Object> jsonInput = getArguments(request.getInputStream());
+		Map<String, String> inputArguments = getArguments(request.getInputStream());
 
-		if (jsonInput != null) {
+		if (inputArguments != null) {
 
 			String webName = null;
 			Integer port = new Integer(443);
 
-			if (jsonInput.containsKey("webName")) {
-				webName = jsonInput.get("webName").toString();
+			if (inputArguments.containsKey("webName")) {
+				webName = inputArguments.get("webName").toString();
 			}
 
-			if (jsonInput.containsKey("port")) {
-				port = new Integer(jsonInput.get("port").toString());
+			if (inputArguments.containsKey("port")) {
+				port = new Integer(inputArguments.get("port").toString());
 			}
 
 			if (webName != null && !webName.isEmpty()) {
@@ -70,16 +71,27 @@ public class ReportServlet extends HttpServlet {
 		}
 	}
 
-	public Map<String, Object> getArguments(InputStream is) {
+	public Map<String, String> getArguments(InputStream is) {
 		try {
 			byte[] postBytes = IOUtil.readFully(is);
-
-			ObjectMapper mapper = new ObjectMapper();
-			Map<String, Object> jsonInput = mapper.readValue(postBytes,
-					Map.class);
-
-			if (jsonInput.containsKey("webName"))
-				return jsonInput;
+			Map<String, String> inputArguments = new HashMap<String, String>();
+			
+			String args = new String(postBytes);
+			
+			String[] splitedArgs = args.split("&");
+			
+			if(splitedArgs.length > 0) {
+				for (String arg : splitedArgs) {
+					String[] keyValue = arg.split("=");
+					
+					if(keyValue.length == 2) {
+						inputArguments.put(keyValue[0], keyValue[1]);
+					}
+				}
+				
+				if(inputArguments.size() > 0)
+					return inputArguments;
+			}
 
 			return null;
 		} catch (IOException e) {

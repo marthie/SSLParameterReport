@@ -53,7 +53,7 @@ public class ReportTextOutput extends AbstractReportOutput {
 
 		// output common values
 		sb.append(NL)
-				.append("Report from: ")
+				.append("Report created on: ")
 				.append(String.format("%1$tF %1$tT", System.currentTimeMillis()));
 		sb.append(NL).append("Web-Name: ").append(report.webName);
 		sb.append(NL).append("IP-Address: ").append(report.isa);
