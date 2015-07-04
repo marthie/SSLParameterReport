@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2015  Marius Thiemann <marius dot thiemann at ploin dot de>
+ */
 $(document).ready(function() {
 	
 	$("form").submit(function(e) {
