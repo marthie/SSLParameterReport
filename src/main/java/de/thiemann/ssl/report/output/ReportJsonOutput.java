@@ -127,6 +127,7 @@ public class ReportJsonOutput extends AbstractReportOutput {
 			jsonCert.put("pubKeySize", v3Cert.pubKeyInfo.pubKeySize);
 			jsonCert.put("issuerName", v3Cert.issuerName);
 			jsonCert.put("signatureAlgorithm", v3Cert.signatureAlgorithm);
+			jsonCert.put("fingerprint", v3Cert.fingerprint);
 			jsonCert.put("crlDistributionPoints", v3Cert.crlDistributionPoints);
 
 			return jsonCert;

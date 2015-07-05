@@ -95,6 +95,7 @@ public class CertificateV3 extends Certificate {
 	public PubKeyInfo pubKeyInfo;
 	public String issuerName;
 	public String signatureAlgorithm;
+	public String fingerprint;
 	public List<String> crlDistributionPoints;
 
 	public CertificateV3(int i, byte[] ec) {
@@ -161,6 +162,10 @@ public class CertificateV3 extends Certificate {
 		// signature algorithm
 		this.signatureAlgorithm = transferSignatureAlgorithm(this.jseX509Cert
 				.getSigAlgOID());
+		
+		// fingerprint
+		
+		this.fingerprint = CertificateUtil.computeFingerprint(this.ec);
 
 		// CRL Distribution Points
 
@@ -225,7 +230,7 @@ public class CertificateV3 extends Certificate {
 
 		// fingerprint
 		sb.append(NL).append("Fingerprint: ")
-				.append(CertificateUtil.computeFingerprint(this.ec));
+				.append(this.fingerprint);
 
 		// CRL Distribution Points
 
