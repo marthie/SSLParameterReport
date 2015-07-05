@@ -63,38 +63,60 @@ function SSLReport() {
 
 				var certificateTemplate = $("#certificateTemplate").html();
 				certifiactes.after(certificateTemplate);
-				
+
 				var certificate = $("#certificate").first();
 				certificate.find("#certificateHeader").text(sslVersion);
-				
+
 				for (var i = 0; i < certificateList.length; i++) {
 					var certificateData = certificateList[i];
-					var certificateFormTemplate = $("#certificateFormTemplate").html();
+					var certificateFormTemplate = $("#certificateFormTemplate")
+							.html();
 					certificate.append(certificateFormTemplate);
-					
+
+					var panelHeader = certificate.find(".panel-heading").last().text("#" + certificateData.order);
 					var certificateForm = certificate.find("form").last();
+
+					certificateForm.find("#out_order").text(
+							certificateData.order);
+					certificateForm.find("#out_version").text(
+							certificateData.version);
+					certificateForm.find("#out_subjectName").text(
+							certificateData.subjectName);
+					certificateForm.find("#out_alternativeNames").text(
+							certificateData.alternativeNames);
+					certificateForm.find("#out_notBefore").text(
+							certificateData.notBefore);
+					certificateForm.find("#out_notAfter").text(
+							certificateData.notAfter);
 					
-					certificateForm.find("#out_order").text(certificateData.order);
-					certificateForm.find("#out_version").text(certificateData.version);
-					certificateForm.find("#out_subjectName").text(certificateData.subjectName);
-					certificateForm.find("#out_alternativeNames").text(certificateData.alternativeNames);
-					certificateForm.find("#out_notBefore").text(certificateData.notBefore);
-					certificateForm.find("#out_notAfter").text(certificateData.notAfter);
 					var key = certificateData.pubKeyName;
-					if(certificateData.pubKeySize !== null) {
-						key += "(" + certificateData.pubKeySize + ")"
+					if (certificateData.pubKeySize !== null) {
+						key += " (" + certificateData.pubKeySize + " bit)"
 					}
-					certificateForm.find("#out_key").text(certificateData.key);
-					certificateForm.find("#out_issuer").text(certificateData.issuerName);
-					certificateForm.find("#out_sigAlgo").text(certificateData.signatureAlgorithm);
-					certificateForm.find("#out_fingerprint").text(certificateData.fingerprint);
-					certificateForm.find("#out_crl").text(certificateData.crlDistributionPoints);
 					
+					certificateForm.find("#out_key").text(key);
+					certificateForm.find("#out_issuer").text(
+							certificateData.issuerName);
+					certificateForm.find("#out_sigAlgo").text(
+							certificateData.signatureAlgorithm);
+					certificateForm.find("#out_fingerprint").text(
+							certificateData.fingerprint);
+					certificateForm.find("#out_crl").text(
+							certificateData.crlDistributionPoints);
+
 				}
 			}
 		}
 
 		// remove hidden
 		$("#reportOutput").removeAttr("class");
+	};
+
+	this.clearOutput = function() {
+		$("#reportOutput").attr("class", "hidden");
+
+		$("div").filter("#certificate, #cipherSuite").each(function(index) {
+			$(this).remove();
+		});
 	};
 }
