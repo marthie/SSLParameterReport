@@ -104,10 +104,12 @@ public class ReportJsonOutput extends AbstractReportOutput {
 		if(!cert.isProcessed)
 			cert.processCertificateBytes();
 		
+		Map<String, Object> jsonCert = new HashMap<String, Object>();
+		jsonCert.put("order", cert.order);
+		
 		if (cert instanceof SSLv2Certificate) {
 			SSLv2Certificate sslv2Cert = (SSLv2Certificate) cert;
 
-			Map<String, Object> jsonCert = new HashMap<String, Object>();
 			jsonCert.put("fingerprint", sslv2Cert.hash);
 			jsonCert.put("certificate-order", sslv2Cert.order);
 			jsonCert.put("subject", sslv2Cert.name);
@@ -116,12 +118,11 @@ public class ReportJsonOutput extends AbstractReportOutput {
 		} else if (cert instanceof CertificateV3) {
 			CertificateV3 v3Cert = (CertificateV3) cert;
 
-			Map<String, Object> jsonCert = new HashMap<String, Object>();
 			jsonCert.put("version", v3Cert.certificateVersion);
 			jsonCert.put("subjectName", v3Cert.subjectName);
 			jsonCert.put("alternativeNames", v3Cert.alternativeNames);
-			jsonCert.put("notBefore", v3Cert.notBefore);
-			jsonCert.put("notAfter", v3Cert.notAfter);
+			jsonCert.put("notBefore", String.format("%1$tF %1$tT", v3Cert.notBefore));
+			jsonCert.put("notAfter", String.format("%1$tF %1$tT", v3Cert.notAfter));
 			jsonCert.put("pubKeyName", v3Cert.pubKeyInfo.pubKeyAlgorithm);
 			jsonCert.put("pubKeySize", v3Cert.pubKeyInfo.pubKeySize);
 			jsonCert.put("issuerName", v3Cert.issuerName);
