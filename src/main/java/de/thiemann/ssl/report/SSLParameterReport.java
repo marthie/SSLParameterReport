@@ -41,7 +41,6 @@ import joptsimple.OptionSpec;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.ReportConsoleOutput;
-import de.thiemann.ssl.report.output.ReportJsonOutput;
 import de.thiemann.ssl.report.output.ReportOutput;
 import de.thiemann.ssl.report.server.ServerController;
 import de.thiemann.ssl.report.util.Util;
