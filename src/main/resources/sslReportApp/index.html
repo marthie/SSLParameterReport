@@ -97,9 +97,16 @@
 				</form>
 
 				<div class="page-header" id="cipherSuites">
-					<h2>Cipher Suites <small>order is not relevant</small></h2>
+					<h2>
+						Cipher Suites <small>order is not relevant</small>
+					</h2>
 				</div>
 
+				<div class="page-header" id="certificates">
+					<h2>
+						Certificates
+					</h2>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -115,4 +122,84 @@
 		</ul>
 	</div>
 </script>
+
+<script type="text/html" id="certificateTemplate">
+	<div id="certificate">
+		<div class="page-header">
+			<h3 id="certificateHeader"></h3>
+		</div>
+	</div>
+</script>
+
+<script type="text/html" id="certificateFormTemplate">
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="out_order" class="col-sm-4 control-label">Send in order: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_order"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_version" class="col-sm-4 control-label">Certificate Version: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_version"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_subjectName" class="col-sm-4 control-label">Subject: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_subjectName"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_alternativeNames" class="col-sm-4 control-label">Alternative Names: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_alternativeNames"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_notBefore" class="col-sm-4 control-label">Not Before: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_notBefore"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_notAfter" class="col-sm-4 control-label">Not After: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_notAfter"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_key" class="col-sm-4 control-label">Key: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_key"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_issuer" class="col-sm-4 control-label">Issuer: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_issuer"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_sigAlgo" class="col-sm-4 control-label">Signature Algorithm: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_sigAlgo"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_fingerprint" class="col-sm-4 control-label">Fingerprint: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_fingerprint"></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="out_crl" class="col-sm-4 control-label">CRL Distribution Points: </label>
+			<div class="col-sm-8">
+				<p class="form-control-static" id="out_crl"></p>
+			</div>
+		</div>
+	</form>
+</script>
+
 </html>
