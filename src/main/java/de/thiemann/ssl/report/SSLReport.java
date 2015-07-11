@@ -38,11 +38,11 @@ package de.thiemann.ssl.report;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import de.thiemann.ssl.report.console.ReportConsoleController;
+import de.thiemann.ssl.report.console.ConsoleController;
 import de.thiemann.ssl.report.server.ServerController;
 import de.thiemann.ssl.report.util.Util;
 
-public class SSLParameterReport {
+public class SSLReport {
 
 	public static void main(String[] args) throws Exception {
 		OptionParser optParser = new OptionParser() {
@@ -80,7 +80,7 @@ public class SSLParameterReport {
 				}
 			}
 			
-			ReportConsoleController controller = new ReportConsoleController();
+			ConsoleController controller = new ConsoleController();
 			controller.outputReport(webName, port);
 		} else if (os.has("server")) {
 			new ServerController().startServer();

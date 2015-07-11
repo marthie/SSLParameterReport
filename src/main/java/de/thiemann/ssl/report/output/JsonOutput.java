@@ -21,7 +21,7 @@ import de.thiemann.ssl.report.model.SSLv2Certificate;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
 
-public class ReportJsonOutput extends AbstractReportOutput {
+public class JsonOutput extends AbstractOutput {
 
 	@Override
 	public String outputReportCollection(Collection<Report> reportCollection) {

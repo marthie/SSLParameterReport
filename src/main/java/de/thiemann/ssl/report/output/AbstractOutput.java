@@ -27,7 +27,7 @@ package de.thiemann.ssl.report.output;
  * ----------------------------------------------------------------------
  */
 
-public abstract class AbstractReportOutput implements ReportOutput {
+public abstract class AbstractOutput implements Output {
 
 	public String versionString(int version) {
 		if (version == 0x0200) {

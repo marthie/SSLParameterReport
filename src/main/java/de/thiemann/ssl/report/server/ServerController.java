@@ -19,7 +19,7 @@ public class ServerController {
 	private Injector injector = null;
 
 	public ServerController() {
-		injector = Guice.createInjector(new ReportServerModul());
+		injector = Guice.createInjector(new ServerModul());
 	}
 
 	public void startServer() {
@@ -41,7 +41,7 @@ public class ServerController {
 		HandlerList list = new HandlerList();
 		
 		// servlet
-		ReportServlet reportServlet = injector.getInstance(ReportServlet.class);
+		SSLReportServlet reportServlet = injector.getInstance(SSLReportServlet.class);
 		
 		ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		servletContext.setContextPath("/service");

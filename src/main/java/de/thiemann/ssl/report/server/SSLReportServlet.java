@@ -23,20 +23,20 @@ import com.google.inject.Inject;
 import de.thiemann.ssl.report.build.NSLookUp;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
-import de.thiemann.ssl.report.output.ReportJsonOutput;
-import de.thiemann.ssl.report.output.ReportOutput;
+import de.thiemann.ssl.report.output.JsonOutput;
+import de.thiemann.ssl.report.output.Output;
 import de.thiemann.ssl.report.util.IOUtil;
 
-public class ReportServlet extends HttpServlet {
+public class SSLReportServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 7892544796659986902L;
 
 	private ReportBuilder builder;
-	private ReportOutput output;
+	private Output output;
 	private NSLookUp lookUp;
 
 	@Inject
-	public ReportServlet(ReportBuilder builder, ReportJsonOutput output, NSLookUp lookUp) {
+	public SSLReportServlet(ReportBuilder builder, JsonOutput output, NSLookUp lookUp) {
 		super();
 		this.builder = builder;
 		this.output = output;

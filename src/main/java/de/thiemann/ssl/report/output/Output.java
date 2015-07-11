@@ -8,7 +8,7 @@ import java.util.Collection;
 
 import de.thiemann.ssl.report.model.Report;
 
-public interface ReportOutput {
+public interface Output {
 
 	public String outputReport(Report report);
 	

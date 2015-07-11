@@ -6,14 +6,14 @@ package de.thiemann.ssl.report.server;
 
 import com.google.inject.AbstractModule;
 
-import de.thiemann.ssl.report.output.ReportJsonOutput;
-import de.thiemann.ssl.report.output.ReportOutput;
+import de.thiemann.ssl.report.output.JsonOutput;
+import de.thiemann.ssl.report.output.Output;
 
-public class ReportServerModul extends AbstractModule {
+public class ServerModul extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(ReportOutput.class).to(ReportJsonOutput.class);
+		bind(Output.class).to(JsonOutput.class);
 	}
 
 }

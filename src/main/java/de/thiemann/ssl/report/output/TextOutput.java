@@ -34,7 +34,7 @@ import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
 
-public class ReportTextOutput extends AbstractReportOutput {
+public class TextOutput extends AbstractOutput {
 
 	private static String NL = System.getProperty("line.separator");
 	

@@ -10,25 +10,25 @@ import com.google.inject.Injector;
 import de.thiemann.ssl.report.build.NSLookUp;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
-import de.thiemann.ssl.report.output.ReportOutput;
+import de.thiemann.ssl.report.output.Output;
 
 /*
  * Copyright (c) 2015  Marius Thiemann <marius dot thiemann at ploin dot de>
  */
 
-public class ReportConsoleController {
+public class ConsoleController {
 
 	private ReportBuilder builder;
 
-	private ReportOutput output;
+	private Output output;
 	
 	private NSLookUp lookup;
 
-	public ReportConsoleController() {
+	public ConsoleController() {
 		super();
-		Injector injector = Guice.createInjector(new ReportConsoleModule());
+		Injector injector = Guice.createInjector(new ConsoleModule());
 		this.builder = injector.getInstance(ReportBuilder.class);
-		this.output = injector.getInstance(ReportOutput.class);
+		this.output = injector.getInstance(Output.class);
 		this.lookup = injector.getInstance(NSLookUp.class);
 	}
 
