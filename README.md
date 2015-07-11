@@ -28,14 +28,14 @@ The maven-assembly plugin is used to make a single execution jar and is bounded 
 
 ### Get help
 
-Get help on command line arguments by executing the command: `java -jar SSLReport-<Version>.jar --help`
+Get help on command line arguments by executing the command: `java -jar sslreport-<Version>.jar --help`
 
 ### SSLReport system console
 
 To get a SSL/TLS report output on system console from a given host execute this command:
 
 ```
-java -jar SSLReport-<Version>.jar [--webName|-wn]=<host> [[-p|--port]=<port>]
+java -jar sslreport-<Version>.jar [--webName|-wn]=<host> [[-p|--port]=<port>]
 ```
 
 ### SSLReport web interface
@@ -43,7 +43,7 @@ java -jar SSLReport-<Version>.jar [--webName|-wn]=<host> [[-p|--port]=<port>]
 Start the embedded Jetty server to get access to the web interface by executing:
 
 ```
-java -jar SSLReport-<Version>.jar --server
+java -jar sslreport-<Version>.jar --server
 ```
 
 With a http browser you can access the SSLReport web interface by the url: `http://localhost:8080/`
