@@ -1,6 +1,6 @@
 package de.thiemann.ssl.report.model;
 
-import java.net.InetSocketAddress;
+import java.net.InetAddress;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,10 +9,10 @@ import java.util.Set;
  */
 
 public class Report {
-	
+
 	public String webName;
 	public int port;
-	public InetSocketAddress isa;
+	public InetAddress ip;
 	public Set<Integer> supportedSSLVersions;
 	public boolean compress;
 	public Map<Integer, Set<Integer>> supportedCipherSuite;
@@ -22,6 +22,13 @@ public class Report {
 		super();
 		this.webName = webName;
 		this.port = port;
+	}
+
+	public Report(InetAddress ip, int port) {
+		super();
+		this.port = port;
+		this.ip = ip;
+		this.webName = ip.getHostName();
 	}
 
 }

@@ -7,8 +7,10 @@ package de.thiemann.ssl.report.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -18,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.inject.Inject;
 
+import de.thiemann.ssl.report.build.NSLookUp;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.ReportJsonOutput;
@@ -30,12 +33,14 @@ public class ReportServlet extends HttpServlet {
 
 	private ReportBuilder builder;
 	private ReportOutput output;
+	private NSLookUp lookUp;
 
 	@Inject
-	public ReportServlet(ReportBuilder builder, ReportJsonOutput output) {
+	public ReportServlet(ReportBuilder builder, ReportJsonOutput output, NSLookUp lookUp) {
 		super();
 		this.builder = builder;
 		this.output = output;
+		this.lookUp = lookUp;
 	}
 
 	@Override
@@ -58,8 +63,19 @@ public class ReportServlet extends HttpServlet {
 			}
 
 			if (webName != null && !webName.isEmpty()) {
-				Report report = builder.generateReport(webName, port);
-				String jsonOutput = output.outputReport(report);
+				InetAddress[] ips = lookUp.getAllByName(webName);
+				
+				String jsonOutput = "{ }";
+				
+				if(ips != null) {
+					if(ips.length == 1) {
+						Report report = builder.generateReport(ips[0], port);
+						jsonOutput = output.outputReport(report);
+					} else if(ips.length > 0) {
+						List<Report> reportList = builder.generateMultipleReport(ips, port);
+						jsonOutput = output.outputReportCollection(reportList);
+					}
+				}
 
 				response.setContentType("application/json;charset=utf-8");
 				response.setStatus(HttpServletResponse.SC_OK);

@@ -6,6 +6,7 @@ package de.thiemann.ssl.report.output;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,26 +24,58 @@ import de.thiemann.ssl.report.util.SSLVersions;
 public class ReportJsonOutput extends AbstractReportOutput {
 
 	@Override
-	public String outputReport(Report report) {
-		if (report.supportedSSLVersions.size() == 0)
-			return "{ }";
+	public String outputReportCollection(Collection<Report> reportCollection) {
+		List<Object> jsonReportList = new ArrayList<Object>();
+		for (Report report : reportCollection) {
+			jsonReportList.add(transferToJSONObject(report));
+		}
 
-		Map<String, Object> jsonStructure = new HashMap<String, Object>();
+		return transferToString(jsonReportList);
+	}
+
+	@Override
+	public String outputReport(Report report) {
+		Map<String, Object> jsonReport = transferToJSONObject(report);
+
+		return transferToString(jsonReport);
+	}
+	
+	private String transferToString(Object jsonObject) {
+		if (jsonObject != null) {
+			ObjectMapper mapper = new ObjectMapper();
+
+			try {
+				String jsonString = mapper.writerWithDefaultPrettyPrinter()
+						.writeValueAsString(jsonObject);
+				return jsonString;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return "{ }";
+	}
+
+	private Map<String, Object> transferToJSONObject(Report report) {
+		if (report.supportedSSLVersions.size() == 0)
+			return null;
+
+		Map<String, Object> jsonReport = new HashMap<String, Object>();
 
 		// output common values
-		jsonStructure.put("createdOn",
+		jsonReport.put("createdOn",
 				String.format("%1$tF %1$tT", System.currentTimeMillis()));
-		jsonStructure.put("webName", report.webName);
-		jsonStructure.put("ipAddress", report.isa.toString());
-		jsonStructure.put("port", Integer.toString(report.port));
+		jsonReport.put("webName", report.webName);
+		jsonReport.put("ipAddress", report.ip.toString());
+		jsonReport.put("port", Integer.toString(report.port));
 
 		// protocol
 		List<String> supportedVersions = new ArrayList<String>();
 		for (int version : report.supportedSSLVersions) {
 			supportedVersions.add(versionString(version));
 		}
-		jsonStructure.put("supportedSSLVersions", supportedVersions);
-		jsonStructure.put("compress", Boolean.toString(report.compress));
+		jsonReport.put("supportedSSLVersions", supportedVersions);
+		jsonReport.put("compress", Boolean.toString(report.compress));
 
 		// cipher suites
 		Map<String, Object> cipherSuites = new HashMap<String, Object>();
@@ -68,7 +101,7 @@ public class ReportJsonOutput extends AbstractReportOutput {
 			}
 
 		}
-		jsonStructure.put("cipherSuites", cipherSuites);
+		jsonReport.put("cipherSuites", cipherSuites);
 
 		Map<String, Object> certificates = new HashMap<String, Object>();
 		if (report.serverCert != null && report.serverCert.size() != 0) {
@@ -76,37 +109,29 @@ public class ReportJsonOutput extends AbstractReportOutput {
 				Set<Certificate> versionCertificates = report.serverCert
 						.get(version);
 
-				List<Map<String,Object>> transferedCertificates = new ArrayList<Map<String,Object>>();
+				List<Map<String, Object>> transferedCertificates = new ArrayList<Map<String, Object>>();
 				for (Certificate certificate : versionCertificates) {
-					transferedCertificates.add(transferToJSONObject(certificate));
+					transferedCertificates
+							.add(transferToJSONObject(certificate));
 				}
-				
-				certificates.put(versionString(version), transferedCertificates);
+
+				certificates
+						.put(versionString(version), transferedCertificates);
 			}
 		}
-		
-		jsonStructure.put("certificates", certificates);
 
-		ObjectMapper mapper = new ObjectMapper();
+		jsonReport.put("certificates", certificates);
 
-		try {
-			String jsonString = mapper.writerWithDefaultPrettyPrinter()
-					.writeValueAsString(jsonStructure);
-			return jsonString;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return null;
+		return jsonReport;
 	}
 
 	private Map<String, Object> transferToJSONObject(Certificate cert) {
-		if(!cert.isProcessed)
+		if (!cert.isProcessed)
 			cert.processCertificateBytes();
-		
+
 		Map<String, Object> jsonCert = new HashMap<String, Object>();
 		jsonCert.put("order", cert.order);
-		
+
 		if (cert instanceof SSLv2Certificate) {
 			SSLv2Certificate sslv2Cert = (SSLv2Certificate) cert;
 
@@ -121,8 +146,10 @@ public class ReportJsonOutput extends AbstractReportOutput {
 			jsonCert.put("version", v3Cert.certificateVersion);
 			jsonCert.put("subjectName", v3Cert.subjectName);
 			jsonCert.put("alternativeNames", v3Cert.alternativeNames);
-			jsonCert.put("notBefore", String.format("%1$tF %1$tT", v3Cert.notBefore));
-			jsonCert.put("notAfter", String.format("%1$tF %1$tT", v3Cert.notAfter));
+			jsonCert.put("notBefore",
+					String.format("%1$tF %1$tT", v3Cert.notBefore));
+			jsonCert.put("notAfter",
+					String.format("%1$tF %1$tT", v3Cert.notAfter));
 			jsonCert.put("pubKeyName", v3Cert.pubKeyInfo.pubKeyAlgorithm);
 			jsonCert.put("pubKeySize", v3Cert.pubKeyInfo.pubKeySize);
 			jsonCert.put("issuerName", v3Cert.issuerName);

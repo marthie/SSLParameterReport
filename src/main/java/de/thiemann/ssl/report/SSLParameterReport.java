@@ -38,10 +38,7 @@ package de.thiemann.ssl.report;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import de.thiemann.ssl.report.build.ReportBuilder;
-import de.thiemann.ssl.report.model.Report;
-import de.thiemann.ssl.report.output.ReportConsoleOutput;
-import de.thiemann.ssl.report.output.ReportOutput;
+import de.thiemann.ssl.report.console.ReportConsoleController;
 import de.thiemann.ssl.report.server.ServerController;
 import de.thiemann.ssl.report.util.Util;
 
@@ -70,8 +67,6 @@ public class SSLParameterReport {
 			optParser.printHelpOn(System.out);
 			System.exit(1);
 		}
-		
-		
 
 		if (os.has(optWebName)) {
 			String webName = os.valueOf(optWebName);
@@ -84,13 +79,10 @@ public class SSLParameterReport {
 					throw new Error("Wrong port! Port range is [0;65535]");
 				}
 			}
-
-			ReportBuilder builder = new ReportBuilder();
-			Report report = builder.generateReport(webName, port);
-
-			ReportOutput output = new ReportConsoleOutput();
-			output.outputReport(report);
-		} else if (os.has("server")) {	
+			
+			ReportConsoleController controller = new ReportConsoleController();
+			controller.outputReport(webName, port);
+		} else if (os.has("server")) {
 			new ServerController().startServer();
 		}
 	}

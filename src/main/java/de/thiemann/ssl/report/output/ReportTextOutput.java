@@ -26,6 +26,7 @@ package de.thiemann.ssl.report.output;
  * ----------------------------------------------------------------------
  */
 
+import java.util.Collection;
 import java.util.Set;
 
 import de.thiemann.ssl.report.model.Certificate;
@@ -36,12 +37,27 @@ import de.thiemann.ssl.report.util.SSLVersions;
 public class ReportTextOutput extends AbstractReportOutput {
 
 	private static String NL = System.getProperty("line.separator");
+	
+	@Override
+	public String outputReportCollection(Collection<Report> reportCollection) {
+		StringBuffer sb = new StringBuffer();
+		
+		for (Report report : reportCollection) {
+			sb.append(NL);
+			sb.append(outputReport(report));
+		}
+		
+		return sb.toString();
+	}
 
 	public String outputReport(Report report) {
 		StringBuffer sb = new StringBuffer();
+		
+		if(report.supportedSSLVersions == null)
+			return new String();
 
 		if (report.supportedSSLVersions.size() == 0) {
-			sb.append(NL).append("No SSL/TLS server at " + report.isa);
+			sb.append(NL).append("No SSL/TLS server at " + report.ip.toString());
 			return sb.toString();
 		}
 
@@ -56,7 +72,7 @@ public class ReportTextOutput extends AbstractReportOutput {
 				.append("Report created on: ")
 				.append(String.format("%1$tF %1$tT", System.currentTimeMillis()));
 		sb.append(NL).append("Web-Name: ").append(report.webName);
-		sb.append(NL).append("IP-Address: ").append(report.isa);
+		sb.append(NL).append("IP-Address: ").append(report.ip.toString());
 		sb.append(NL).append("Port: ").append(report.port);
 
 		sb.append(NL)
@@ -129,4 +145,5 @@ public class ReportTextOutput extends AbstractReportOutput {
 
 		return sb.toString();
 	}
+
 }

@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report.server;
+package de.thiemann.ssl.report.console;
 
 /*
  * Copyright (c) 2015  Marius Thiemann <marius dot thiemann at ploin dot de>
@@ -6,14 +6,14 @@ package de.thiemann.ssl.report.server;
 
 import com.google.inject.AbstractModule;
 
-import de.thiemann.ssl.report.output.ReportJsonOutput;
 import de.thiemann.ssl.report.output.ReportOutput;
+import de.thiemann.ssl.report.output.ReportTextOutput;
 
-public class ReportServerModul extends AbstractModule {
+public class ReportConsoleModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(ReportOutput.class).to(ReportJsonOutput.class);
+		bind(ReportOutput.class).to(ReportTextOutput.class);		
 	}
 
 }

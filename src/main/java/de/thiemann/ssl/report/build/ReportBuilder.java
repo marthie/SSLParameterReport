@@ -2,10 +2,13 @@ package de.thiemann.ssl.report.build;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -94,10 +97,29 @@ public class ReportBuilder {
 
 	private static final SecureRandom RNG = new SecureRandom();
 
-	public Report generateReport(String webName, int port) {
-		Report report = new Report(webName, port);
+	public List<Report> generateMultipleReport(InetAddress[] ips, int port) {
+		if (ips != null && ips.length > 0) {
+			List<Report> reportList = new ArrayList<Report>();
+			for (InetAddress ip : ips) {
+				Report r = generateReport(ip, port);
 
-		report.isa = new InetSocketAddress(webName, port);
+				if (r != null)
+					reportList.add(r);
+			}
+
+			if (reportList.isEmpty())
+				return null;
+
+			return reportList;
+		}
+
+		return null;
+	}
+
+	public Report generateReport(InetAddress ip, int port) {
+		Report report = new Report(ip, port);
+
+		InetSocketAddress isa = new InetSocketAddress(ip, port);
 
 		report.supportedSSLVersions = new TreeSet<Integer>();
 
@@ -106,8 +128,7 @@ public class ReportBuilder {
 			if (version.equals(SSLVersions.SSLv2))
 				continue;
 
-			ServerHello serverHello = connect(report.isa,
-					version.getIntVersion(),
+			ServerHello serverHello = connect(isa, version.getIntVersion(),
 					CipherSuiteUtil.CIPHER_SUITES.keySet());
 			if (serverHello == null) {
 				continue;
@@ -117,7 +138,7 @@ public class ReportBuilder {
 		}
 
 		// check support for version SSL2
-		ServerHelloSSLv2 serverHelloV2 = connectV2(report.isa);
+		ServerHelloSSLv2 serverHelloV2 = connectV2(isa);
 
 		if (serverHelloV2 != null) {
 			report.supportedSSLVersions.add(0x0200);
@@ -153,12 +174,10 @@ public class ReportBuilder {
 				continue;
 			}
 
-			Set<Integer> versionSupportedCiphers = supportedSuites(report.isa,
-					version);
+			Set<Integer> versionSupportedCiphers = supportedSuites(isa, version);
 			report.supportedCipherSuite.put(version, versionSupportedCiphers);
 
-			Set<Certificate> versionCertificates = addCertificates(report.isa,
-					version);
+			Set<Certificate> versionCertificates = addCertificates(isa, version);
 			report.serverCert.put(version, versionCertificates);
 		}
 
