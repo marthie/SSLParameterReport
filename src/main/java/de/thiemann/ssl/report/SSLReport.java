@@ -84,6 +84,7 @@ public class SSLReport {
 			controller.outputReport(webName, port);
 		} else if (os.has("server")) {
 			new ServerController().startServer();
-		}
+		} else
+			optParser.printHelpOn(System.out);
 	}
 }

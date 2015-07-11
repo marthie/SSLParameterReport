@@ -58,7 +58,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>de.thiemann.ssl.report.SSLParameterReport</mainClass>
+							<mainClass>de.thiemann.ssl.report.SSLReport</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
