@@ -21,14 +21,19 @@ SSLReport supports the maven build process. Get the source with git or download 
 mvn clean package
 ```
 
-The maven-assembly plugin is used to make a single execution jar and is bounded to the **package** lifecycle of maven.
-**During development the JDK 1.8u45 and java compiler 1.7 were used. Other java versions are untested!**
+The maven-assembly plugin is used to make a single execution jar and is bounded to the *package* lifecycle of maven.
+
+*During development the JDK 1.8u45 and java compiler 1.7 were used. Other java versions are untested!*
 
 ## Run SSLReport
 
 ### Get help
 
-Get help on command line arguments by executing the command: `java -jar sslreport-<Version>.jar --help`
+Get help on command line arguments by executing the command:
+
+```
+java -jar sslreport-<Version>.jar --help
+```
 
 ### SSLReport system console
 
