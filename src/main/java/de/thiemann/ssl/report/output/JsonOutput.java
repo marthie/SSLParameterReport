@@ -65,7 +65,7 @@ public class JsonOutput extends AbstractOutput {
 		// output common values
 		jsonReport.put("createdOn",
 				String.format("%1$tF %1$tT", System.currentTimeMillis()));
-		jsonReport.put("webName", report.webName);
+		jsonReport.put("host", report.host);
 		jsonReport.put("ipAddress", report.ip.toString());
 		jsonReport.put("port", Integer.toString(report.port));
 

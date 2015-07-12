@@ -54,8 +54,8 @@ public class SSLReportServlet extends HttpServlet {
 			String webName = null;
 			Integer port = new Integer(443);
 
-			if (inputArguments.containsKey("webName")) {
-				webName = inputArguments.get("webName").toString();
+			if (inputArguments.containsKey("host")) {
+				webName = inputArguments.get("host").toString();
 			}
 
 			if (inputArguments.containsKey("port")) {

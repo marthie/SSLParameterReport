@@ -4,11 +4,11 @@
 
 function SSLReport() {
 
-	this.getReportData = function(webName, port) {
+	this.getReportData = function(host, port) {
 		var data = {};
 
-		if (webName != null)
-			data.webName = webName;
+		if (host != null)
+			data.host = host;
 
 		if (port != null)
 			data.port = port;
@@ -25,7 +25,7 @@ function SSLReport() {
 
 		// common informations
 		$("#out_from").text(data.createdOn);
-		$("#out_webName").text(data.webName);
+		$("#out_host").text(data.host);
 		$("#out_ip").text(data.ipAddress);
 		$("#out_port").text(data.port);
 

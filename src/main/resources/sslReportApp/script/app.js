@@ -11,6 +11,6 @@ $(document).ready(function() {
 
 	$("#getReport").on("click", function() {
 		sslReport.clearOutput();
-		sslReport.getReportData($("#webName").val(), $("#port").val());
+		sslReport.getReportData($("#host").val(), $("#port").val());
 	});
 });

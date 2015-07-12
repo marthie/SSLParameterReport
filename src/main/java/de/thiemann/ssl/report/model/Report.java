@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class Report {
 
-	public String webName;
+	public String host;
 	public int port;
 	public InetAddress ip;
 	public Set<Integer> supportedSSLVersions;
@@ -18,9 +18,9 @@ public class Report {
 	public Map<Integer, Set<Integer>> supportedCipherSuite;
 	public Map<Integer, Set<Certificate>> serverCert;
 
-	public Report(String webName, int port) {
+	public Report(String host, int port) {
 		super();
-		this.webName = webName;
+		this.host = host;
 		this.port = port;
 	}
 
@@ -28,7 +28,7 @@ public class Report {
 		super();
 		this.port = port;
 		this.ip = ip;
-		this.webName = ip.getHostName();
+		this.host = ip.getHostName();
 	}
 
 }

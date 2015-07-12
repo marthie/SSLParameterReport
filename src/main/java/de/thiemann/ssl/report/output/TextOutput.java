@@ -71,7 +71,7 @@ public class TextOutput extends AbstractOutput {
 		sb.append(NL)
 				.append("Report created on: ")
 				.append(String.format("%1$tF %1$tT", System.currentTimeMillis()));
-		sb.append(NL).append("Web-Name: ").append(report.webName);
+		sb.append(NL).append("Host: ").append(report.host);
 		sb.append(NL).append("IP-Address: ").append(report.ip.toString());
 		sb.append(NL).append("Port: ").append(report.port);
 

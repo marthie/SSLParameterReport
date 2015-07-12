@@ -47,14 +47,14 @@ public class SSLReport {
 	public static void main(String[] args) throws Exception {
 		OptionParser optParser = new OptionParser() {
 			{
-				acceptsAll(Util.asList("?", "h", "help"), "Show help message");
+				acceptsAll(Util.asList("?", "help"), "Show help message");
 				accepts("server", "start server for self services");
 			}
 		};
 
-		OptionSpec<String> optWebName = optParser
-				.acceptsAll(Util.asList("wn", "webName"),
-						"create report for the webName").withRequiredArg()
+		OptionSpec<String> optHost = optParser
+				.acceptsAll(Util.asList("h", "host"),
+						"create report for the host").withRequiredArg()
 				.ofType(String.class);
 		OptionSpec<Integer> optPort = optParser
 				.acceptsAll(Util.asList("p", "port"),
@@ -68,8 +68,8 @@ public class SSLReport {
 			System.exit(1);
 		}
 
-		if (os.has(optWebName)) {
-			String webName = os.valueOf(optWebName);
+		if (os.has(optHost)) {
+			String host = os.valueOf(optHost);
 			int port = 443;
 
 			if (os.has(optPort)) {
@@ -81,7 +81,7 @@ public class SSLReport {
 			}
 			
 			ConsoleController controller = new ConsoleController();
-			controller.outputReport(webName, port);
+			controller.outputReport(host, port);
 		} else if (os.has("server")) {
 			new ServerController().startServer();
 		} else

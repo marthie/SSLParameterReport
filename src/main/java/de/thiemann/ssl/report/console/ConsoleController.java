@@ -32,14 +32,14 @@ public class ConsoleController {
 		this.lookup = injector.getInstance(NSLookUp.class);
 	}
 
-	public void outputReport(String webName, int port) {
-		InetAddress[] ips = lookup.getAllByName(webName);
+	public void outputReport(String host, int port) {
+		InetAddress[] ips = lookup.getAllByName(host);
 
 		if (ips != null) {
 			String consoleOutput = null;
 			if (ips.length == 1) {
 				Report report = builder.generateReport(ips[0], port);
-				
+
 				consoleOutput = output.outputReport(report);
 				
 				
