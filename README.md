@@ -1,17 +1,16 @@
 # SSLReport for servers
-based on the code of TestSSLServer by Thomas Pornin (http://www.bolet.org/TestSSLServer/)
+based on the code of [TestSSLServer](http://www.bolet.org/TestSSLServer/) by Thomas Pornin 
 
 ## Introduction
 
-SSLReport gets public SSL/TLS information by connecting to a given host. Following data is fetched by SSLReport:
+SSLReport is fetching public SSL/TLS information by connecting to a given host. Following data is fetched by SSLReport:
 
 * Protocol versions
 * Support for compression
-* Cipher Suites
+* Cipher suites
 * Certificates
 
-All public SSL/TLS handshake information and the certificate within the host response is displayed on the system console or on a web interface.
-The information won't be evaluated by SSLreport but is free for the evaluation by individuals.
+The public SSL/TLS handshake information and the certificate within the host response is displayed on the system console or on a web interface. The information won't be evaluated by SSLreport but is free for the evaluation by individuals.
 
 ## Build SSLReport
 
@@ -21,15 +20,15 @@ SSLReport supports the maven build process. Get the source with git or download 
 mvn clean package
 ```
 
-The maven-assembly plugin is used to make a single execution jar and is bounded to the *package* lifecycle of maven.
+The maven-assembly plugin is used to make a single execution JAR and is bounded to the *package* lifecycle of maven.
 
-*During development the JDK 1.8u45 and java compiler 1.7 were used. Other java versions are untested!*
+*This code is tested with JDK 1.8u45 and JDK 1.7. Other java versions are untested!*
 
 ## Run SSLReport
 
 ### Get help
 
-Get help on command line arguments by executing the command:
+Get help on command line arguments by executing this command:
 
 ```
 java -jar sslreport-<Version>.jar --help
