@@ -4,13 +4,18 @@
 $(document).ready(function() {
 
 	var sslReport = new SSLReport();
+	sslReport.initViewState();
+	
 
 	$("form").submit(function(e) {
 		e.preventDefault();
 	});
 
 	$("#getReport").on("click", function() {
-		sslReport.clearOutput();
-		sslReport.getReportData($("#host").val(), $("#port").val());
+		sslReport.getReportData();
+	});
+	
+	$("#newReport").on("click", function() {
+		sslReport.showInputPanel();
 	});
 });

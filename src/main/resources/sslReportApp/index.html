@@ -6,7 +6,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>SSL Parameter Report WebApp</title>
+<title>SSLReport Web Interface</title>
 
 <link rel="stylesheet"
 	href="lib/bootstrap-3.3.5-dist/css/bootstrap.min.css" />
@@ -24,26 +24,43 @@
 	<div class="container">
 		<div class="row">
 			<div class="page-header">
-				<h1>SSL Parameter Report</h1>
+				<h1>SSL Report</h1>
 			</div>
 		</div>
 		<div class="row">
-			<form class="form-inline">
-				<div class="form-group">
-					<label for="host">Host:</label> <input type="text"
-						id="host" class="form-control"
-						placeholder="e.g. www.googel.com">
+			<div class="panel panel-primary" id="inputPanel">
+				<div class="panel-heading">Input</div>
+				<div class="panel-body">
+					<form class="form-inline">
+						<div class="form-group">
+							<label for="host">Host:</label> <input type="text" id="host"
+								class="form-control" placeholder="e.g. www.googel.com">
+						</div>
+						<div class="form-group">
+							<label for="port">Port:</label> <input type="text" id="port"
+								class="form-control" placeholder="e.g. 443">
+						</div>
+						<button class="btn btn-primary" id="getReport">
+							Get SSL Report <span class="glyphicon glyphicon-chevron-right"
+								aria-hidden="true"></span>
+						</button>
+					</form>
 				</div>
-				<div class="form-group">
-					<label for="port">Port:</label> <input type="text" id="port"
-						class="form-control" placeholder="e.g. 443">
-				</div>
-				<button class="btn btn-primary" id="getReport">Get SSL
-					Report!</button>
-			</form>
+			</div>
 		</div>
 		<div class="row">
-			<div id="reportOutput" class="hidden">
+			<div class="btn-group" role="group" aria-label=""
+				id="reportButtonGroup">
+				<button class="btn btn-default" id="newReport">
+					<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>Back
+				</button>
+				<button class="btn btn-default" id="refreshReport">
+					<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>Refresh
+				</button>
+			</div>
+		</div>
+		<div class="row">
+			<div id="reportOutput">
 
 				<div class="page-header">
 					<h2>Common Information</h2>
@@ -89,7 +106,7 @@
 					</div>
 					<div class="form-group">
 						<label for="out_compress" class="col-sm-4 control-label">Deflate
-							compression:</label>
+							compression support:</label>
 						<div class="col-sm-8">
 							<p class="form-control-static" id="out_compress"></p>
 						</div>
@@ -103,9 +120,7 @@
 				</div>
 
 				<div class="page-header" id="certificates">
-					<h2>
-						Certificates
-					</h2>
+					<h2>Certificates</h2>
 				</div>
 			</div>
 		</div>

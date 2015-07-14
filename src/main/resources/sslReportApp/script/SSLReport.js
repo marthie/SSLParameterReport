@@ -3,42 +3,81 @@
  */
 
 function SSLReport() {
+	
+	// functions
 
-	this.getReportData = function(host, port) {
-		var data = {};
-
-		if (host != null)
-			data.host = host;
-
-		if (port != null)
-			data.port = port;
+	this.getReportData = function() {
+		var sslRportInstance = this;
+		var requestData = {};
+		
+		requestData.host = $("#host").val();
+		requestData.port = $("#port").val();
 
 		$.ajax({
 			"url" : "/service/sslReport",
 			"type" : "POST",
-			"data" : data,
-			"dataType" : "json",
-		}).done(this.fillForms);
+			"data" : requestData,
+			"dataType" : "json"
+		}).done(function(data) {
+			sslRportInstance.showReport(data);
+		});
+	};
+	
+	this.showReport = function(data) {
+		this.fillForms(data);
+		this._setViewStateReport();
+	};
+	
+	this.showInputPanel = function() {
+		this.clearOutput();
+		this._setViewStateInput();
+	};
+	
+	this.initViewState = function() {
+		this.reportOutput = $("#reportOutput");
+		this.reportBtnGrp = $("#reportButtonGroup");
+		this.inputPanel = $("#inputPanel");
+		
+		this.reportOutput.hide();
+		this.reportBtnGrp.hide();
+	};
+	
+	this._setViewStateInput = function() {
+		this.inputPanel.show(1500);
+		this.reportBtnGrp.hide(100);
+		this.reportOutput.hide(1500);
+	};
+	
+	this._setViewStateReport = function() {
+		this.inputPanel.hide(1500);
+		this.reportBtnGrp.show(100);
+		this.reportOutput.show(1500);
 	};
 
 	this.fillForms = function(data) {
+		var report = null;
+		
+		if($.isArray(data) && data.length > 0)
+			report = data[0];
+		else
+			report = data;
 
 		// common informations
-		$("#out_from").text(data.createdOn);
-		$("#out_host").text(data.host);
-		$("#out_ip").text(data.ipAddress);
-		$("#out_port").text(data.port);
+		$("#out_from").text(report.createdOn);
+		$("#out_host").text(report.host);
+		$("#out_ip").text(report.ipAddress);
+		$("#out_port").text(report.port);
 
 		// protocol
-		$("#out_supportedVersions").text(data.supportedSSLVersions.join());
-		$("#out_compress").text(data.compress ? "Yes" : "No");
+		$("#out_supportedVersions").text(report.supportedSSLVersions.join());
+		$("#out_compress").text(report.compress ? "Yes" : "No");
 
 		// cipher suites
 		var cipherSuites = $("#cipherSuites");
 
-		for ( var sslVersion in data.cipherSuites) {
-			if (data.cipherSuites.hasOwnProperty(sslVersion)) {
-				var cipherList = data.cipherSuites[sslVersion];
+		for ( var sslVersion in report.cipherSuites) {
+			if (report.cipherSuites.hasOwnProperty(sslVersion)) {
+				var cipherList = report.cipherSuites[sslVersion];
 
 				var cipherSuiteTemplate = $("#cipherSuiteTemplate").html();
 				cipherSuites.after(cipherSuiteTemplate);
@@ -57,9 +96,9 @@ function SSLReport() {
 		// certificates
 		var certifiactes = $("#certificates");
 
-		for ( var sslVersion in data.certificates) {
-			if (data.certificates.hasOwnProperty(sslVersion)) {
-				var certificateList = data.certificates[sslVersion];
+		for ( var sslVersion in report.certificates) {
+			if (report.certificates.hasOwnProperty(sslVersion)) {
+				var certificateList = report.certificates[sslVersion];
 
 				var certificateTemplate = $("#certificateTemplate").html();
 				certifiactes.after(certificateTemplate);
@@ -107,14 +146,9 @@ function SSLReport() {
 				}
 			}
 		}
-
-		// remove hidden
-		$("#reportOutput").removeAttr("class");
 	};
 
 	this.clearOutput = function() {
-		$("#reportOutput").attr("class", "hidden");
-
 		$("div").filter("#certificate, #cipherSuite").each(function(index) {
 			$(this).remove();
 		});
