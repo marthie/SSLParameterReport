@@ -3,13 +3,13 @@
  */
 
 function SSLReport() {
-	
+
 	// functions
 
 	this.getReportData = function() {
 		var sslRportInstance = this;
 		var requestData = {};
-		
+
 		requestData.host = $("#host").val();
 		requestData.port = $("#port").val();
 
@@ -22,58 +22,73 @@ function SSLReport() {
 			sslRportInstance.showReport(data);
 		});
 	};
-	
+
 	this.showReport = function(data) {
-		this.fillForms(data);
+		this.showReportData(data);
 		this._setViewStateReport();
 	};
-	
+
 	this.showInputPanel = function() {
 		this.clearOutput();
 		this._setViewStateInput();
 	};
-	
+
 	this.initViewState = function() {
-		this.reportOutput = $("#reportOutput");
+		this.reportOutputArea = $("#reportOutputArea");
 		this.reportBtnGrp = $("#reportButtonGroup");
 		this.inputPanel = $("#inputPanel");
-		
-		this.reportOutput.hide();
+
+		this.reportOutputArea.hide();
 		this.reportBtnGrp.hide();
 	};
-	
+
 	this._setViewStateInput = function() {
 		this.inputPanel.show(1500);
 		this.reportBtnGrp.hide(100);
-		this.reportOutput.hide(1500);
+		this.reportOutputArea.hide(1500);
 	};
-	
+
 	this._setViewStateReport = function() {
 		this.inputPanel.hide(1500);
 		this.reportBtnGrp.show(100);
-		this.reportOutput.show(1500);
+		this.reportOutputArea.show(1500);
 	};
 
-	this.fillForms = function(data) {
-		var report = null;
-		
-		if($.isArray(data) && data.length > 0)
-			report = data[0];
+	this.showReportData = function(data) {
+		if ($.isArray(data) && data.length > 0)
+			for (var i = 0; i < data.lenght; i++) {
+				this._addDataToDOM(data[i]);
+			}
 		else
-			report = data;
+			this._addDataToDOM(data);
+
+	};
+
+	this._addDataToDOM = function(report) {
+		// create Template
+		var template = $("#reportTemplate").html();
+
+		this.reportOutputArea.append(template);
+		var reportOutput = this.reportOutputArea.find("#reportOutput").last();
+
+		// set panel title
+		reportOutput.find(".panel-title").text(report.ipAddress);
 
 		// common informations
-		$("#out_from").text(report.createdOn);
-		$("#out_host").text(report.host);
-		$("#out_ip").text(report.ipAddress);
-		$("#out_port").text(report.port);
+		var ciPart = reportOutput.find("#commonInformation");
+		ciPart.find("#out_from").text(report.createdOn);
+		ciPart.find("#out_host").text(report.host);
+		ciPart.find("#out_ip").text(report.ipAddress);
+		ciPart.find("#out_port").text(report.port);
 
 		// protocol
-		$("#out_supportedVersions").text(report.supportedSSLVersions.join());
-		$("#out_compress").text(report.compress ? "Yes" : "No");
+		var protPart = reportOutput.find("#protocolInformation");
+		protPart.find("#out_supportedVersions").text(
+				report.supportedSSLVersions.join());
+		protPart.find("#out_compress").text(report.compress ? "Yes" : "No");
 
 		// cipher suites
-		var cipherSuites = $("#cipherSuites");
+		var cipherSuites = reportOutput.find("#cipherSuites");
 
 		for ( var sslVersion in report.cipherSuites) {
 			if (report.cipherSuites.hasOwnProperty(sslVersion)) {
@@ -94,7 +109,7 @@ function SSLReport() {
 		}
 
 		// certificates
-		var certifiactes = $("#certificates");
+		var certifiactes = reportOutput.find("#certificates");
 
 		for ( var sslVersion in report.certificates) {
 			if (report.certificates.hasOwnProperty(sslVersion)) {
@@ -112,7 +127,8 @@ function SSLReport() {
 							.html();
 					certificate.append(certificateFormTemplate);
 
-					var panelHeader = certificate.find(".panel-heading").last().text("#" + certificateData.order);
+					var panelHeader = certificate.find(".panel-heading").last()
+							.text("#" + certificateData.order);
 					var certificateForm = certificate.find("form").last();
 
 					certificateForm.find("#out_order").text(
@@ -127,12 +143,12 @@ function SSLReport() {
 							certificateData.notBefore);
 					certificateForm.find("#out_notAfter").text(
 							certificateData.notAfter);
-					
+
 					var key = certificateData.pubKeyName;
 					if (certificateData.pubKeySize !== null) {
 						key += " (" + certificateData.pubKeySize + " bit)"
 					}
-					
+
 					certificateForm.find("#out_key").text(key);
 					certificateForm.find("#out_issuer").text(
 							certificateData.issuerName);
@@ -149,7 +165,7 @@ function SSLReport() {
 	};
 
 	this.clearOutput = function() {
-		$("div").filter("#certificate, #cipherSuite").each(function(index) {
+		$("div").filter("#reportOutput").each(function(index) {
 			$(this).remove();
 		});
 	};

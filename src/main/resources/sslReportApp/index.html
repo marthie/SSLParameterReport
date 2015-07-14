@@ -59,166 +59,184 @@
 				</button>
 			</div>
 		</div>
-		<div class="row">
-			<div id="reportOutput">
-
-				<div class="page-header">
-					<h2>Common Information</h2>
-				</div>
-				<form class="form-horizontal">
-					<div class="form-group">
-						<label for="out_from" class="col-sm-4 control-label">Report
-							created on:</label>
-						<div class="col-sm-8">
-							<p class="form-control-static" id="out_from"></p>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="out_host" class="col-sm-4 control-label">Host:</label>
-						<div class="col-sm-8">
-							<p class="form-control-static" id="out_host"></p>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="out_ip" class="col-sm-4 control-label">IP-Address:</label>
-						<div class="col-sm-8">
-							<p class="form-control-static" id="out_ip"></p>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="out_port" class="col-sm-4 control-label">Port:</label>
-						<div class="col-sm-8">
-							<p class="form-control-static" id="out_port"></p>
-						</div>
-					</div>
-				</form>
-
-				<div class="page-header">
-					<h2>Protocol</h2>
-				</div>
-				<form class="form-horizontal">
-					<div class="form-group">
-						<label for="out_supportedVersions" class="col-sm-4 control-label">Supported
-							protocol versions:</label>
-						<div class="col-sm-8">
-							<p class="form-control-static" id="out_supportedVersions"></p>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="out_compress" class="col-sm-4 control-label">Deflate
-							compression support:</label>
-						<div class="col-sm-8">
-							<p class="form-control-static" id="out_compress"></p>
-						</div>
-					</div>
-				</form>
-
-				<div class="page-header" id="cipherSuites">
-					<h2>
-						Cipher Suites <small>order is not relevant</small>
-					</h2>
-				</div>
-
-				<div class="page-header" id="certificates">
-					<h2>Certificates</h2>
-				</div>
-			</div>
-		</div>
+		<div class="row" id="reportOutputArea"></div>
 	</div>
 </body>
 
-<script type="text/html" id="cipherSuiteTemplate">
-	<div id="cipherSuite">
+<script type="text/html" id="reportTemplate">
+<div class="panel panel-default" id="reportOutput">
+	<div class="panel-heading">
+		<h3 class="panel-title"></h3>
+		<span class="pull-right clickable"><i
+			class="glyphicon glyphicon-chevron-up"></i></span>
+	</div>
+	<div class="panel-body">
 		<div class="page-header">
-			<h3 id="cipherSuiteHeader"></h3>
+			<h2>Common Information</h2>
+		</div>
+		<form class="form-horizontal" id="commonInformation">
+			<div class="form-group">
+				<label for="out_from" class="col-sm-4 control-label">Report
+					created on:</label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_from"></p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="out_host" class="col-sm-4 control-label">Host:</label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_host"></p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="out_ip" class="col-sm-4 control-label">IP-Address:</label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_ip"></p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="out_port" class="col-sm-4 control-label">Port:</label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_port"></p>
+				</div>
+			</div>
+		</form>
+
+		<div class="page-header">
+			<h2>Protocol</h2>
+		</div>
+		<form class="form-horizontal" id="protocolInformation">
+			<div class="form-group">
+				<label for="out_supportedVersions" class="col-sm-4 control-label">Supported
+					protocol versions:</label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_supportedVersions"></p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="out_compress" class="col-sm-4 control-label">Deflate
+					compression support:</label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_compress"></p>
+				</div>
+			</div>
+		</form>
+
+		<div class="page-header" id="cipherSuites">
+			<h2>
+				Cipher Suites <small>order is not relevant</small>
+			</h2>
 		</div>
 
-		<ul class="list-group">
-		</ul>
+		<div class="page-header" id="certificates">
+			<h2>Certificates</h2>
+		</div>
 	</div>
+</div>
+</script>
+
+<script type="text/html" id="cipherSuiteTemplate">
+<div id="cipherSuite">
+	<div class="page-header">
+		<h3 id="cipherSuiteHeader"></h3>
+	</div>
+
+	<ul class="list-group">
+	</ul>
+</div>
 </script>
 
 <script type="text/html" id="certificateTemplate">
-	<div id="certificate">
-		<div class="page-header">
-			<h3 id="certificateHeader"></h3>
-		</div>
+<div id="certificate">
+	<div class="page-header">
+		<h3 id="certificateHeader"></h3>
 	</div>
+</div>
 </script>
 
 <script type="text/html" id="certificateFormTemplate">
 <div class="panel panel-default">
-  <div class="panel-heading"></div>
-  <div class="panel-body">
-	<form class="form-horizontal">
-		<div class="form-group">
-			<label for="out_order" class="col-sm-4 control-label">Send in order: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_order"></p>
+	<div class="panel-heading"></div>
+	<div class="panel-body">
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label for="out_order" class="col-sm-4 control-label">Send
+					in order: </label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_order"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_version" class="col-sm-4 control-label">Certificate Version: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_version"></p>
+			<div class="form-group">
+				<label for="out_version" class="col-sm-4 control-label">Certificate
+					Version: </label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_version"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_subjectName" class="col-sm-4 control-label">Subject: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_subjectName"></p>
+			<div class="form-group">
+				<label for="out_subjectName" class="col-sm-4 control-label">Subject:
+				</label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_subjectName"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_alternativeNames" class="col-sm-4 control-label">Alternative Names: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_alternativeNames"></p>
+			<div class="form-group">
+				<label for="out_alternativeNames" class="col-sm-4 control-label">Alternative
+					Names: </label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_alternativeNames"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_notBefore" class="col-sm-4 control-label">Not Before: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_notBefore"></p>
+			<div class="form-group">
+				<label for="out_notBefore" class="col-sm-4 control-label">Not
+					Before: </label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_notBefore"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_notAfter" class="col-sm-4 control-label">Not After: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_notAfter"></p>
+			<div class="form-group">
+				<label for="out_notAfter" class="col-sm-4 control-label">Not
+					After: </label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_notAfter"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_key" class="col-sm-4 control-label">Key: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_key"></p>
+			<div class="form-group">
+				<label for="out_key" class="col-sm-4 control-label">Key: </label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_key"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_issuer" class="col-sm-4 control-label">Issuer: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_issuer"></p>
+			<div class="form-group">
+				<label for="out_issuer" class="col-sm-4 control-label">Issuer:
+				</label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_issuer"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_sigAlgo" class="col-sm-4 control-label">Signature Algorithm: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_sigAlgo"></p>
+			<div class="form-group">
+				<label for="out_sigAlgo" class="col-sm-4 control-label">Signature
+					Algorithm: </label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_sigAlgo"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_fingerprint" class="col-sm-4 control-label">Fingerprint: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_fingerprint"></p>
+			<div class="form-group">
+				<label for="out_fingerprint" class="col-sm-4 control-label">Fingerprint:
+				</label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_fingerprint"></p>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="out_crl" class="col-sm-4 control-label">CRL Distribution Points: </label>
-			<div class="col-sm-8">
-				<p class="form-control-static" id="out_crl"></p>
+			<div class="form-group">
+				<label for="out_crl" class="col-sm-4 control-label">CRL
+					Distribution Points: </label>
+				<div class="col-sm-8">
+					<p class="form-control-static" id="out_crl"></p>
+				</div>
 			</div>
-		</div>
-	</form>
-  </div>
+		</form>
+	</div>
 </div>
 </script>
 
