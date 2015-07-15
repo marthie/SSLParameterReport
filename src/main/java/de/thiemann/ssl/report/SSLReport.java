@@ -1,15 +1,6 @@
 package de.thiemann.ssl.report;
 
 /*
- * Command-line tool to test a SSL/TLS parameter on a server.
- * =====================================================================
- *
- * This application connects to the provided SSL/TLS server (by name and
- * port) and extracts the following information:
- * - supported versions (SSL 2.0, SSL 3.0, TLS 1.0 to 1.2)
- * - support of Deflate compression
- * - list of supported cipher suites (for each protocol version)
- *
  * ----------------------------------------------------------------------
  * Copyright (c) 2012  Thomas Pornin <pornin@bolet.org>
  * 

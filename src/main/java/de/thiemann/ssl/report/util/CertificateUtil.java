@@ -3,6 +3,7 @@ package de.thiemann.ssl.report.util;
 /*
  * ----------------------------------------------------------------------
  * Copyright (c) 2012  Thomas Pornin <pornin@bolet.org>
+ * Copyright (c) 2015 Marius Thiemann <marius dot thiemann at ploin dot de>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the

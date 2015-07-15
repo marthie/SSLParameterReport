@@ -1,7 +1,3 @@
-package de.thiemann.ssl.report.console;
-
-/*
-
 The MIT License (MIT)
 
 Copyright (c) 2015 Marius Thiemann <marius dot thiemann at ploin dot de>
@@ -23,19 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
- */
-
-import com.google.inject.AbstractModule;
-
-import de.thiemann.ssl.report.output.Output;
-import de.thiemann.ssl.report.output.TextOutput;
-
-public class ConsoleModule extends AbstractModule {
-
-	@Override
-	protected void configure() {
-		bind(Output.class).to(TextOutput.class);		
-	}
-
-}
