@@ -9,6 +9,13 @@
 
 	<name>sslreport</name>
 
+	<licenses>
+		<license>
+			<name>MIT</name>
+			<url>http://choosealicense.com/licenses/mit/</url>
+		</license>
+	</licenses>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -68,7 +75,7 @@
 				<executions>
 					<execution>
 						<id>make-assembly</id>
-						<phase>package</phase> 
+						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
