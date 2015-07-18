@@ -55,6 +55,34 @@ function SlidePanel() {
 		body.slideUp();
 	};
 	
+	this.makeOpenSlidable = function(panel) {
+		var head = $(panel).children(".panel-heading");
+		var body = $(panel).children(".panel-body");
+		
+		if(!head)
+			return;
+		
+		if(!body)
+			return;
+	
+		head.append("<span class=\"pull-right clickable\"></span>");
+		
+		var clickable = head.children(".clickable");
+		
+		if(!clickable)
+			return;
+		
+		clickable.append("<i class=\"glyphicon glyphicon-chevron-up\"></i>");
+		clickable.css("margin-top", "-15px");
+		
+		var _this = this;
+		clickable.on("click", function() {
+			_this._toogleSlide(clickable, body);
+		});
+		
+		body.slideDown();
+	};
+	
 	this._toogleSlide = function(clickable, body) {
 		var glyphicon = clickable.children(".glyphicon");
 		
