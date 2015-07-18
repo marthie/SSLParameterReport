@@ -26,6 +26,8 @@ SOFTWARE.
 
 function SSLReport() {
 
+	this.slidePanel = new SlidePanel();
+
 	// functions
 
 	this.getReportData = function() {
@@ -77,11 +79,11 @@ function SSLReport() {
 	};
 
 	this.showReportData = function(data) {
-		if ($.isArray(data) && data.length > 0)
-			for (var i = 0; i < data.lenght; i++) {
+		if ($.isArray(data) && data.length > 0) {
+			for (var i = 0; i < data.length; i++) {
 				this._addDataToDOM(data[i]);
 			}
-		else
+		} else
 			this._addDataToDOM(data);
 
 	};
@@ -93,8 +95,14 @@ function SSLReport() {
 		this.reportOutputArea.append(template);
 		var reportOutput = this.reportOutputArea.find("#reportOutput").last();
 
-		// set panel title
+		// set css to reportOutput
+		reportOutput.css("margin-top", "10px");
+
+		// set title
 		reportOutput.find(".panel-title").text(report.ipAddress);
+
+		// make panel slidable
+		this.slidePanel.makeSlidable(reportOutput);
 
 		// common informations
 		var ciPart = reportOutput.find("#commonInformation");
