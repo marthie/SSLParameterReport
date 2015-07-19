@@ -118,77 +118,85 @@ function SSLReport() {
 		protPart.find("#out_compress").text(report.compress ? "Yes" : "No");
 
 		// cipher suites
-		var cipherSuites = reportOutput.find("#cipherSuites");
+		var cipherSuitesHeader = reportOutput.find("#cipherSuites");
+		this._addCipherSuitesToDOM(cipherSuitesHeader, report.cipherSuites);
 
-		for ( var sslVersion in report.cipherSuites) {
-			if (report.cipherSuites.hasOwnProperty(sslVersion)) {
-				var cipherList = report.cipherSuites[sslVersion];
+		// certificates
+		var certifiactesHeader = reportOutput.find("#certificates");
+		this._addCertificatesToDOM(certifiactesHeader, report.certificates)
+	};
 
-				var cipherSuiteTemplate = $("#cipherSuiteTemplate").html();
-				cipherSuites.after(cipherSuiteTemplate);
-
-				var cipherSuite = $("#cipherSuite").first();
-				cipherSuite.find("#cipherSuiteHeader").text(sslVersion);
-				var cipherSuiteList = cipherSuite.find(".list-group");
-
-				for (var i = 0; i < cipherList.length; i++) {
-					cipherSuiteList.append("<li class=\"list-group-item\">"
-							+ cipherList[i] + "</li>");
+	this._addCertificatesToDOM = function(header, certificates) {
+		var certificateTemplate = $("#certificateTemplate2").html();
+		header.after(certificateTemplate);
+		
+		var certificateDiv = header.next();
+		var tbody = certificateDiv.find("tbody");
+		
+		for (var sslVersion in certificates) {
+			if (certificates.hasOwnProperty(sslVersion)) {			
+				var versionCertificates = certificates[sslVersion];
+		
+				if ($.isArray(versionCertificates)
+						&& versionCertificates.length > 0) {
+					for(var i = 0; i < versionCertificates.length; i++) {
+						var certificateData = versionCertificates[i];
+						tbody.append("<tr><th scope=\"row\" rowspan=\"11\">" + sslVersion + "</th><th scope=\"row\">Send in order:</th><td>" + certificateData.order + "</td></tr>");
+						tbody.append("<tr><th scope=\"row\">Certificate Version:</th><td>" + certificateData.version + "</td></tr>");
+						tbody.append("<tr><th scope=\"row\">Subject:</th><td>" + certificateData.subjectName + "</td></tr>");
+						
+						var alternativeNames = new String();
+						if(certificateData.alternativeNames) {
+							for(var j = 0; j < certificateData.alternativeNames.length; j++) {
+								alternativeNames += "<p>" + certificateData.alternativeNames[j] + "</p>";
+							}
+						}
+						
+						tbody.append("<tr><th scope=\"row\">Alternative Names:</th><td>" + alternativeNames + "</td></tr>");
+						tbody.append("<tr><th scope=\"row\">Not Before:</th><td>" + certificateData.notBefore + "</td></tr>");
+						tbody.append("<tr><th scope=\"row\">Not After:</th><td>" + certificateData.notAfter + "</td></tr>");
+						
+						var key = certificateData.pubKeyName;
+						if (certificateData.pubKeySize !== null) {
+							key += " (" + certificateData.pubKeySize + " bit)"
+						}
+						
+						tbody.append("<tr><th scope=\"row\">Key:</th><td>" + key + "</td></tr>");
+						tbody.append("<tr><th scope=\"row\">Issuer:</th><td>" + certificateData.issuerName + "</td></tr>");
+						tbody.append("<tr><th scope=\"row\">Signature Algorithm:</th><td>" + certificateData.signatureAlgorithm + "</td></tr>");
+						tbody.append("<tr><th scope=\"row\">Fingerprint:</th><td>" + certificateData.fingerprint + "</td></tr>");
+						tbody.append("<tr><th scope=\"row\">CRL Distribution Points:</th><td>" + certificateData.crlDistributionPoints + "</td></tr>");
+					}
 				}
 			}
 		}
+	};
 
-		// certificates
-		var certifiactes = reportOutput.find("#certificates");
+	this._addCipherSuitesToDOM = function(header, cipherSuites) {
 
-		for ( var sslVersion in report.certificates) {
-			if (report.certificates.hasOwnProperty(sslVersion)) {
-				var certificateList = report.certificates[sslVersion];
+		var cipherSuiteTemplate = $("#cipherSuiteTemplate").html();
+		header.after(cipherSuiteTemplate);
 
-				var certificateTemplate = $("#certificateTemplate").html();
-				certifiactes.after(certificateTemplate);
+		var cipherSuiteDiv = header.next();
+		var tbody = cipherSuiteDiv.find("tbody");
 
-				var certificate = $("#certificate").first();
-				certificate.find("#certificateHeader").text(sslVersion);
+		for (var sslVersion in cipherSuites) {
+			if (cipherSuites.hasOwnProperty(sslVersion)) {
+				tbody.append("<tr><th scope=\"row\">" + sslVersion
+						+ "</th><td></td></tr>");
+				var tr = tbody.children("tr").last();
+				var td = tr.children().last();
 
-				for (var i = 0; i < certificateList.length; i++) {
-					var certificateData = certificateList[i];
-					var certificateFormTemplate = $("#certificateFormTemplate")
-							.html();
-					certificate.append(certificateFormTemplate);
+				var versionCipherSuites = cipherSuites[sslVersion];
+				if ($.isArray(versionCipherSuites)
+						&& versionCipherSuites.length > 0) {
+					var htmlText = new String();
 
-					var panelHeader = certificate.find(".panel-heading").last()
-							.text("#" + certificateData.order);
-					var certificateForm = certificate.find("form").last();
-
-					certificateForm.find("#out_order").text(
-							certificateData.order);
-					certificateForm.find("#out_version").text(
-							certificateData.version);
-					certificateForm.find("#out_subjectName").text(
-							certificateData.subjectName);
-					certificateForm.find("#out_alternativeNames").text(
-							certificateData.alternativeNames);
-					certificateForm.find("#out_notBefore").text(
-							certificateData.notBefore);
-					certificateForm.find("#out_notAfter").text(
-							certificateData.notAfter);
-
-					var key = certificateData.pubKeyName;
-					if (certificateData.pubKeySize !== null) {
-						key += " (" + certificateData.pubKeySize + " bit)"
+					for (var i = 0; i < versionCipherSuites.length; i++) {
+						htmlText += "<p>" + versionCipherSuites[i] + "</p>";
 					}
 
-					certificateForm.find("#out_key").text(key);
-					certificateForm.find("#out_issuer").text(
-							certificateData.issuerName);
-					certificateForm.find("#out_sigAlgo").text(
-							certificateData.signatureAlgorithm);
-					certificateForm.find("#out_fingerprint").text(
-							certificateData.fingerprint);
-					certificateForm.find("#out_crl").text(
-							certificateData.crlDistributionPoints);
-
+					td.append(htmlText);
 				}
 			}
 		}

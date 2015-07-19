@@ -158,12 +158,10 @@ SOFTWARE.
 
 <script type="text/html" id="cipherSuiteTemplate">
 <div id="cipherSuite">
-	<div class="page-header">
-		<h3 id="cipherSuiteHeader"></h3>
-	</div>
-
-	<ul class="list-group">
-	</ul>
+	<table class="table table-bordered">
+		<tbody>
+		</tbod>
+	</table>
 </div>
 </script>
 
@@ -173,6 +171,63 @@ SOFTWARE.
 		<h3 id="certificateHeader"></h3>
 	</div>
 </div>
+</script>
+
+<script type="text/html" id="certificateTemplate2">
+<div id="certificate">
+	<table class="table table-bordered">
+		<tbody>
+		</tbody>
+	</table>
+</div>
+</script>
+
+<script type="text/html">
+			<tr id="cert_order">
+				<th scope="row" rowspan="11"></th>
+				<th scope="row">Send in order:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_version">
+				<th scope="row">Certificate Version:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_subjectName">
+				<th scope="row">Subject:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_alternativeNames">
+				<th scope="row">Alternative Names:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_notBefore">
+				<th scope="row">Not Before:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_notAfter">
+				<th scope="row">Not After:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_key">
+				<th scope="row">Key:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_issuer">
+				<th scope="row">Issuer:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_sigAlgo">
+				<th scope="row">Signature Algorithm:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_fingerprint">
+				<th scope="row">Fingerprint:</th>
+				<td></td>
+			<tr>
+			<tr id="cert_crl">
+				<th scope="row">CRL Distribution Points:</th>
+				<td></td>
+			<tr>
 </script>
 
 <script type="text/html" id="certificateFormTemplate">
