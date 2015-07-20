@@ -41,7 +41,11 @@ function SSLReport() {
 			"url" : "/service/sslReport",
 			"type" : "POST",
 			"data" : requestData,
-			"dataType" : "json"
+			"dataType" : "json",
+			"beforeSend" : function() {
+				sslRportInstance._loadingAlert(sslRportInstance.alertOutput);
+				sslRportInstance._setViewState2();
+			}
 		}).done(function(data) {
 			sslRportInstance.showReport(data);
 		});
@@ -49,33 +53,55 @@ function SSLReport() {
 
 	this.showReport = function(data) {
 		this.showReportData(data);
-		this._setViewStateReport();
+		this._setViewState3();
 	};
 
 	this.showInputPanel = function() {
 		this.clearOutput();
-		this._setViewStateInput();
+		this._setViewState1();
 	};
-
+	
+	// one page application - states init
 	this.initViewState = function() {
 		this.reportOutputArea = $("#reportOutputArea");
 		this.reportBtnGrp = $("#reportButtonGroup");
 		this.inputPanel = $("#inputPanel");
+		this.alertOutput = $("#alert");
 
 		this.reportOutputArea.hide();
 		this.reportBtnGrp.hide();
+		this.alertOutput.hide();
 	};
 
-	this._setViewStateInput = function() {
-		this.inputPanel.show(1500);
+	// view state #1 - the input of host and port
+	this._setViewState1 = function() {
 		this.reportBtnGrp.hide(100);
-		this.reportOutputArea.hide(1500);
+		this.reportOutputArea.hide(100);
+		
+		this.inputPanel.show(1500);
+	};
+	
+	// view state #2 - loading report
+	this._setViewState2 = function() {
+		this.inputPanel.hide(100);
+		
+		this.alertOutput.show(1500);
 	};
 
-	this._setViewStateReport = function() {
-		this.inputPanel.hide(1500);
+	// view state #3 - show report
+	this._setViewState3 = function() {
+		this.alertOutput.hide(100);
+		
 		this.reportBtnGrp.show(100);
 		this.reportOutputArea.show(1500);
+	};
+	
+	this._loadingAlert = function(alertOutput) {
+		this._clearAlertOutput(alertOutput);
+		
+		alertOutput.attr("class", "alert alert-info");
+		alertOutput.append("<img src=\"/pics/ajax-loader.gif\"></img>");
+		alertOutput.append("<strong> Loading...</strong>");
 	};
 
 	this.showReportData = function(data) {
@@ -204,6 +230,13 @@ function SSLReport() {
 
 	this.clearOutput = function() {
 		$("div").filter("#reportOutput").each(function(index) {
+			$(this).remove();
+		});
+	};
+	
+	this._clearAlertOutput = function(alertOutput) {
+		alertOutput.removeAttr("class");
+		alertOutput.children("*").each(function(index) {
 			$(this).remove();
 		});
 	};
