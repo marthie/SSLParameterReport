@@ -42,7 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.inject.Inject;
 
-import de.thiemann.ssl.report.build.NSLookUp;
+import de.thiemann.ssl.report.build.Lookup;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.JsonOutput;
@@ -55,10 +55,10 @@ public class SSLReportServlet extends HttpServlet {
 
 	private ReportBuilder builder;
 	private Output output;
-	private NSLookUp lookUp;
+	private Lookup lookUp;
 
 	@Inject
-	public SSLReportServlet(ReportBuilder builder, JsonOutput output, NSLookUp lookUp) {
+	public SSLReportServlet(ReportBuilder builder, JsonOutput output, Lookup lookUp) {
 		super();
 		this.builder = builder;
 		this.output = output;

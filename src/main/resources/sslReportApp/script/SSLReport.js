@@ -118,8 +118,7 @@ function SSLReport() {
 		// create Template
 		var template = $("#reportTemplate").html();
 
-		this.reportOutputArea.append(template);
-		var reportOutput = this.reportOutputArea.find("#reportOutput").last();
+		var reportOutput = $(template).appendTo(this.reportOutputArea);
 
 		// set css to reportOutput
 		reportOutput.css("margin-top", "10px");
@@ -153,7 +152,7 @@ function SSLReport() {
 	};
 
 	this._addCertificatesToDOM = function(header, certificates) {
-		var certificateTemplate = $("#certificateTemplate2").html();
+		var certificateTemplate = $("#certificateTemplate").html();
 		header.after(certificateTemplate);
 		
 		var certificateDiv = header.next();

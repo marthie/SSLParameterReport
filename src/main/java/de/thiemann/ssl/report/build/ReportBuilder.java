@@ -124,6 +124,7 @@ public class ReportBuilder {
 
 		report.supportedSSLVersions = new TreeSet<Integer>();
 
+		// check for ssl/tls version
 		for (SSLVersions version : SSLVersions.values()) {
 
 			if (version.equals(SSLVersions.SSLv2))
@@ -144,6 +145,9 @@ public class ReportBuilder {
 		if (serverHelloV2 != null) {
 			report.supportedSSLVersions.add(0x0200);
 		}
+		
+		if(report.supportedSSLVersions.isEmpty())
+			return null;
 
 		// check cipher suites
 

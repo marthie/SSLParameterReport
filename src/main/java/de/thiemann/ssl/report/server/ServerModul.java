@@ -28,6 +28,8 @@ SOFTWARE.
 
 import com.google.inject.AbstractModule;
 
+import de.thiemann.ssl.report.build.Lookup;
+import de.thiemann.ssl.report.build.XBillLookup;
 import de.thiemann.ssl.report.output.JsonOutput;
 import de.thiemann.ssl.report.output.Output;
 
@@ -36,6 +38,7 @@ public class ServerModul extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(Output.class).to(JsonOutput.class);
+		bind(Lookup.class).to(XBillLookup.class);
 	}
 
 }

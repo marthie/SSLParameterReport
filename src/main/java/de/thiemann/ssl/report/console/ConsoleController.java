@@ -7,7 +7,7 @@ import java.util.List;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import de.thiemann.ssl.report.build.NSLookUp;
+import de.thiemann.ssl.report.build.Lookup;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.Output;
@@ -44,14 +44,14 @@ public class ConsoleController {
 
 	private Output output;
 
-	private NSLookUp lookup;
+	private Lookup lookup;
 
 	public ConsoleController() {
 		super();
 		Injector injector = Guice.createInjector(new ConsoleModule());
 		this.builder = injector.getInstance(ReportBuilder.class);
 		this.output = injector.getInstance(Output.class);
-		this.lookup = injector.getInstance(NSLookUp.class);
+		this.lookup = injector.getInstance(Lookup.class);
 	}
 
 	public void outputReport(String host, int port) {
