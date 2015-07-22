@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -167,7 +168,7 @@ public class JsonOutput extends AbstractOutput {
 
 			jsonCert.put("version", v3Cert.certificateVersion);
 			jsonCert.put("subjectName", v3Cert.subjectName);
-			jsonCert.put("alternativeNames", v3Cert.alternativeNames);
+			jsonCert.put("alternativeNames", processAlternativeNames(v3Cert.alternativeNames));
 			jsonCert.put("notBefore",
 					String.format("%1$tF %1$tT", v3Cert.notBefore));
 			jsonCert.put("notAfter",
@@ -183,6 +184,31 @@ public class JsonOutput extends AbstractOutput {
 		}
 
 		return null;
+	}
+	
+	private List<String> processAlternativeNames(List<String> alternativeNames) {
+		if(alternativeNames == null)
+			return null;
+		
+		List<String> lines = new ArrayList<String>();
+		
+		StringBuffer lineBuffer = new StringBuffer();
+		Iterator<String> iterator = alternativeNames.iterator();
+		while(iterator.hasNext()) {
+			String alternativeName = iterator.next();
+			
+			lineBuffer.append(alternativeName);
+			
+			if(iterator.hasNext())
+				lineBuffer.append(", ");
+			
+			if(lineBuffer.length() > 80) {
+				lines.add(lineBuffer.toString());
+				lineBuffer.setLength(0);
+			}
+		}
+		
+		return lines;
 	}
 
 }
