@@ -262,7 +262,7 @@ public class ReportBuilder {
 			try {
 				s.connect(isa);
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 				return null;
 			}
 

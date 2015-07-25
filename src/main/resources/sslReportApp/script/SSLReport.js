@@ -34,6 +34,7 @@ function SSLReport() {
 		var sslRportInstance = this;
 		var requestData = {};
 
+		requestData.cmd = "new";
 		requestData.host = $("#host").val();
 		requestData.port = $("#port").val();
 

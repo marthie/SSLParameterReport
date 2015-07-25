@@ -77,12 +77,12 @@ public class SSLReportServlet extends HttpServlet {
 
 		Map<String, String> arguments = getArguments(request.getInputStream());
 		ServerCommand cmd = getCommand(arguments);
-		
+
+		String jsonOutput = null;
+
 		if (cmd instanceof NewCommand) {
 			NewCommand newCmd = (NewCommand) cmd;
 			InetAddress[] ips = lookUp.getAllByName(newCmd.host);
-
-			String jsonOutput = null;
 
 			if (ips != null) {
 				if (ips.length == 1) {
@@ -93,14 +93,15 @@ public class SSLReportServlet extends HttpServlet {
 				}
 			}
 
-			if (jsonOutput == null || jsonOutput.isEmpty())
-				jsonOutput = "{ }";
-
-			response.setContentType("application/json;charset=utf-8");
-			response.setStatus(HttpServletResponse.SC_OK);
-			OutputStream os = response.getOutputStream();
-			os.write(jsonOutput.getBytes(Charset.forName("UTF-8")));
 		}
+
+		if (jsonOutput == null || jsonOutput.isEmpty())
+			jsonOutput = "{ }";
+
+		response.setContentType("application/json;charset=utf-8");
+		response.setStatus(HttpServletResponse.SC_OK);
+		OutputStream os = response.getOutputStream();
+		os.write(jsonOutput.getBytes(Charset.forName("UTF-8")));
 	}
 
 	private ServerCommand getCommand(Map<String, String> arguments) {
@@ -128,7 +129,7 @@ public class SSLReportServlet extends HttpServlet {
 					newCmd.port = new Integer(443);
 			}
 		}
-		
+
 		return cmd;
 	}
 
@@ -196,8 +197,9 @@ public class SSLReportServlet extends HttpServlet {
 
 					if (keyValue.length == 2) {
 						String key = keyValue[0], value = keyValue[1];
-						
-						if((key != null && !key.isEmpty()) && (value != null && !value.isEmpty()))
+
+						if ((key != null && !key.isEmpty())
+								&& (value != null && !value.isEmpty()))
 							arguments.put(key, value);
 					}
 				}
