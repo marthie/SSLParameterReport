@@ -116,6 +116,25 @@ public class ReportBuilder {
 
 		return null;
 	}
+	
+	public List<Report> generateMultipleReport(Collection<InetAddress> ips, int port) {
+		if (ips != null && ips.size() > 0) {
+			List<Report> reportList = new ArrayList<Report>();
+			for (InetAddress ip : ips) {
+				Report r = generateReport(ip, port);
+
+				if (r != null)
+					reportList.add(r);
+			}
+
+			if (reportList.isEmpty())
+				return null;
+
+			return reportList;
+		}
+
+		return null;
+	}
 
 	public Report generateReport(InetAddress ip, int port) {
 		Report report = new Report(ip, port);
