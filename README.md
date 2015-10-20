@@ -38,7 +38,7 @@ The maven-assembly plugin is used to make a single execution JAR and is bounded 
 Get help on command line arguments by executing this command:
 
 ```
-java -jar sslreport-<Version>.jar --help
+java -jar sslreport-<Version>.jar [--help|-?]
 ```
 
 ### SSLReport system console
@@ -46,8 +46,10 @@ java -jar sslreport-<Version>.jar --help
 To get a SSL/TLS report output on system console from a given host execute this command:
 
 ```
-java -jar sslreport-<Version>.jar [--webName|-wn]=<host> [[-p|--port]=<port>]
+java -jar sslreport-<Version>.jar [--host|-h]=<host> [[-p|--port]=<port>]
 ```
+
+If no port is specified, SSLReport will use Port 443.
 
 ### SSLReport web interface
 
