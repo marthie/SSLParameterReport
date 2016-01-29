@@ -30,7 +30,6 @@ var SSLReport = (function() {
 	var getReportData = function() {
 		var requestData = {};
 
-		requestData.cmd = "new";
 		requestData.host = $("#host").val();
 		requestData.port = $("#port").val();
 
@@ -38,8 +37,9 @@ var SSLReport = (function() {
 		$.ajax({
 			"url" : "/service/sslReport",
 			"type" : "POST",
-			"data" : requestData,
+			"data" : JSON.stringify(requestData),
 			"dataType" : "json",
+			"contentType" : "application/json",
 			"beforeSend" : function() {
 				_loadingAlert(_this.alertOutput);
 				_setViewState2();

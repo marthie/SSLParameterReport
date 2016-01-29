@@ -34,11 +34,13 @@ import de.thiemann.ssl.report.output.JsonOutput;
 import de.thiemann.ssl.report.output.Output;
 import de.thiemann.ssl.report.server.cache.ReportCache;
 import de.thiemann.ssl.report.server.cache.SimpleReportCache;
+import de.thiemann.ssl.report.server.service.SSLReportService;
 
 public class ServerModul extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		bind(SSLReportService.class);
 		bind(Output.class).to(JsonOutput.class);
 		bind(Lookup.class).to(XBillLookup.class);
 		bind(ReportCache.class).to(SimpleReportCache.class);

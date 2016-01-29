@@ -33,16 +33,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 public class ServerController {
-
-	private Injector injector = null;
-
-	public ServerController() {
-		injector = Guice.createInjector(new ServerModul());
-	}
 
 	public void startServer() {
 		
@@ -63,13 +54,18 @@ public class ServerController {
 		HandlerList list = new HandlerList();
 		
 		// servlet
-		SSLReportServlet reportServlet = injector.getInstance(SSLReportServlet.class);
-		
-		ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		ServletContextHandler servletContext = new ServletContextHandler(
+				ServletContextHandler.SESSIONS);
 		servletContext.setContextPath("/service");
+
+		ServletHolder jerseyServlet = servletContext.addServlet(
+				org.glassfish.jersey.servlet.ServletContainer.class, "/*");
+		jerseyServlet.setInitOrder(0);
 		
-		servletContext.addServlet(new ServletHolder(reportServlet), "/sslReport");
-		
+		jerseyServlet.setInitParameter(
+		           "javax.ws.rs.Application",
+		           SSLReportApp.class.getName());
+
 		list.addHandler(servletContext);
 		
 		// static content
