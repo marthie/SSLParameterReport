@@ -26,8 +26,7 @@ SOFTWARE.
 
 $(document).ready(function() {
 
-	var sslReport = new SSLReport();
-	sslReport.initViewState();
+	SSLReport.initViewState();
 	
 
 	$("form").submit(function(e) {
@@ -35,10 +34,10 @@ $(document).ready(function() {
 	});
 
 	$("#getReport").on("click", function() {
-		sslReport.getReportData();
+		SSLReport.getReportData();
 	});
 	
 	$("#newReport").on("click", function() {
-		sslReport.showInputPanel();
+		SSLReport.showInputPanel();
 	});
 });

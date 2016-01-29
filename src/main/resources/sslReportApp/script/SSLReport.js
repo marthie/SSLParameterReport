@@ -24,98 +24,95 @@ SOFTWARE.
 
  */
 
-function SSLReport() {
-
-	this.slidePanel = new SlidePanel();
+var SSLReport = (function() {
 
 	// functions
-
-	this.getReportData = function() {
-		var sslRportInstance = this;
+	var getReportData = function() {
 		var requestData = {};
 
 		requestData.cmd = "new";
 		requestData.host = $("#host").val();
 		requestData.port = $("#port").val();
 
+		var _this = this;
 		$.ajax({
 			"url" : "/service/sslReport",
 			"type" : "POST",
 			"data" : requestData,
 			"dataType" : "json",
 			"beforeSend" : function() {
-				sslRportInstance._loadingAlert(sslRportInstance.alertOutput);
-				sslRportInstance._setViewState2();
+				_loadingAlert(_this.alertOutput);
+				_setViewState2();
 			}
 		}).done(function(data) {
-			sslRportInstance.showReport(data);
+			_showReport(data);
 		});
 	};
 
-	this.showReport = function(data) {
-		this.showReportData(data);
-		this._setViewState3();
+	var _showReport = function(data) {
+		_showReportData(data);
+		_setViewState3();
 	};
 
-	this.showInputPanel = function() {
-		this.clearOutput();
-		this._setViewState1();
+	var showInputPanel = function() {
+		_clearOutput();
+		_setViewState1();
 	};
 	
 	// one page application - states init
-	this.initViewState = function() {
-		this.reportOutputArea = $("#reportOutputArea");
-		this.reportBtnGrp = $("#reportButtonGroup");
-		this.inputPanel = $("#inputPanel");
-		this.alertOutput = $("#alert");
+	var initViewState = function() {
+		SSLReport.reportOutputArea = $("#reportOutputArea");
+		SSLReport.reportBtnGrp = $("#reportButtonGroup");
+		SSLReport.inputPanel = $("#inputPanel");
+		SSLReport.alertOutput = $("#alert");
 
-		this.reportOutputArea.hide();
-		this.reportBtnGrp.hide();
-		this.alertOutput.hide();
+		SSLReport.reportOutputArea.hide();
+		SSLReport.reportBtnGrp.hide();
+		SSLReport.alertOutput.hide();
 	};
 
 	// view state #1 - the input of host and port
-	this._setViewState1 = function() {
-		this.reportBtnGrp.hide(100);
-		this.reportOutputArea.hide(100);
+	var _setViewState1 = function() {
+		SSLReport.reportBtnGrp.hide(100);
+		SSLReport.reportOutputArea.hide(100);
 		
-		this.inputPanel.show(1500);
+		SSLReport.inputPanel.show(1500);
 	};
 	
 	// view state #2 - loading report
-	this._setViewState2 = function() {
-		this.inputPanel.hide(100);
+	var _setViewState2 = function() {
+		SSLReport.inputPanel.hide(100);
 		
-		this.alertOutput.show(1500);
+		SSLReport.alertOutput.show(1500);
 	};
 
 	// view state #3 - show report
-	this._setViewState3 = function() {
-		this.alertOutput.hide(100);
+	var _setViewState3 = function() {
+		SSLReport.alertOutput.hide(100);
 		
-		this.reportBtnGrp.show(100);
-		this.reportOutputArea.show(1500);
+		SSLReport.reportBtnGrp.show(100);
+		SSLReport.reportOutputArea.show(1500);
 	};
 	
-	this._loadingAlert = function(alertOutput) {
-		this._clearAlertOutput(alertOutput);
+	var _loadingAlert = function(alertOutput) {
+		_clearAlertOutput(alertOutput);
 		
 		alertOutput.attr("class", "alert alert-info");
 		alertOutput.append("<img src=\"/pics/ajax-loader.gif\"></img>");
 		alertOutput.append("<strong> Loading...</strong>");
 	};
 
-	this.showReportData = function(data) {
+	var _showReportData = function(data) {
 		if ($.isArray(data) && data.length > 0) {
 			for (var i = 0; i < data.length; i++) {
-				this._addDataToDOM(data[i]);
+				_addDataToDOM(data[i]);
 			}
 		} else
-			this._addDataToDOM(data);
+			_addDataToDOM(data);
 
 	};
 
-	this._addDataToDOM = function(report) {
+	var _addDataToDOM = function(report) {
 		// create Template
 		var template = $("#reportTemplate").html();
 
@@ -128,7 +125,7 @@ function SSLReport() {
 		reportOutput.find(".panel-title").text(report.ipAddress);
 
 		// make panel slidable
-		this.slidePanel.makeSlidable(reportOutput);
+		SlidablePanel.makeSlidable(reportOutput);
 
 		// common informations
 		var ciPart = reportOutput.find("#commonInformation");
@@ -145,14 +142,14 @@ function SSLReport() {
 
 		// cipher suites
 		var cipherSuitesHeader = reportOutput.find("#cipherSuites");
-		this._addCipherSuitesToDOM(cipherSuitesHeader, report.cipherSuites);
+		_addCipherSuitesToDOM(cipherSuitesHeader, report.cipherSuites);
 
 		// certificates
 		var certifiactesHeader = reportOutput.find("#certificates");
-		this._addCertificatesToDOM(certifiactesHeader, report.certificates)
+		_addCertificatesToDOM(certifiactesHeader, report.certificates)
 	};
 
-	this._addCertificatesToDOM = function(header, certificates) {
+	var _addCertificatesToDOM = function(header, certificates) {
 		var certificateTemplate = $("#certificateTemplate").html();
 		header.after(certificateTemplate);
 		
@@ -198,7 +195,7 @@ function SSLReport() {
 		}
 	};
 
-	this._addCipherSuitesToDOM = function(header, cipherSuites) {
+	var _addCipherSuitesToDOM = function(header, cipherSuites) {
 
 		var cipherSuiteTemplate = $("#cipherSuiteTemplate").html();
 		header.after(cipherSuiteTemplate);
@@ -228,16 +225,24 @@ function SSLReport() {
 		}
 	};
 
-	this.clearOutput = function() {
+	var _clearOutput = function() {
 		$("div").filter("#reportOutput").each(function(index) {
 			$(this).remove();
 		});
 	};
 	
-	this._clearAlertOutput = function(alertOutput) {
+	var _clearAlertOutput = function(alertOutput) {
 		alertOutput.removeAttr("class");
 		alertOutput.children("*").each(function(index) {
 			$(this).remove();
 		});
 	};
-}
+	
+	
+	return {
+		initViewState: initViewState,
+		getReportData: getReportData,
+		showInputPanel: showInputPanel
+	};
+	
+})();

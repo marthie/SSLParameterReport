@@ -24,76 +24,79 @@ SOFTWARE.
 
  */
 
-function SlidePanel() {
+var SlidablePanel = (function() {
 
 	// based on bootstrap
-	this.makeSlidable = function(panel) {
+	var makeSlidable = function(panel) {
 		var head = $(panel).children(".panel-heading");
 		var body = $(panel).children(".panel-body");
-		
-		if(!head)
+
+		if (!head)
 			return;
-		
-		if(!body)
+
+		if (!body)
 			return;
-	
+
 		head.append("<span class=\"pull-right clickable\"></span>");
-		
+
 		var clickable = head.children(".clickable");
-		
-		if(!clickable)
+
+		if (!clickable)
 			return;
-		
+
 		clickable.append("<i class=\"glyphicon glyphicon-chevron-down\"></i>");
 		clickable.css("margin-top", "-15px");
-		
-		var _this = this;
+
 		clickable.on("click", function() {
-			_this._toogleSlide(clickable, body);
+			_toogleSlide(clickable, body);
 		});
-		
+
 		body.slideUp();
 	};
-	
-	this.makeOpenSlidable = function(panel) {
+
+	var makeOpenSlidable = function(panel) {
 		var head = $(panel).children(".panel-heading");
 		var body = $(panel).children(".panel-body");
-		
-		if(!head)
+
+		if (!head)
 			return;
-		
-		if(!body)
+
+		if (!body)
 			return;
-	
+
 		head.append("<span class=\"pull-right clickable\"></span>");
-		
+
 		var clickable = head.children(".clickable");
-		
-		if(!clickable)
+
+		if (!clickable)
 			return;
-		
+
 		clickable.append("<i class=\"glyphicon glyphicon-chevron-up\"></i>");
 		clickable.css("margin-top", "-15px");
-		
-		var _this = this;
+
 		clickable.on("click", function() {
-			_this._toogleSlide(clickable, body);
+			_toogleSlide(clickable, body);
 		});
-		
+
 		body.slideDown();
 	};
-	
-	this._toogleSlide = function(clickable, body) {
+
+	var _toogleSlide = function(clickable, body) {
 		var glyphicon = clickable.children(".glyphicon");
-		
-		if(glyphicon.hasClass("glyphicon-chevron-down")) {
+
+		if (glyphicon.hasClass("glyphicon-chevron-down")) {
 			glyphicon.removeClass("glyphicon-chevron-down");
 			glyphicon.addClass("glyphicon-chevron-up");
 			body.slideDown();
-		} else if(glyphicon.hasClass("glyphicon-chevron-up")) {
+		} else if (glyphicon.hasClass("glyphicon-chevron-up")) {
 			glyphicon.removeClass("glyphicon-chevron-up");
 			glyphicon.addClass("glyphicon-chevron-down");
 			body.slideUp();
 		}
 	};
-}
+
+	return {
+		makeSlidable : makeSlidable,
+		makeOpenSlidable : makeOpenSlidable
+	};
+})();
