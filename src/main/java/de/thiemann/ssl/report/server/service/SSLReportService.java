@@ -65,8 +65,6 @@ public class SSLReportService {
 			
 		if(request.host == null || request.host.isEmpty())
 			return "{ }";
-		
-		System.out.println(request);
 
 		String jsonOutput = null;
 
