@@ -26,56 +26,13 @@ package de.thiemann.ssl.report;
  * ----------------------------------------------------------------------
  */
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-import de.thiemann.ssl.report.console.ConsoleController;
-import de.thiemann.ssl.report.server.ServerController;
-import de.thiemann.ssl.report.util.Util;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@SpringBootApplication
 public class SSLReport {
 
 	public static void main(String[] args) throws Exception {
-		OptionParser optParser = new OptionParser() {
-			{
-				acceptsAll(Util.asList("?", "help"), "Show help message");
-				accepts("server", "start server for self services");
-			}
-		};
-
-		OptionSpec<String> optHost = optParser
-				.acceptsAll(Util.asList("h", "host"),
-						"create report for the host").withRequiredArg()
-				.ofType(String.class);
-		OptionSpec<Integer> optPort = optParser
-				.acceptsAll(Util.asList("p", "port"),
-						"use the given port in place of port 443 for report creation")
-				.withRequiredArg().ofType(Integer.class);
-
-		OptionSet os = optParser.parse(args);
-
-		if (os.has("?")) {
-			optParser.printHelpOn(System.out);
-			System.exit(1);
-		}
-
-		if (os.has(optHost)) {
-			String host = os.valueOf(optHost);
-			int port = 443;
-
-			if (os.has(optPort)) {
-				port = os.valueOf(optPort);
-
-				if (port <= 0 || port > 65535) {
-					throw new Error("Wrong port! Port range is [0;65535]");
-				}
-			}
-			
-			ConsoleController controller = new ConsoleController();
-			controller.outputReport(host, port);
-		} else if (os.has("server")) {
-			new ServerController().startServer();
-		} else
-			optParser.printHelpOn(System.out);
+		SpringApplication.run(SSLReport.class, args);
 	}
 }

@@ -98,7 +98,7 @@ var SSLReport = (function() {
 		_clearAlertOutput(alertOutput);
 		
 		alertOutput.attr("class", "alert alert-info");
-		alertOutput.append("<img src=\"/pics/ajax-loader.gif\"></img>");
+		alertOutput.append("<img src=\"pics/ajax-loader.gif\"></img>");
 		alertOutput.append("<strong> Loading...</strong>");
 	};
 

@@ -26,136 +26,136 @@ package de.thiemann.ssl.report.server.service;
 
  */
 
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.thiemann.ssl.report.build.Lookup;
 import de.thiemann.ssl.report.build.ReportBuilder;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.Output;
 import de.thiemann.ssl.report.server.cache.ReportCache;
-import de.thiemann.ssl.report.server.dto.SSLReportRequest;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
-@Path("/sslReport")
+@RestController
 public class SSLReportService {
-	
-	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	@Inject
-	private ReportBuilder builder;
-	@Inject
-	private Output output;
-	@Inject
-	private Lookup lookUp;
-	@Inject
-	private ReportCache reportCache;
+    private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	public String getSSlReports(SSLReportRequest request) {
-		
-		if(request == null) {
-			log.error("Request may not be null!");
-			return "{ }";
-		}
-			
-		if(request.host == null || request.host.isEmpty()) {
-			log.error("Host name may not be empty or null!");
-			return "{ }";
-		}
+    @Autowired
+    protected ReportBuilder builder;
 
-		String jsonOutput = null;
+    @Autowired
+    private Output output;
 
-		if (request.port == null) {
-			request.port = new Integer(443);
-		}
-		
-		log.info("Request for {}", request.toString());
+    @Autowired
+    private Lookup lookUp;
 
-		InetAddress[] ips = lookUp.getAllByName(request.host);
+    @Autowired
+    private ReportCache reportCache;
 
-		if (ips != null) {
-			if (ips.length == 1) {
-				InetAddress ipAddress = ips[0];
-				jsonOutput = getSingleReport(ipAddress, request.port);
-			} else if (ips.length > 0) {
-				jsonOutput = getMultipleReports(ips, request.port);
-			}
-		}
-		
-		if (jsonOutput == null || jsonOutput.isEmpty())
-			jsonOutput = "{ }";
-		
-		log.trace(jsonOutput);
+    @RequestMapping(method = RequestMethod.POST, path = "/service/sslReport", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getSSlReports(@RequestBody SSLReportRequest request) {
 
-		return jsonOutput;
+        if (request == null) {
+            log.error("Host name may not be empty or null!");
+            return "{ }";
+        }
 
-	}
+        if (request.getHost() == null || request.getHost().isEmpty()) {
+            log.error("Host name may not be empty or null!");
+            return "{ }";
+        }
 
-	public String getSingleReport(InetAddress ipAddress, Integer port) {
-		Report report = null;
-		if (reportCache.isReportCached(ipAddress)) {
-			log.debug("Get request {}:{}  from cache", ipAddress.toString(), port);
-			report = reportCache.getCachedReport(ipAddress);
-		} else {
-			log.debug("No matches in cache found for request {}:{}", ipAddress.toString(), port);
-			report = builder.generateReport(ipAddress, port);
+        String jsonOutput = null;
 
-			if (report != null) {
-				reportCache.storeReport(report);
-				log.debug("Add report for request {}:{} to cache", ipAddress.toString(), port);
-			}
-		}
+        Integer iPort = null;
+        if (request.getPort() == null) {
+            iPort = new Integer(443);
+        } else {
+            iPort = new Integer(request.getPort());
+        }
 
-		return output.outputReport(report);
-	}
+        log.info("Request for {}", request.toString());
 
-	public String getMultipleReports(InetAddress[] ips, Integer port) {
-		List<InetAddress> ipList = new ArrayList<InetAddress>(
-				Arrays.asList(ips));
-		
-		if(log.isDebugEnabled())
-			log.debug("Start creating reports for {} IP Addresses", ipList.size());
+        InetAddress[] ips = lookUp.getAllByName(request.getHost());
 
-		List<Report> cachedReportList = null;
-		for (int i = 0; i < ipList.size(); i++) {
-			InetAddress ip = ipList.get(i);
+        if (ips != null) {
+            if (ips.length == 1) {
+                InetAddress ipAddress = ips[0];
+                jsonOutput = getSingleReport(ipAddress, iPort);
+            } else if (ips.length > 0) {
+                jsonOutput = getMultipleReports(ips, iPort);
+            }
+        }
 
-			if (reportCache.isReportCached(ip)) {
-				if (cachedReportList == null)
-					cachedReportList = new ArrayList<Report>();
+        if (jsonOutput == null || jsonOutput.isEmpty())
+            jsonOutput = "{ }";
 
-				cachedReportList.add(reportCache.getCachedReport(ip));
-				ipList.remove(i);
-			}
-		}
+        log.trace(jsonOutput);
 
-		List<Report> generatedReportList = builder.generateMultipleReport(
-				ipList, port);
-		if (generatedReportList != null && !generatedReportList.isEmpty())
-			reportCache.storeReport(generatedReportList);
+        return jsonOutput;
 
-		List<Report> reportList = null;
-		if (cachedReportList != null && !cachedReportList.isEmpty())
-			reportList = cachedReportList;
+    }
 
-		if (reportList == null || reportList.isEmpty())
-			reportList = generatedReportList;
-		else {
-			reportList.addAll(generatedReportList);
-		}
+    public String getSingleReport(InetAddress ipAddress, Integer port) {
+        Report report = null;
+        if (reportCache.isReportCached(ipAddress)) {
+            log.debug("Get request {}:{}  from cache", ipAddress.toString(), port);
+            report = reportCache.getCachedReport(ipAddress);
+        } else {
+            log.debug("No matches in cache found for request {}:{}", ipAddress.toString(), port);
+            report = builder.generateReport(ipAddress, port);
 
-		return output.outputReportCollection(reportList);
-	}
+            if (report != null) {
+                reportCache.storeReport(report);
+                log.debug("Add report for request {}:{} to cache", ipAddress.toString(), port);
+            }
+        }
+
+        return output.outputReport(report);
+    }
+
+    public String getMultipleReports(InetAddress[] ips, Integer port) {
+        List<InetAddress> ipList = new ArrayList<InetAddress>(
+                Arrays.asList(ips));
+
+        if (log.isDebugEnabled())
+            log.debug("Start creating reports for {} IP Addresses", ipList.size());
+
+        List<Report> cachedReportList = null;
+        for (int i = 0; i < ipList.size(); i++) {
+            InetAddress ip = ipList.get(i);
+
+            if (reportCache.isReportCached(ip)) {
+                if (cachedReportList == null)
+                    cachedReportList = new ArrayList<Report>();
+
+                cachedReportList.add(reportCache.getCachedReport(ip));
+                ipList.remove(i);
+            }
+        }
+
+        List<Report> generatedReportList = builder.generateMultipleReport(
+                ipList, port);
+        if (generatedReportList != null && !generatedReportList.isEmpty())
+            reportCache.storeReport(generatedReportList);
+
+        List<Report> reportList = null;
+        if (cachedReportList != null && !cachedReportList.isEmpty())
+            reportList = cachedReportList;
+
+        if (reportList == null || reportList.isEmpty())
+            reportList = generatedReportList;
+        else {
+            reportList.addAll(generatedReportList);
+        }
+
+        return output.outputReportCollection(reportList);
+    }
 }

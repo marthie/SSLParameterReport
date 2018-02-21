@@ -1,13 +1,12 @@
 package de.thiemann.ssl.report.build;
 
+import org.springframework.stereotype.Component;
+import org.xbill.DNS.Address;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.xbill.DNS.Address;
-
-import com.google.inject.Singleton;
-
-@Singleton
+@Component
 public class XBillLookup implements Lookup {
 
 	@Override

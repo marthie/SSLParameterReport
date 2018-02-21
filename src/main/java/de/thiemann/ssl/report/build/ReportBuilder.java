@@ -21,6 +21,7 @@ import de.thiemann.ssl.report.model.ServerHelloSSLv2;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.IOUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
+import org.springframework.stereotype.Component;
 
 /*
  * ----------------------------------------------------------------------
@@ -49,6 +50,7 @@ import de.thiemann.ssl.report.util.SSLVersions;
  * ----------------------------------------------------------------------
  */
 
+@Component
 public class ReportBuilder {
 
 	/*

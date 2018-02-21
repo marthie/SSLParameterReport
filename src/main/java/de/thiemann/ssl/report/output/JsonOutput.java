@@ -26,24 +26,17 @@ SOFTWARE.
 
  */
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.codehaus.jackson.map.ObjectMapper;
-
 import de.thiemann.ssl.report.model.Certificate;
 import de.thiemann.ssl.report.model.CertificateV3;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.model.SSLv2Certificate;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
+import java.util.*;
+import org.springframework.stereotype.Component;
 
+
+@Component
 public class JsonOutput extends AbstractOutput {
 
 	@Override
@@ -65,15 +58,12 @@ public class JsonOutput extends AbstractOutput {
 	
 	private String transferToString(Object jsonObject) {
 		if (jsonObject != null) {
-			ObjectMapper mapper = new ObjectMapper();
+			//ObjectMapper mapper = new ObjectMapper();
 
-			try {
-				String jsonString = mapper.writerWithDefaultPrettyPrinter()
-						.writeValueAsString(jsonObject);
+
+				String jsonString =  null;//mapper.writerWithDefaultPrettyPrinter()
+						//.writeValueAsString(jsonObject);
 				return jsonString;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 
 		return "{ }";

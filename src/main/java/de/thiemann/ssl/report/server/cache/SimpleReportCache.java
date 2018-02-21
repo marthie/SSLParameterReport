@@ -26,16 +26,15 @@ SOFTWARE.
 
 */
 
+import de.thiemann.ssl.report.model.Report;
+import org.springframework.stereotype.Component;
+
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.inject.Singleton;
-
-import de.thiemann.ssl.report.model.Report;
-
-@Singleton
+@Component
 public class SimpleReportCache implements ReportCache {
 	
 	private Map<String, Report> cache = new ConcurrentHashMap<String, Report>();
