@@ -137,8 +137,8 @@ public class SSLReportService {
                 if (cachedReportList == null) {
                     cachedReportList = new ArrayList<Report>();
                 }
-
-                cachedReportList.add(reportCache.getCachedReport(ip));
+                Report cachedReport = reportCache.getCachedReport(ip);
+                cachedReportList.add(cachedReport);
                 ipList.remove(i);
             }
         }

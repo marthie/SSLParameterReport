@@ -27,6 +27,10 @@ SOFTWARE.
 */
 
 import de.thiemann.ssl.report.model.Report;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
@@ -35,28 +39,34 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class SimpleReportCache implements ReportCache {
+
+	private Logger log = LoggerFactory.getLogger(SimpleReportCache.class);
 	
 	private Map<String, Report> cache = new ConcurrentHashMap<String, Report>();
 
 	@Override
 	public Report getCachedReport(InetAddress ipAddress) {
-		if(ipAddress != null)
+		if(ipAddress != null && cache.containsKey(ipAddress.toString())) {
+			log.debug("Fetch report from cache for ip {}.", ipAddress.toString());
 			return cache.get(ipAddress.toString());
+		}
 		return null;
 	}
 
 	@Override
 	public void storeReport(Report report) {
 		if(report != null && report.ip != null) {
-			cache.put(report.ip.getHostAddress(), report);
+			log.debug("Put report for ip {} to cache.", report.ip.toString());
+			cache.put(report.ip.toString(), report);
 		}
 	}
 
 	@Override
 	public boolean isReportCached(InetAddress ipAddress) {
 		if(ipAddress != null)
-			return cache.containsKey(ipAddress.getHostAddress());
+			return cache.containsKey(ipAddress.toString());
 		return false;
 	}
 
