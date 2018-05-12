@@ -26,6 +26,8 @@ SOFTWARE.
 
  */
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.thiemann.ssl.report.model.Certificate;
 import de.thiemann.ssl.report.model.CertificateV3;
 import de.thiemann.ssl.report.model.Report;
@@ -33,45 +35,60 @@ import de.thiemann.ssl.report.model.SSLv2Certificate;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
 import java.util.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class JsonOutput extends AbstractOutput {
 
+	private Logger log = LoggerFactory.getLogger(JsonOutput.class);
+
 	@Override
 	public String outputReportCollection(Collection<Report> reportCollection) {
-		List<Object> jsonReportList = new ArrayList<Object>();
+		List<Map<String, Object>> jsonReportList = new ArrayList<Map<String, Object>>();
+
 		for (Report report : reportCollection) {
-			jsonReportList.add(transferToJSONObject(report));
+			Map<String, Object> jsonObjectMap = transferToJSONObject(report);
+			jsonReportList.add(jsonObjectMap);
 		}
 
-		return transferToString(jsonReportList);
+		String jsonString = transferToString(jsonReportList);
+
+		return jsonString;
 	}
 
 	@Override
 	public String outputReport(Report report) {
 		Map<String, Object> jsonReport = transferToJSONObject(report);
 
-		return transferToString(jsonReport);
+		String jsonString = transferToString(jsonReport);
+
+		return jsonString;
 	}
 	
 	private String transferToString(Object jsonObject) {
 		if (jsonObject != null) {
-			//ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = new ObjectMapper();
 
-
-				String jsonString =  null;//mapper.writerWithDefaultPrettyPrinter()
-						//.writeValueAsString(jsonObject);
-				return jsonString;
+			String jsonString = null;
+			try {
+				jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
+			} catch (JsonProcessingException e) {
+				log.error("Exception while transfaering object to JSON.", e);
+			}
+			return jsonString;
 		}
 
 		return "{ }";
 	}
 
 	private Map<String, Object> transferToJSONObject(Report report) {
-		if (report.supportedSSLVersions.size() == 0)
+		if (report.supportedSSLVersions.size() == 0) {
 			return null;
+		}
 
 		Map<String, Object> jsonReport = new HashMap<String, Object>();
 
@@ -139,8 +156,9 @@ public class JsonOutput extends AbstractOutput {
 	}
 
 	private Map<String, Object> transferToJSONObject(Certificate cert) {
-		if (!cert.isProcessed)
+		if (!cert.isProcessed) {
 			cert.processCertificateBytes();
+		}
 
 		Map<String, Object> jsonCert = new HashMap<String, Object>();
 		jsonCert.put("order", cert.order);
@@ -177,8 +195,9 @@ public class JsonOutput extends AbstractOutput {
 	}
 	
 	private List<String> processAlternativeNames(List<String> alternativeNames) {
-		if(alternativeNames == null)
+		if(alternativeNames == null) {
 			return null;
+		}
 		
 		List<String> lines = new ArrayList<String>();
 		
@@ -189,8 +208,9 @@ public class JsonOutput extends AbstractOutput {
 			
 			lineBuffer.append(alternativeName);
 			
-			if(iterator.hasNext())
+			if(iterator.hasNext()) {
 				lineBuffer.append(", ");
+			}
 			
 			if(lineBuffer.length() > 80) {
 				lines.add(lineBuffer.toString());

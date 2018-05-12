@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class SSLReportService {
 
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private Logger log = LoggerFactory.getLogger(SSLReportService.class);
 
     @Autowired
     protected ReportBuilder builder;
@@ -125,16 +125,18 @@ public class SSLReportService {
         List<InetAddress> ipList = new ArrayList<InetAddress>(
                 Arrays.asList(ips));
 
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug("Start creating reports for {} IP Addresses", ipList.size());
+        }
 
         List<Report> cachedReportList = null;
         for (int i = 0; i < ipList.size(); i++) {
             InetAddress ip = ipList.get(i);
 
             if (reportCache.isReportCached(ip)) {
-                if (cachedReportList == null)
+                if (cachedReportList == null) {
                     cachedReportList = new ArrayList<Report>();
+                }
 
                 cachedReportList.add(reportCache.getCachedReport(ip));
                 ipList.remove(i);
@@ -143,16 +145,20 @@ public class SSLReportService {
 
         List<Report> generatedReportList = builder.generateMultipleReport(
                 ipList, port);
-        if (generatedReportList != null && !generatedReportList.isEmpty())
+
+        if (generatedReportList != null && !generatedReportList.isEmpty()) {
             reportCache.storeReport(generatedReportList);
+        }
 
         List<Report> reportList = null;
-        if (cachedReportList != null && !cachedReportList.isEmpty())
-            reportList = cachedReportList;
 
-        if (reportList == null || reportList.isEmpty())
+        if (cachedReportList != null && !cachedReportList.isEmpty()) {
+            reportList = cachedReportList;
+        }
+
+        if (reportList == null || reportList.isEmpty()) {
             reportList = generatedReportList;
-        else {
+        } else {
             reportList.addAll(generatedReportList);
         }
 
