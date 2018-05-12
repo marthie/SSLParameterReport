@@ -158,10 +158,12 @@ public class SSLReportService {
 
         if (reportList == null || reportList.isEmpty()) {
             reportList = generatedReportList;
-        } else {
+        } else if (generatedReportList != null && !generatedReportList.isEmpty()) {
             reportList.addAll(generatedReportList);
         }
 
-        return output.outputReportCollection(reportList);
+        String reportOutput = output.outputReportCollection(reportList);
+
+        return reportOutput;
     }
 }
