@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report.server.service;
+package de.thiemann.ssl.report.service;
 
 public class SSLReportRequest {
 
