@@ -58,7 +58,7 @@ export default class ReportForm extends React.Component {
     }
 
     inactiveForm() {
-        return <div>No form!</div>;
+        return null;
     }
 
 

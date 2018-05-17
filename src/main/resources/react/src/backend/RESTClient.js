@@ -16,7 +16,5 @@ export function fetchSSLReport(host, port) {
 
     const url = '/service/sslReport';
 
-    $.ajax(url, settings).done(function(data) {
-        console.log("data: " + data);
-    })
+    return $.ajax(url, settings);
 }

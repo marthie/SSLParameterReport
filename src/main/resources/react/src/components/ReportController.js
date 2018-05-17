@@ -1,13 +1,16 @@
 import React from 'react';
 import ReportForm from './ReportForm';
+import ReportSheet from './ReportSheet';
 import {fetchSSLReport} from '../backend/RESTClient';
 
 export default class ReportController extends React.Component {
 
     constructor() {
         super();
+
         this.state = {
-            isActiveForm : true
+            isActiveForm : true,
+            sslReports: []
         };
 
         this.fetchReport = this.fetchReport.bind(this);
@@ -16,9 +19,12 @@ export default class ReportController extends React.Component {
     fetchReport(host, port) {
         console.log(`fetchReport(${host}, ${port})`);
 
-        fetchSSLReport(host, port);
-
-        this.setState({ isActiveForm : false });
+        fetchSSLReport(host, port).done((data)=> {
+            this.setState({
+                isActiveForm : false,
+                sslReports: data
+            });
+        });
     }
 
     render() {
@@ -26,6 +32,12 @@ export default class ReportController extends React.Component {
             isActiveForm={this.state.isActiveForm}
             fetchReport={this.fetchReport} />;
 
-        return (<div>{reportForm}</div>);
+        const reportSheet = <ReportSheet
+            sslReports={this.state.sslReports} />;
+
+        return (<div>
+            <div>{reportForm}</div>
+            <div>{reportSheet}</div>
+        </div>);
     }
 };
