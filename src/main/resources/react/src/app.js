@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Test from './components/Test';
+import ReportController from './components/ReportController';
 
-ReactDOM.render(<Test/>, document.getElementById("app"));
+ReactDOM.render(<ReportController />, document.getElementById("reportApp"));
