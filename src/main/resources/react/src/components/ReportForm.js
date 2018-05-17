@@ -21,6 +21,18 @@ export default class ReportForm extends React.Component {
         this.setState(newState);
     }
 
+    onClick(event) {
+        event.preventDefault();
+
+        const {host, port} = this.state;
+        this.props.fetchReport(host, port);
+
+        this.setState({
+            host: '',
+            port: ''
+        });
+    }
+
     activeForm() {
         return (<div>
             <div>
@@ -41,7 +53,7 @@ export default class ReportForm extends React.Component {
                        onChange={(e)=>this.onChange(e)}
                 />
             </div>
-            <button onClick={this.props.fetchReport(this.state.host, this.state.port)} >Get SSL Report!</button>
+            <button onClick={(e)=>this.onClick(e)} >Get SSL Report!</button>
         </div>);
     }
 

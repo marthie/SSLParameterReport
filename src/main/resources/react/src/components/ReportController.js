@@ -1,5 +1,6 @@
 import React from 'react';
 import ReportForm from './ReportForm';
+import {fetchSSLReport} from '../backend/RESTClient';
 
 export default class ReportController extends React.Component {
 
@@ -13,9 +14,11 @@ export default class ReportController extends React.Component {
     }
 
     fetchReport(host, port) {
-        console.log(`${host}:${port}`);
+        console.log(`fetchReport(${host}, ${port})`);
 
-        //this.setState({ isActiveForm : false });
+        fetchSSLReport(host, port);
+
+        this.setState({ isActiveForm : false });
     }
 
     render() {
