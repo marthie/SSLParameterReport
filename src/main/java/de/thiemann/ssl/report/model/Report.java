@@ -3,6 +3,7 @@ package de.thiemann.ssl.report.model;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /*
 
@@ -32,18 +33,20 @@ SOFTWARE.
 
 public class Report {
 
-	public String host;
-	public int port;
-	public InetAddress ip;
-	public Set<Integer> supportedSSLVersions;
-	public boolean compress;
-	public Map<Integer, Set<Integer>> supportedCipherSuite;
-	public Map<Integer, Set<Certificate>> serverCert;
+	private String id;
+	private String host;
+	private int port;
+	private InetAddress ip;
+	private Set<Integer> supportedSSLVersions;
+	private boolean compress;
+	private Map<Integer, Set<Integer>> supportedCipherSuite;
+	private Map<Integer, Set<Certificate>> serverCert;
 
 	public Report(String host, int port) {
 		super();
 		this.host = host;
 		this.port = port;
+		this.id = UUID.randomUUID().toString();
 	}
 
 	public Report(InetAddress ip, int port) {
@@ -51,6 +54,70 @@ public class Report {
 		this.port = port;
 		this.ip = ip;
 		this.host = ip.getHostName();
+		this.id = UUID.randomUUID().toString();
 	}
 
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public InetAddress getIp() {
+		return ip;
+	}
+
+	public void setIp(InetAddress ip) {
+		this.ip = ip;
+	}
+
+	public Set<Integer> getSupportedSSLVersions() {
+		return supportedSSLVersions;
+	}
+
+	public void setSupportedSSLVersions(Set<Integer> supportedSSLVersions) {
+		this.supportedSSLVersions = supportedSSLVersions;
+	}
+
+	public boolean isCompress() {
+		return compress;
+	}
+
+	public void setCompress(boolean compress) {
+		this.compress = compress;
+	}
+
+	public Map<Integer, Set<Integer>> getSupportedCipherSuite() {
+		return supportedCipherSuite;
+	}
+
+	public void setSupportedCipherSuite(Map<Integer, Set<Integer>> supportedCipherSuite) {
+		this.supportedCipherSuite = supportedCipherSuite;
+	}
+
+	public Map<Integer, Set<Certificate>> getServerCert() {
+		return serverCert;
+	}
+
+	public void setServerCert(Map<Integer, Set<Certificate>> serverCert) {
+		this.serverCert = serverCert;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 }

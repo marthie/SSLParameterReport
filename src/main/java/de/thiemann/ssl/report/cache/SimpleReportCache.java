@@ -57,9 +57,9 @@ public class SimpleReportCache implements ReportCache {
 
 	@Override
 	public void storeReport(Report report) {
-		if(report != null && report.ip != null) {
-			log.debug("Put report for ip {} to cache.", report.ip.toString());
-			cache.put(report.ip.toString(), report);
+		if(report != null && report.getIp() != null) {
+			log.debug("Put report for ip {} to cache.", report.getIp().toString());
+			cache.put(report.getIp().toString(), report);
 		}
 	}
 

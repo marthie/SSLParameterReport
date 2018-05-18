@@ -28,14 +28,15 @@ SOFTWARE.
 
 public class SSLv2Certificate extends Certificate {
 	
-	public String name;
-	public String hash;
+	private String name;
+	private String hash;
 	
 	public SSLv2Certificate(int i, String name, String hash) {
-		this.order = i;
+		super();
+		this.setOrder(i);
 		this.name = name;
 		this.hash = hash;
-		this.isProcessed = false;
+		this.setProcessed(false);
 	}
 
 	@Override
@@ -48,4 +49,19 @@ public class SSLv2Certificate extends Certificate {
 		return this;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getHash() {
+		return hash;
+	}
+
+	public void setHash(String hash) {
+		this.hash = hash;
+	}
 }

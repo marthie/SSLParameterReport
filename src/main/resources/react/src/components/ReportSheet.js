@@ -1,18 +1,55 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default function ReportSheet(props) {
-    const {sslReports} = props;
+import ReportTable from './ReportTable';
 
-    if(sslReports.length > 0) {
-        return (<div>
-            {sslReports.forEach((report) => console.log(report.ipAddress))}
-        </div>);
+export default class ReportSheet extends React.Component {
+
+    constructor(props) {
+        super(props);
     }
 
-    return null;
+    getBack(event) {
+        console.log("pushed back to form...");
+        this.props.newReport();
+    }
+
+    reportObjectToArray({sslReports}) {
+        var arraySSLReports;
+
+        if(!Array.isArray(sslReports)) {
+            console.log("Transfer single report to array...");
+            arraySSLReports = new Array( sslReports );
+        } else {
+            arraySSLReports = sslReports;
+        }
+
+        return arraySSLReports;
+    }
+
+    render() {
+        const sslReports = this.reportObjectToArray(this.props);
+
+        console.log(`SSL\TLS report count: ${sslReports.length}`);
+
+        const backButton = (<div>
+            <button onClick={(e)=>this.getBack()}>Back</button>
+        </div>);
+
+        if (sslReports.length > 0) {
+            console.log("Start display reports...");
+
+            return (<div>
+                {backButton}
+                <div>{sslReports.map((report) => <ReportTable key={report.reportId} report={report}/>)}</div>
+            </div>);
+        }
+
+        return ({backButton});
+    }
 }
 
 ReportSheet.propTypes = {
-    sslReports: PropTypes.array.isRequired
+    sslReports: PropTypes.array.isRequired,
+    newReport: PropTypes.func.isRequired
 };

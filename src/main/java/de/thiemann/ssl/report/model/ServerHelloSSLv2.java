@@ -42,9 +42,9 @@ import de.thiemann.ssl.report.util.IOUtil;
 
 public class ServerHelloSSLv2 {
 
-	public int[] cipherSuites;
-	public String serverCertName;
-	public String serverCertHash;
+	private int[] cipherSuites;
+	private String serverCertName;
+	private String serverCertHash;
 
 	public ServerHelloSSLv2(InputStream in) throws IOException {
 		// assume a the 2-byte record without padding
@@ -139,5 +139,29 @@ public class ServerHelloSSLv2 {
 		} catch (CertificateException e) {
 			// ignored
 		}
+	}
+
+	public int[] getCipherSuites() {
+		return cipherSuites;
+	}
+
+	public void setCipherSuites(int[] cipherSuites) {
+		this.cipherSuites = cipherSuites;
+	}
+
+	public String getServerCertName() {
+		return serverCertName;
+	}
+
+	public void setServerCertName(String serverCertName) {
+		this.serverCertName = serverCertName;
+	}
+
+	public String getServerCertHash() {
+		return serverCertHash;
+	}
+
+	public void setServerCertHash(String serverCertHash) {
+		this.serverCertHash = serverCertHash;
 	}
 }

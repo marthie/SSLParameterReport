@@ -86,7 +86,7 @@ public class JsonOutput extends AbstractOutput {
 	}
 
 	private Map<String, Object> transferToJSONObject(Report report) {
-		if (report.supportedSSLVersions.size() == 0) {
+		if (report.getSupportedSSLVersions().size() == 0) {
 			return null;
 		}
 
@@ -95,25 +95,26 @@ public class JsonOutput extends AbstractOutput {
 		// output common values
 		jsonReport.put("createdOn",
 				String.format("%1$tF %1$tT", System.currentTimeMillis()));
-		jsonReport.put("host", report.host);
-		jsonReport.put("ipAddress", report.ip.toString());
-		jsonReport.put("port", Integer.toString(report.port));
+		jsonReport.put("host", report.getHost());
+		jsonReport.put("ipAddress", report.getIp().toString());
+		jsonReport.put("port", Integer.toString(report.getPort()));
+		jsonReport.put("reportId", report.getId());
 
 		// protocol
 		List<String> supportedVersions = new ArrayList<String>();
-		for (int version : report.supportedSSLVersions) {
+		for (int version : report.getSupportedSSLVersions()) {
 			supportedVersions.add(versionString(version));
 		}
 		jsonReport.put("supportedSSLVersions", supportedVersions);
-		jsonReport.put("compress", Boolean.toString(report.compress));
+		jsonReport.put("compress", Boolean.toString(report.isCompress()));
 
 		// cipher suites
 		Map<String, Object> cipherSuites = new HashMap<String, Object>();
-		for (int version : report.supportedSSLVersions) {
+		for (int version : report.getSupportedSSLVersions()) {
 
 			List<String> cipherSuitesByVersion = new ArrayList<String>();
 			if (version == SSLVersions.SSLv2.getIntVersion()) {
-				for (int cipherSuite : report.supportedCipherSuite.get(version)) {
+				for (int cipherSuite : report.getSupportedCipherSuite().get(version)) {
 					cipherSuitesByVersion.add(CipherSuiteUtil
 							.cipherSuiteStringV2(cipherSuite));
 				}
@@ -122,7 +123,7 @@ public class JsonOutput extends AbstractOutput {
 						versionString(SSLVersions.SSLv2.getIntVersion()),
 						cipherSuitesByVersion);
 			} else {
-				for (int c : report.supportedCipherSuite.get(version)) {
+				for (int c : report.getSupportedCipherSuite().get(version)) {
 					cipherSuitesByVersion.add(CipherSuiteUtil
 							.cipherSuiteString(c));
 				}
@@ -133,10 +134,11 @@ public class JsonOutput extends AbstractOutput {
 		}
 		jsonReport.put("cipherSuites", cipherSuites);
 
+		// certificates
 		Map<String, Object> certificates = new HashMap<String, Object>();
-		if (report.serverCert != null && report.serverCert.size() != 0) {
-			for (Integer version : report.serverCert.keySet()) {
-				Set<Certificate> versionCertificates = report.serverCert
+		if (report.getServerCert() != null && report.getServerCert() .size() != 0) {
+			for (Integer version : report.getServerCert() .keySet()) {
+				Set<Certificate> versionCertificates = report.getServerCert()
 						.get(version);
 
 				List<Map<String, Object>> transferedCertificates = new ArrayList<Map<String, Object>>();
@@ -156,37 +158,39 @@ public class JsonOutput extends AbstractOutput {
 	}
 
 	private Map<String, Object> transferToJSONObject(Certificate cert) {
-		if (!cert.isProcessed) {
+		if (!cert.isProcessed()) {
 			cert.processCertificateBytes();
 		}
 
 		Map<String, Object> jsonCert = new HashMap<String, Object>();
-		jsonCert.put("order", cert.order);
+		jsonCert.put("order", cert.getOrder());
+		jsonCert.put("reportCertId", cert.getId());
 
 		if (cert instanceof SSLv2Certificate) {
 			SSLv2Certificate sslv2Cert = (SSLv2Certificate) cert;
 
-			jsonCert.put("fingerprint", sslv2Cert.hash);
-			jsonCert.put("certificate-order", sslv2Cert.order);
-			jsonCert.put("subject", sslv2Cert.name);
+			jsonCert.put("fingerprint", sslv2Cert.getHash());
+			jsonCert.put("certificate-order", sslv2Cert.getOrder());
+			jsonCert.put("subject", sslv2Cert.getName());
+
 
 			return jsonCert;
 		} else if (cert instanceof CertificateV3) {
 			CertificateV3 v3Cert = (CertificateV3) cert;
 
-			jsonCert.put("version", v3Cert.certificateVersion);
-			jsonCert.put("subjectName", v3Cert.subjectName);
-			jsonCert.put("alternativeNames", processAlternativeNames(v3Cert.alternativeNames));
+			jsonCert.put("version", v3Cert.getCertificateVersion());
+			jsonCert.put("subjectName", v3Cert.getSubjectName());
+			jsonCert.put("alternativeNames", processAlternativeNames(v3Cert.getAlternativeNames()));
 			jsonCert.put("notBefore",
-					String.format("%1$tF %1$tT", v3Cert.notBefore));
+					String.format("%1$tF %1$tT", v3Cert.getNotBefore()));
 			jsonCert.put("notAfter",
-					String.format("%1$tF %1$tT", v3Cert.notAfter));
-			jsonCert.put("pubKeyName", v3Cert.pubKeyInfo.pubKeyAlgorithm);
-			jsonCert.put("pubKeySize", v3Cert.pubKeyInfo.pubKeySize);
-			jsonCert.put("issuerName", v3Cert.issuerName);
-			jsonCert.put("signatureAlgorithm", v3Cert.signatureAlgorithm);
-			jsonCert.put("fingerprint", v3Cert.fingerprint);
-			jsonCert.put("crlDistributionPoints", v3Cert.crlDistributionPoints);
+					String.format("%1$tF %1$tT", v3Cert.getNotAfter()));
+			jsonCert.put("pubKeyName", v3Cert.getPubKeyInfo().getPubKeyAlgorithm());
+			jsonCert.put("pubKeySize", v3Cert.getPubKeyInfo().getPubKeySize());
+			jsonCert.put("issuerName", v3Cert.getIssuerName());
+			jsonCert.put("signatureAlgorithm", v3Cert.getSignatureAlgorithm());
+			jsonCert.put("fingerprint", v3Cert.getFingerprint());
+			jsonCert.put("crlDistributionPoints", v3Cert.getCrlDistributionPoints());
 
 			return jsonCert;
 		}

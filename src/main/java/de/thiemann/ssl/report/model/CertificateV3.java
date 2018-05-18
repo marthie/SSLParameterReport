@@ -78,31 +78,26 @@ public class CertificateV3 extends Certificate {
 
 	private static String NL = System.getProperty("line.separator");
 
-	public byte[] ec;
-	public X509Certificate jseX509Cert;
-	
-	
-	public int certificateVersion;
-	public String subjectName;
-	public List<String> alternativeNames;
-	public long notBefore = 0L;
-	public long notAfter = 0L;
+	private byte[] ec;
+	private X509Certificate jseX509Cert;
 
-	public static class PubKeyInfo {
-		public String pubKeyAlgorithm;
-		public int pubKeySize = 0;
-	}
 
-	public PubKeyInfo pubKeyInfo;
-	public String issuerName;
-	public String signatureAlgorithm;
-	public String fingerprint;
-	public List<String> crlDistributionPoints;
+	private int certificateVersion;
+	private String subjectName;
+	private List<String> alternativeNames;
+	private long notBefore = 0L;
+	private long notAfter = 0L;
+	private PubKeyInfo pubKeyInfo;
+	private String issuerName;
+	private String signatureAlgorithm;
+	private String fingerprint;
+	private List<String> crlDistributionPoints;
 
 	public CertificateV3(int i, byte[] ec) {
-		this.order = new Integer(i);
+		super();
+		this.setOrder(new Integer(i));
 		this.ec = ec;
-		this.isProcessed = false;
+		this.setProcessed(false);
 	}
 
 	@Override
@@ -181,7 +176,7 @@ public class CertificateV3 extends Certificate {
 
 	@Override
 	public String certificateReport() {
-		if(!this.isProcessed) {
+		if(!this.isProcessed()) {
 			this.processCertificateBytes();
 		}
 		
@@ -189,7 +184,7 @@ public class CertificateV3 extends Certificate {
 
 		sb.append(NL)
 				.append("=========================== Server Certificate #")
-				.append(this.order).append(" ==============================");
+				.append(this.getOrder()).append(" ==============================");
 
 		// certificate version
 		sb.append(NL).append("Certificate Version: ")
@@ -379,5 +374,122 @@ public class CertificateV3 extends Certificate {
 			sb.append("Unknown signature algorithm! OID: ").append(oid);
 
 		return sb.toString();
+	}
+
+	public byte[] getEc() {
+		return ec;
+	}
+
+	public void setEc(byte[] ec) {
+		this.ec = ec;
+	}
+
+	public X509Certificate getJseX509Cert() {
+		return jseX509Cert;
+	}
+
+	public void setJseX509Cert(X509Certificate jseX509Cert) {
+		this.jseX509Cert = jseX509Cert;
+	}
+
+	public int getCertificateVersion() {
+		return certificateVersion;
+	}
+
+	public void setCertificateVersion(int certificateVersion) {
+		this.certificateVersion = certificateVersion;
+	}
+
+	public String getSubjectName() {
+		return subjectName;
+	}
+
+	public void setSubjectName(String subjectName) {
+		this.subjectName = subjectName;
+	}
+
+	public List<String> getAlternativeNames() {
+		return alternativeNames;
+	}
+
+	public void setAlternativeNames(List<String> alternativeNames) {
+		this.alternativeNames = alternativeNames;
+	}
+
+	public long getNotBefore() {
+		return notBefore;
+	}
+
+	public void setNotBefore(long notBefore) {
+		this.notBefore = notBefore;
+	}
+
+	public long getNotAfter() {
+		return notAfter;
+	}
+
+	public void setNotAfter(long notAfter) {
+		this.notAfter = notAfter;
+	}
+
+	public PubKeyInfo getPubKeyInfo() {
+		return pubKeyInfo;
+	}
+
+	public void setPubKeyInfo(PubKeyInfo pubKeyInfo) {
+		this.pubKeyInfo = pubKeyInfo;
+	}
+
+	public String getIssuerName() {
+		return issuerName;
+	}
+
+	public void setIssuerName(String issuerName) {
+		this.issuerName = issuerName;
+	}
+
+	public String getSignatureAlgorithm() {
+		return signatureAlgorithm;
+	}
+
+	public void setSignatureAlgorithm(String signatureAlgorithm) {
+		this.signatureAlgorithm = signatureAlgorithm;
+	}
+
+	public String getFingerprint() {
+		return fingerprint;
+	}
+
+	public void setFingerprint(String fingerprint) {
+		this.fingerprint = fingerprint;
+	}
+
+	public List<String> getCrlDistributionPoints() {
+		return crlDistributionPoints;
+	}
+
+	public void setCrlDistributionPoints(List<String> crlDistributionPoints) {
+		this.crlDistributionPoints = crlDistributionPoints;
+	}
+
+	public static class PubKeyInfo {
+		private String pubKeyAlgorithm;
+		private int pubKeySize = 0;
+
+		public String getPubKeyAlgorithm() {
+			return pubKeyAlgorithm;
+		}
+
+		public void setPubKeyAlgorithm(String pubKeyAlgorithm) {
+			this.pubKeyAlgorithm = pubKeyAlgorithm;
+		}
+
+		public int getPubKeySize() {
+			return pubKeySize;
+		}
+
+		public void setPubKeySize(int pubKeySize) {
+			this.pubKeySize = pubKeySize;
+		}
 	}
 }

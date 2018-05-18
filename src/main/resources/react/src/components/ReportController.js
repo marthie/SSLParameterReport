@@ -23,6 +23,7 @@ export default class ReportController extends React.Component {
 
         this.fetchReport = this.fetchReport.bind(this);
         this.submitData = this.submitData.bind(this);
+        this.newReport = this.newReport.bind(this);
     }
 
     submitData(host, port) {
@@ -53,6 +54,14 @@ export default class ReportController extends React.Component {
         });
     }
 
+    newReport() {
+        console.log("new report...");
+
+        this.setState({
+            activeState: STATES.form
+        });
+    }
+
     formView() {
         const reportForm = <ReportForm submitData={this.submitData} />;
 
@@ -67,7 +76,7 @@ export default class ReportController extends React.Component {
 
 
     sheetView() {
-        const reportSheet = <ReportSheet sslReports={this.state.sslReports} />;
+        const reportSheet = <ReportSheet sslReports={this.state.sslReports} newReport={this.newReport} />;
 
         return (<div>{reportSheet}</div>);
     }

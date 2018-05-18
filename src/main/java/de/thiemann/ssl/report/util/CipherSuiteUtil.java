@@ -42,7 +42,7 @@ public class CipherSuiteUtil {
 			return String.format("UNKNOWN_SUITE:0x%04X", cs);
 		} else {
 			return String.format("0x%02X, 0x%02X - %s", (suite >> 8) & 0XFF,
-					suite & 0XFF, cs.name);
+					suite & 0XFF, cs.getName());
 		}
 	}
 
@@ -54,7 +54,7 @@ public class CipherSuiteUtil {
 		} else {
 			return String.format("0x%02X, 0x%02X, 0x%02X - %s",
 					(suite >> 16) & 0xFF, (suite >> 8) & 0xFF, suite & 0XFF,
-					cs.name);
+					cs.getName());
 		}
 	}
 

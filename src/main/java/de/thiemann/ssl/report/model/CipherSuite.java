@@ -29,8 +29,8 @@ package de.thiemann.ssl.report.model;
 
 public class CipherSuite implements Comparable<Integer> {
 	
-	public int suite;
-	public String name;
+	private int suite;
+	private String name;
 	
 	public CipherSuite(int suite, String name) {
 		super();
@@ -42,5 +42,20 @@ public class CipherSuite implements Comparable<Integer> {
 	public int compareTo(Integer i) {
 		return new Integer(suite).compareTo(i);
 	}
-	
+
+	public int getSuite() {
+		return suite;
+	}
+
+	public void setSuite(int suite) {
+		this.suite = suite;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 }
