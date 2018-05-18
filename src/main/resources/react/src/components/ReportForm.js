@@ -7,8 +7,8 @@ export default class ReportForm extends React.Component {
         super(props);
 
         this.state = {
-            host: '',
-            port: ''
+            host: 'heise.de',
+            port: '443'
         }
     }
 
@@ -25,7 +25,7 @@ export default class ReportForm extends React.Component {
         event.preventDefault();
 
         const {host, port} = this.state;
-        this.props.fetchReport(host, port);
+        this.props.submitData(host, port);
 
         this.setState({
             host: '',
@@ -33,7 +33,7 @@ export default class ReportForm extends React.Component {
         });
     }
 
-    activeForm() {
+    form() {
         return (<div>
             <div>
                 <span>Host:</span>
@@ -57,21 +57,12 @@ export default class ReportForm extends React.Component {
         </div>);
     }
 
-    inactiveForm() {
-        return null;
-    }
-
 
     render() {
-        if(this.props.isActiveForm) {
-            return this.activeForm();
-        } else {
-            return this.inactiveForm();
-        }
+        return this.form();
     }
 }
 
 ReportForm.propTypes = {
-    isActiveForm: PropTypes.bool.isRequired,
-    fetchReport: PropTypes.func.isRequired
+    submitData: PropTypes.func.isRequired
 };
