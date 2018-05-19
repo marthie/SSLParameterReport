@@ -65,20 +65,20 @@ export default class ReportController extends React.Component {
     formView() {
         const reportForm = <ReportForm submitData={this.submitData} />;
 
-        return (<div>{reportForm}</div>);
+        return reportForm;
     }
 
     loaderView() {
         const  reportLoader = <ReportLoader fetchReport={this.fetchReport}/>;
 
-        return (<div>{reportLoader}</div>);
+        return reportLoader;
     }
 
 
     sheetView() {
         const reportSheet = <ReportSheet sslReports={this.state.sslReports} newReport={this.newReport} />;
 
-        return (<div>{reportSheet}</div>);
+        return reportSheet;
     }
 
     render() {
@@ -94,8 +94,9 @@ export default class ReportController extends React.Component {
             case STATES.sheet:
                 currentView = this.sheetView();
                 break;
-            default:
-                currentView = (<div>Error!</div>);
+            default: {
+                currentView = (<p className="text-danger">`Error: ${this.state.activeState} unknown...`</p>);
+            }
         }
 
         return currentView;
