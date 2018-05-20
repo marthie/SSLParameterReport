@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import ReportTable from './ReportTable';
+import ReportPanel from './ReportPanel';
 
 export default class ReportSheet extends React.Component {
 
@@ -36,7 +36,7 @@ export default class ReportSheet extends React.Component {
             <div className="col-xs-12">
                 <button className="btn btn-default"
                         onClick={(e)=>this.getBack()}>
-                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
                     Back
                 </button>
             </div>
@@ -45,10 +45,10 @@ export default class ReportSheet extends React.Component {
         if (sslReports.length > 0) {
             console.log("Start display reports...");
 
-            return (<div>
+            return (<React.Fragment>
                 {backButton}
-                <div>{sslReports.map((report) => <ReportTable key={report.reportId} report={report}/>)}</div>
-            </div>);
+                <React.Fragment>{sslReports.map((report) => <ReportPanel key={report.reportId} report={report}/>)}</React.Fragment>
+            </React.Fragment>);
         }
 
         return backButton;

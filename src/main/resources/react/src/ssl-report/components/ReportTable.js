@@ -12,35 +12,60 @@ export default class ReportTable extends React.Component {
 
         console.log(`Start render report: ${report.reportId}`);
 
-        const reportTable = (<div>
-            <div>
-                <div>
-                    <div>Report created on</div>
-                    <div>{report.createdOn}</div>
-                </div>
-                <div>
-                    <div>Host</div>
-                    <div>{report.host}</div>
-                </div>
-                <div>
-                    <div>IP Address</div>
-                    <div>{report.ipAddress}</div>
-                </div>
-                <div>
-                    <div>Port</div>
-                    <div>{report.port}</div>
-                </div>
-                <div>
-                    <div>Compressed</div>
-                    <div>{report.compress ? 'Yes' : 'No'}</div>
-                </div>
-                <div>
-                    <div>Supported SSL/TLS Versions</div>
-                    <div>{this.buildVersionString()}</div>
-                </div>
+        const reportTable = (<React.Fragment>
+            <div className="page-header">
+                <h2>Common Information</h2>
             </div>
-            <CipherSuites cipherSuites={report.cipherSuites} />
-        </div>);
+            <form className="form-horizontal">
+                <div className="form-group">
+                    <label htmlFor="report_created"
+                           className="col-sm-4 control-label">Report created on:</label>
+                    <div className="col-sm-8">
+                        <p className="form-control-static" id="report_created">{report.createdOn}</p>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="report_host"
+                           className="col-sm-4 control-label">Host:</label>
+                    <div className="col-sm-8">
+                        <p className="form-control-static" id="report_host">{report.host}</p>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="report_ip"
+                           className="col-sm-4 control-label">IP-Address:</label>
+                    <div className="col-sm-8">
+                        <p className="form-control-static" id="report_ip">{report.ipAddress}</p>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="report_port"
+                        className="col-sm-4 control-label">Port:</label>
+                    <div className="col-sm-8">
+                        <p className="form-control-static" id="report_port">{report.port}</p>
+                    </div>
+                </div>
+            </form>
+            <div className="page-header">
+                <h2>Protocol Information</h2>
+            </div>
+            <form className="form-horizontal">
+                <div className="form-group">
+                    <label htmlFor="report_supportedVersions"
+                           className="col-sm-4 control-label">Supported protocol versions:</label>
+                    <div className="col-sm-8">
+                        <p className="form-control-static" id="report_supportedVersions">{this.buildVersionString()}</p>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="report_deflate"
+                           className="col-sm-4 control-label">Deflate compression support:</label>
+                    <div className="col-sm-8">
+                        <p className="form-control-static" id="report_deflate">{report.compress ? 'Yes' : 'No'}</p>
+                    </div>
+                </div>
+            </form>
+        </React.Fragment>);
 
         return reportTable;
     }
@@ -54,31 +79,6 @@ export default class ReportTable extends React.Component {
     render() {
         return this.reportTable();
     }
-}
-
-function CipherSuites({cipherSuites}) {
-    const allCipherSuites = [];
-
-    for(var sslVersion in cipherSuites) {
-        if(cipherSuites.hasOwnProperty(sslVersion)) {
-            console.log(sslVersion + " " + cipherSuites[sslVersion]);
-
-            var cipherSuitesBySSLVersion = cipherSuites[sslVersion];
-
-            var cipherSuiteComponents = [];
-
-            cipherSuitesBySSLVersion.forEach((element)=>cipherSuiteComponents.push((<p>{element}</p>)));
-
-            var bySSLVersionComponent = (<div>
-                <div>{sslVersion}</div>
-                <div>{cipherSuiteComponents}</div>
-            </div>);
-
-            allCipherSuites.push(bySSLVersionComponent);
-        }
-    }
-
-    return (<div>{allCipherSuites}</div>);
 }
 
 ReportTable.propTypes = {

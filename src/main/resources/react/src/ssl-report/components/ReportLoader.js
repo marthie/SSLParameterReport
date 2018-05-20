@@ -12,8 +12,13 @@ export default class ReportLoader extends React.Component {
     }
 
     render() {
-        return(<div>
-            <img  src="pics/ajax-loader.gif" />
+        return(<div className="row">
+            <div className="col-xs-12">
+                <div className="alert alert-info">
+                    <img  src="pics/ajax-loader.gif" />
+                    <strong> Loading...</strong>
+                </div>
+            </div>
         </div>);
     }
 }

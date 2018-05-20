@@ -41,7 +41,8 @@ export default class ReportForm extends React.Component {
                     <div className="panel-body">
                         <form className="form-inline">
                             <div className="form-group">
-                                <label htmlFor="host">Host:</label>
+                                <label htmlFor="host"
+                                       style={{marginLeft: 5 + 'px', marginRight: 5 + 'px'}}>Host:</label>
                                 <input type='text'
                                        placeholder='Host/IP'
                                        name='host'
@@ -51,17 +52,20 @@ export default class ReportForm extends React.Component {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="port">Port:</label>
+                                <label htmlFor="port"
+                                       style={{marginLeft: 5 + 'px', marginRight: 5 + 'px'}}>Port:</label>
                                 <input type='text'
                                        placeholder='Port'
                                        name='port'
                                        value={this.state.port}
                                        onChange={(e) => this.onChange(e)}
+                                       className="form-control"
                                 />
                             </div>
                             <button
                                 onClick={(e) => this.onClick(e)}
-                                className="btn btn-primary">
+                                className="btn btn-primary"
+                                style={{marginLeft: 15 + 'px'}}>
                                 Get SSL Report
                                 <span className="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
                             </button>
