@@ -32,8 +32,14 @@ export default class ReportSheet extends React.Component {
 
         console.log(`SSL\TLS report count: ${sslReports.length}`);
 
-        const backButton = (<div>
-            <button onClick={(e)=>this.getBack()}>Back</button>
+        const backButton = (<div className="row">
+            <div className="col-xs-12">
+                <button className="btn btn-default"
+                        onClick={(e)=>this.getBack()}>
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    Back
+                </button>
+            </div>
         </div>);
 
         if (sslReports.length > 0) {
@@ -45,7 +51,7 @@ export default class ReportSheet extends React.Component {
             </div>);
         }
 
-        return ({backButton});
+        return backButton;
     }
 }
 

@@ -34,7 +34,7 @@ module.exports = {
         ]
     },
     output: {
-        path: path.resolve(__dirname, "dist/lib"),
+        path: path.resolve(__dirname, "dist"),
         filename: "[name].js"
     },
     devtool: "cheap-module-eval-source-map"
