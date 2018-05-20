@@ -33,7 +33,6 @@ SOFTWARE.
 
 public class Report {
 
-	private String id;
 	private String host;
 	private int port;
 	private InetAddress ip;
@@ -46,7 +45,6 @@ public class Report {
 		super();
 		this.host = host;
 		this.port = port;
-		this.id = UUID.randomUUID().toString();
 	}
 
 	public Report(InetAddress ip, int port) {
@@ -54,7 +52,6 @@ public class Report {
 		this.port = port;
 		this.ip = ip;
 		this.host = ip.getHostName();
-		this.id = UUID.randomUUID().toString();
 	}
 
 	public String getHost() {
@@ -111,13 +108,5 @@ public class Report {
 
 	public void setServerCert(Map<Integer, Set<Certificate>> serverCert) {
 		this.serverCert = serverCert;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 }

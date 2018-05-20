@@ -29,17 +29,11 @@ SOFTWARE.
 import java.util.UUID;
 
 public abstract class Certificate implements Comparable<Certificate> {
-	
-	private String id;
 
 	private Integer order;
 	
 	// for layz processing
 	private boolean isProcessed;
-
-	public Certificate() {
-		this.id = UUID.randomUUID().toString();
-	}
 
 	public abstract String certificateReport();
 	
@@ -64,13 +58,5 @@ public abstract class Certificate implements Comparable<Certificate> {
 
 	public void setProcessed(boolean processed) {
 		isProcessed = processed;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 }

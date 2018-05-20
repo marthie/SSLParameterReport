@@ -28,6 +28,11 @@ package de.thiemann.ssl.report.output;
  * ----------------------------------------------------------------------
  */
 
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public abstract class AbstractOutput implements Output {
 
 	public String versionString(int version) {
@@ -40,5 +45,23 @@ public abstract class AbstractOutput implements Output {
 		} else {
 			return String.format("UNKNOWN_VERSION:0x%04X", version);
 		}
+	}
+
+	public static Map.Entry<String, Object> entry(String key, Object value) {
+		return new AbstractMap.SimpleEntry(key, value);
+	}
+
+	public static Map.Entry<String, Object> keyEntry() {
+		return entry("key", UUID.randomUUID().toString());
+	}
+
+	public static Map<String, Object> map(Map.Entry<String, Object>...entries) {
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		for (Map.Entry<String, Object> entry : entries) {
+			map.put(entry.getKey(), entry.getValue());
+		}
+
+		return map;
 	}
 }

@@ -47,7 +47,7 @@ export default class ReportSheet extends React.Component {
 
             return (<React.Fragment>
                 {backButton}
-                <React.Fragment>{sslReports.map((report) => <ReportPanel key={report.reportId} report={report}/>)}</React.Fragment>
+                <React.Fragment>{sslReports.map((report) => <ReportPanel key={report.key} report={report}/>)}</React.Fragment>
             </React.Fragment>);
         }
 

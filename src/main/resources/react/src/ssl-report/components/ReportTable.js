@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import ReportCipherSuites from './ReportCipherSuites';
+
 export default class ReportTable extends React.Component {
 
     constructor(props) {
@@ -10,12 +12,13 @@ export default class ReportTable extends React.Component {
     reportTable() {
         const {report} = this.props;
 
-        console.log(`Start render report: ${report.reportId}`);
+        console.log(`Start render report: ${report.key}`);
 
         const reportTable = (<React.Fragment>
             <div className="page-header">
                 <h2>Common Information</h2>
             </div>
+
             <form className="form-horizontal">
                 <div className="form-group">
                     <label htmlFor="report_created"
@@ -46,9 +49,11 @@ export default class ReportTable extends React.Component {
                     </div>
                 </div>
             </form>
+
             <div className="page-header">
                 <h2>Protocol Information</h2>
             </div>
+
             <form className="form-horizontal">
                 <div className="form-group">
                     <label htmlFor="report_supportedVersions"
@@ -65,6 +70,11 @@ export default class ReportTable extends React.Component {
                     </div>
                 </div>
             </form>
+
+            <div className="page-header">
+                <h2>Cipher Suites <small>order is not relevant</small></h2>
+            </div>
+            <ReportCipherSuites reportCipherSuites={report.cipherSuites}/>
         </React.Fragment>);
 
         return reportTable;
@@ -73,7 +83,8 @@ export default class ReportTable extends React.Component {
     buildVersionString() {
         const {report} = this.props;
 
-        return report.supportedSSLVersions.reduce((acc, value) => acc + ', ' + value);
+        return report.supportedSSLVersions.map((versionObject) => versionObject.version)
+            .reduce((acc, value) => acc + ', ' + value);
     }
 
     render() {
