@@ -34,12 +34,11 @@ import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.model.SSLv2Certificate;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
-
-import java.util.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
 
 
 @Component
@@ -91,7 +90,7 @@ public class JsonOutput extends AbstractOutput {
             return null;
         }
 
-        Map<String, Object> jsonReport = new HashMap<String, Object>();
+        Map<String, Object> jsonReport = map(keyEntry());
 
         // output common values
         jsonReport.put("createdOn",
@@ -99,7 +98,6 @@ public class JsonOutput extends AbstractOutput {
         jsonReport.put("host", report.getHost());
         jsonReport.put("ipAddress", report.getIp().toString());
         jsonReport.put("port", Integer.toString(report.getPort()));
-        jsonReport.put("key", UUID.randomUUID().toString());
 
         // protocol
         List<Object> supportedVersions = new ArrayList<Object>();
@@ -114,9 +112,8 @@ public class JsonOutput extends AbstractOutput {
         List<Object> cipherSuites = new ArrayList<Object>();
         for (int version : report.getSupportedSSLVersions()) {
 
-            Map<String, Object> cipherSuitesByVersion = new HashMap<String, Object>();
+            Map<String, Object> cipherSuitesByVersion = map(keyEntry());
             cipherSuitesByVersion.put("version", versionString(version));
-            cipherSuitesByVersion.put("key", UUID.randomUUID().toString());
 
             List<Object> listCipherSuiteStrings = new ArrayList<Object>();
             cipherSuitesByVersion.put("cipherSuiteStrings", listCipherSuiteStrings);
@@ -140,24 +137,28 @@ public class JsonOutput extends AbstractOutput {
         jsonReport.put("cipherSuites", cipherSuites);
 
         // certificates
-        Map<String, Object> certificates = new HashMap<String, Object>();
+        List<Object> certificateList = new ArrayList<Object>();
+
         if (report.getServerCert() != null && report.getServerCert().size() != 0) {
             for (Integer version : report.getServerCert().keySet()) {
                 Set<Certificate> versionCertificates = report.getServerCert()
                         .get(version);
 
-                List<Map<String, Object>> transferedCertificates = new ArrayList<Map<String, Object>>();
+                List<Object> transferedCertificates = new ArrayList<Object>();
                 for (Certificate certificate : versionCertificates) {
                     transferedCertificates
                             .add(transferToJSONObject(certificate));
                 }
 
-                certificates
-                        .put(versionString(version), transferedCertificates);
+                Map<String, Object> certificatesByVersion = map(keyEntry());
+                certificatesByVersion.put("version", versionString(version));
+                certificatesByVersion.put("certificatesChain", transferedCertificates);
+
+                certificateList.add(certificatesByVersion);
             }
         }
 
-        jsonReport.put("certificates", certificates);
+        jsonReport.put("certificates", certificateList);
 
         return jsonReport;
     }
@@ -167,9 +168,8 @@ public class JsonOutput extends AbstractOutput {
             cert.processCertificateBytes();
         }
 
-        Map<String, Object> jsonCert = new HashMap<String, Object>();
+        Map<String, Object> jsonCert = map(keyEntry());
         jsonCert.put("order", cert.getOrder());
-        jsonCert.put("key", UUID.randomUUID().toString());
 
         if (cert instanceof SSLv2Certificate) {
             SSLv2Certificate sslv2Cert = (SSLv2Certificate) cert;
@@ -226,8 +226,6 @@ public class JsonOutput extends AbstractOutput {
                 lineBuffer.setLength(0);
             }
         }
-
         return lines;
     }
-
 }

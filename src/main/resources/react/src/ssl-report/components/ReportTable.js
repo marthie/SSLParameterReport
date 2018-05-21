@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import ReportCipherSuites from './ReportCipherSuites';
+import ReportCertificates from './ReportCertificates';
 
 export default class ReportTable extends React.Component {
 
@@ -75,6 +76,11 @@ export default class ReportTable extends React.Component {
                 <h2>Cipher Suites <small>order is not relevant</small></h2>
             </div>
             <ReportCipherSuites reportCipherSuites={report.cipherSuites}/>
+
+            <div className="page-header">
+                <h2>Certificates</h2>
+            </div>
+            <ReportCertificates certificates={report.certificates} />
         </React.Fragment>);
 
         return reportTable;
