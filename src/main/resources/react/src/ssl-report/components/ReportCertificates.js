@@ -28,7 +28,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default function ReportCertifictaes({certificates}) {
+export default function ReportCertificates({certificates}) {
     const certificateSections = [];
 
     certificates.map((certificateObject)=> {
@@ -36,7 +36,8 @@ export default function ReportCertifictaes({certificates}) {
             " certificates for version " + certificateObject.version);
 
         certificateSections.push(<CertificateRows version={certificateObject.version}
-                                                  certificateChain={certificateObject.certificatesChain} />);
+                                                  certificateChain={certificateObject.certificatesChain}
+                                                  key={certificateObject.key}/>);
     });
 
     return (<table className="table table-bordered">
@@ -46,7 +47,7 @@ export default function ReportCertifictaes({certificates}) {
     </table>);
 }
 
-ReportCertifictaes.propTypes = {
+ReportCertificates.propTypes = {
     certificates: PropTypes.array.isRequired
 };
 
@@ -54,7 +55,7 @@ function CertificateRows({version, certificateChain}) {
     const certificateDetailRows = [];
 
     certificateChain.map((certificate)=>{
-        certificateDetailRows.push(<CertificateDetailRow version={version} certificate={certificate} />);
+        certificateDetailRows.push(<CertificateDetailRow key={certificate.key} version={version} certificate={certificate} />);
     });
 
     return (<React.Fragment>{certificateDetailRows}</React.Fragment>);

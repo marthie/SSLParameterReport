@@ -1,0 +1,15 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+/target/
+/src/main/resources/react/node_modules/
+/src/main/resources/react/dist/assets/
+/src/main/resources/react/dist/app.js
+/src/main/resources/react/dist/lib.js
+/src/main/resources/react/dist/styles-libs.js
+/src/main/resources/react/package-lock.json
