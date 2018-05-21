@@ -4,7 +4,7 @@
 
     <groupId>de.thiemann</groupId>
     <artifactId>sslreport</artifactId>
-    <version>0.9</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -76,6 +76,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -103,5 +111,7 @@
                 </includes>
             </resource>
         </resources>
+
+
     </build>
 </project>
