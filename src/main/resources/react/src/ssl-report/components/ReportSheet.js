@@ -29,6 +29,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import ReportPanel from './ReportPanel';
+import ReportTable from './ReportTable';
 
 export default class ReportSheet extends React.Component {
 
@@ -44,9 +45,9 @@ export default class ReportSheet extends React.Component {
     reportObjectToArray({sslReports}) {
         var arraySSLReports;
 
-        if(!Array.isArray(sslReports)) {
+        if (!Array.isArray(sslReports)) {
             console.log("Transfer single report to array...");
-            arraySSLReports = new Array( sslReports );
+            arraySSLReports = new Array(sslReports);
         } else {
             arraySSLReports = sslReports;
         }
@@ -54,27 +55,41 @@ export default class ReportSheet extends React.Component {
         return arraySSLReports;
     }
 
-    render() {
-        const sslReports = this.reportObjectToArray(this.props);
-
-        console.log(`SSL\TLS report count: ${sslReports.length}`);
-
+    backButton() {
         const backButton = (<div className="row">
             <div className="col-xs-12">
                 <button className="btn btn-default"
-                        onClick={(e)=>this.getBack()}>
+                        onClick={(e) => this.getBack()}>
                     <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
                     Back
                 </button>
             </div>
         </div>);
 
+        return backButton;
+    }
+
+    render() {
+        const sslReports = this.reportObjectToArray(this.props);
+
+        console.log(`SSL\TLS report count: ${sslReports.length}`);
+
         if (sslReports.length > 0) {
             console.log("Start display reports...");
 
             return (<React.Fragment>
-                {backButton}
-                <React.Fragment>{sslReports.map((report) => <ReportPanel key={report.key} report={report}/>)}</React.Fragment>
+                {this.backButton()}
+                <React.Fragment>
+                    {sslReports.map((report) => {
+                            const title = `${report.ipAddress}:${report.port}`;
+                            console.log("rendering report for" + title);
+
+                            return (<ReportPanel key={'panel-' + report.key} panelTitle={title}>
+                                <ReportTable key={'table-' + report.key} report={report}/>
+                            </ReportPanel>);
+                        }
+                    )}
+                </React.Fragment>
             </React.Fragment>);
         }
 

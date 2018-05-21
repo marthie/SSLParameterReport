@@ -26,28 +26,54 @@
  */
 
 import React from 'react';
-
-import ReportTable from './ReportTable';
+import PropTypes from 'prop-types';
 
 export default class ReportPanel extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.state = {
+            isVisible: false,
+            iconClassNames: "glyphicon glyphicon-chevron-down",
+            bodyClassNames: "panel-body hidden"
+        }
+    }
+
+    slideUpOrDown(event) {
+        const {isVisible} = this.state;
+
+        if(isVisible) {
+            this.setState({
+                isVisible: false,
+                iconClassNames: "glyphicon glyphicon-chevron-down",
+                bodyClassNames: "panel-body hidden"
+            });
+        } else {
+            this.setState({
+                isVisible: true,
+                iconClassNames: "glyphicon glyphicon-chevron-up",
+                bodyClassNames: "panel-body"
+            });
+        }
     }
 
     reportPanel() {
-        const {report} = this.props;
-
-        const panelTitle = `${report.ipAddress}:${report.port}`;
+        const {panelTitle, children} = this.props;
 
         const panel = (<div className="row">
             <div className="col-xs-12">
             <div className="panel panel-default" style={{marginTop: 10 + 'px'}}>
                 <div className="panel-heading">
                     <h3 className="panel-title">{panelTitle}</h3>
+                    <span className="pull-right"
+                          style={{marginTop: -15 + 'px'}}
+                          onClick={(e)=>this.slideUpOrDown(e)} >
+                        <i className={this.state.iconClassNames}></i>
+                    </span>
                 </div>
-                <div className="panel-body">
-                    <ReportTable {...this.props} />
+                <div className={this.state.bodyClassNames}>
+                    {children}
                 </div>
             </div>
             </div>
@@ -59,4 +85,8 @@ export default class ReportPanel extends React.Component {
     render() {
         return this.reportPanel();
     }
+}
+
+ReportPanel.propTypes = {
+    panelTitle: PropTypes.string.isRequired
 }
