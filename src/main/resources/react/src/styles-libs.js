@@ -27,3 +27,4 @@
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/css/bootstrap-theme.css';
+import './css/ssl-report-app.css';

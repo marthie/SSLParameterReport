@@ -28,18 +28,36 @@
 import React from 'react';
 import ReportController from './ReportController';
 
-export default function Layout() {
+export default class Layout extends React.Component {
 
-    const layout = (
-        <div className="container">
-            <div className="row">
-                <div className="page-header">
-                    <h1>SSL Report</h1>
+    scrollHandler(event) {
+        var scrollTop = 0;
+        document.body.scrollTop ? scrollTop = document.body.scrollTop : scrollTop = 0;
+        document.documentElement.scrollTop ? scrollTop = document.documentElement.scrollTop : scrollTop = 0;
+
+        console.log("ScrollTop: " + scrollTop);
+    }
+
+    componentDidMount() {
+        window.addEventListener('scroll', this.scrollHandler);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.scrollHandler);
+    }
+
+    render() {
+        const layout = (<React.Fragemnt>
+            <div className="container">
+                <div className="row">
+                    <div className="page-header">
+                        <h1>SSL Report</h1>
+                    </div>
                 </div>
+                <ReportController/>
             </div>
-            <ReportController />
-        </div>
-    );
+        </React.Fragemnt>);
 
-    return layout;
+        return layout;
+    }
 }

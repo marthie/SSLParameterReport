@@ -28,33 +28,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+const VISIBLE_STATE = {
+    isVisible: true,
+    iconClassNames: "glyphicon glyphicon-chevron-up",
+    bodyStyle: {display: 'block'}
+};
+
+const HIDE_STATE = {
+    isVisible: false,
+    iconClassNames: "glyphicon glyphicon-chevron-down",
+    bodyStyle: {display: 'none'}
+};
+
 export default class ReportPanel extends React.Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {
-            isVisible: false,
-            iconClassNames: "glyphicon glyphicon-chevron-down",
-            bodyClassNames: "panel-body hidden"
-        }
+        this.state = HIDE_STATE;
     }
 
     slideUpOrDown(event) {
         const {isVisible} = this.state;
 
         if(isVisible) {
-            this.setState({
-                isVisible: false,
-                iconClassNames: "glyphicon glyphicon-chevron-down",
-                bodyClassNames: "panel-body hidden"
-            });
+            this.setState(HIDE_STATE);
         } else {
-            this.setState({
-                isVisible: true,
-                iconClassNames: "glyphicon glyphicon-chevron-up",
-                bodyClassNames: "panel-body"
-            });
+            this.setState(VISIBLE_STATE);
         }
     }
 
@@ -72,7 +72,7 @@ export default class ReportPanel extends React.Component {
                         <i className={this.state.iconClassNames}></i>
                     </span>
                 </div>
-                <div className={this.state.bodyClassNames}>
+                <div className="panel-body" style={this.state.bodyStyle}>
                     {children}
                 </div>
             </div>
