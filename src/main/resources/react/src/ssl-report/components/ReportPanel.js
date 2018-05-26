@@ -27,17 +27,16 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
 
 const VISIBLE_STATE = {
     isVisible: true,
-    iconClassNames: "glyphicon glyphicon-chevron-up",
-    bodyStyle: {display: 'block'}
+    iconClassNames: "glyphicon glyphicon-chevron-up"
 };
 
 const HIDE_STATE = {
     isVisible: false,
-    iconClassNames: "glyphicon glyphicon-chevron-down",
-    bodyStyle: {display: 'none'}
+    iconClassNames: "glyphicon glyphicon-chevron-down"
 };
 
 export default class ReportPanel extends React.Component {
@@ -48,7 +47,7 @@ export default class ReportPanel extends React.Component {
         this.state = HIDE_STATE;
     }
 
-    slideUpOrDown(event) {
+    slideHandler(event) {
         const {isVisible} = this.state;
 
         if(isVisible) {
@@ -68,13 +67,11 @@ export default class ReportPanel extends React.Component {
                     <h3 className="panel-title">{panelTitle}</h3>
                     <span className="pull-right"
                           style={{marginTop: -15 + 'px'}}
-                          onClick={(e)=>this.slideUpOrDown(e)} >
+                          onClick={(e)=>this.slideHandler(e)} >
                         <i className={this.state.iconClassNames}></i>
                     </span>
                 </div>
-                <div className="panel-body" style={this.state.bodyStyle}>
-                    {children}
-                </div>
+                <SlidablePanelBody isVisible={this.state.isVisible} duration={1000} {...this.props} />
             </div>
             </div>
         </div>);
@@ -89,4 +86,45 @@ export default class ReportPanel extends React.Component {
 
 ReportPanel.propTypes = {
     panelTitle: PropTypes.string.isRequired
+};
+
+class SlidablePanelBody extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.panelBodyRef = React.createRef();
+    }
+
+    componentDidMount() {
+        $(this.panelBodyRef.current).slideUp({queue: false, duration: 0});
+    }
+
+    UNSAFE_componentWillUpdate(nextProps, nextState) {
+        const {isVisible, _duration = 400} = nextProps;
+
+        if(isVisible) {
+            $(this.panelBodyRef.current).slideDown({duration: _duration});
+        }
+
+        if(!isVisible) {
+            $(this.panelBodyRef.current).slideUp({duration: _duration});
+        }
+    }
+
+    render() {
+        const {children} = this.props;
+
+        const panelBody = (<div className="panel-body" ref={this.panelBodyRef}>
+            {children}
+        </div>);
+
+        return panelBody;
+    }
 }
+
+SlidablePanelBody.propTypes = {
+    children: PropTypes.element.isRequired,
+    isVisible: PropTypes.bool.isRequired,
+    duration: PropTypes.number
+};
