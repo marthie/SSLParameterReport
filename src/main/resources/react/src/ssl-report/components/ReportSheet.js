@@ -30,6 +30,7 @@ import PropTypes from 'prop-types';
 
 import ReportPanel from './ReportPanel';
 import ReportTable from './ReportTable';
+import ReportJump from './ReportJump';
 
 export default class ReportSheet extends React.Component {
 
@@ -56,15 +57,18 @@ export default class ReportSheet extends React.Component {
     }
 
     backButton() {
-        const backButton = (<div className="row">
-            <div className="col-xs-12">
-                <button className="btn btn-default"
-                        onClick={(e) => this.getBack()}>
-                    <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                    Back
-                </button>
+        const backButton = (<React.Fragment>
+            <ReportJump/>
+            <div className="row">
+                <div className="col-xs-12">
+                    <button className="btn btn-default"
+                            onClick={(e) => this.getBack()}>
+                        <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                        Back
+                    </button>
+                </div>
             </div>
-        </div>);
+        </React.Fragment>);
 
         return backButton;
     }
