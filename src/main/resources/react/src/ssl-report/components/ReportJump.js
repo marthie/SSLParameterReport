@@ -74,11 +74,7 @@ class JumpButton extends React.Component {
     }
 
     componentDidMount() {
-        const {isVisible} = this.props;
-
-        if(isVisible) {
-            $(this.containerRef.current).fadeIn();
-        }
+        $(this.containerRef.current).fadeOut({queue: false, duration: 0});
     }
 
     UNSAFE_componentWillUpdate(nextProps, nextState) {
