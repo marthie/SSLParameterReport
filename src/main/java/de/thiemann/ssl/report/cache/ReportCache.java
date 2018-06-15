@@ -1,4 +1,4 @@
-package de.thiemann.ssl.report.model;
+package de.thiemann.ssl.report.cache;
 
 /*
 
@@ -24,44 +24,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
- */
+*/
 
-public class SSLv2Certificate extends Certificate {
+import java.net.InetAddress;
+import java.util.List;
+
+import de.thiemann.ssl.report.model.Report;
+
+public interface ReportCache {
+
+	public Report getCachedReport(InetAddress ipAddress);
 	
-	private String name;
-	private String hash;
+	public boolean isReportCached(InetAddress ipAddress);
 	
-	public SSLv2Certificate(int i, String name, String hash) {
-		super();
-		this.setOrder(i);
-		this.name = name;
-		this.hash = hash;
-		this.setProcessed(false);
-	}
-
-	@Override
-	public String certificateReport() {
-		return hash + ": " + name;
-	}
-
-	@Override
-	public Certificate processCertificateBytes() {
-		return this;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getHash() {
-		return hash;
-	}
-
-	public void setHash(String hash) {
-		this.hash = hash;
-	}
+	public void storeReport(Report report);
+	
+	public void storeReport(List<Report> reportList);
 }

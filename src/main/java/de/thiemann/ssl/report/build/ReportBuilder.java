@@ -21,6 +21,7 @@ import de.thiemann.ssl.report.model.ServerHelloSSLv2;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.IOUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
+import org.springframework.stereotype.Component;
 
 /*
  * ----------------------------------------------------------------------
@@ -49,6 +50,7 @@ import de.thiemann.ssl.report.util.SSLVersions;
  * ----------------------------------------------------------------------
  */
 
+@Component
 public class ReportBuilder {
 
 	/*
@@ -141,7 +143,7 @@ public class ReportBuilder {
 
 		InetSocketAddress isa = new InetSocketAddress(ip, port);
 
-		report.supportedSSLVersions = new TreeSet<Integer>();
+		report.setSupportedSSLVersions(new TreeSet<Integer>());
 
 		// check for ssl/tls version
 		for (SSLVersions version : SSLVersions.values()) {
@@ -154,55 +156,55 @@ public class ReportBuilder {
 			if (serverHello == null) {
 				continue;
 			}
-			report.supportedSSLVersions.add(serverHello.protoVersion);
-			report.compress = serverHello.compression;
+			report.getSupportedSSLVersions().add(serverHello.getProtoVersion());
+			report.setCompress(serverHello.isCompression());
 		}
 
 		// check support for version SSL2
 		ServerHelloSSLv2 serverHelloV2 = connectV2(isa);
 
 		if (serverHelloV2 != null) {
-			report.supportedSSLVersions.add(0x0200);
+			report.getSupportedSSLVersions().add(0x0200);
 		}
 		
-		if(report.supportedSSLVersions.isEmpty())
+		if(report.getSupportedSSLVersions().isEmpty())
 			return null;
 
 		// check cipher suites
 
-		report.supportedCipherSuite = new TreeMap<Integer, Set<Integer>>();
-		report.serverCert = new TreeMap<Integer, Set<Certificate>>();
+		report.setSupportedCipherSuite(new TreeMap<Integer, Set<Integer>>());
+		report.setServerCert(new TreeMap<Integer, Set<Certificate>>());
 
 		if (serverHelloV2 != null) {
 			Set<Integer> supportedSSL2CipherSuites = new TreeSet<Integer>();
-			for (int cipherSuiteId : serverHelloV2.cipherSuites) {
+			for (int cipherSuiteId : serverHelloV2.getCipherSuites()) {
 				supportedSSL2CipherSuites.add(cipherSuiteId);
 			}
 
-			report.supportedCipherSuite.put(SSLVersions.SSLv2.getIntVersion(),
+			report.getSupportedCipherSuite().put(SSLVersions.SSLv2.getIntVersion(),
 					supportedSSL2CipherSuites);
 
-			if (serverHelloV2.serverCertName != null) {
+			if (serverHelloV2.getServerCertName() != null) {
 				Set<Certificate> certs = new TreeSet<Certificate>();
 				SSLv2Certificate cert = new SSLv2Certificate(1,
-						serverHelloV2.serverCertName,
-						serverHelloV2.serverCertHash);
+						serverHelloV2.getServerCertName(),
+						serverHelloV2.getServerCertHash());
 				certs.add(cert);
 
-				report.serverCert.put(SSLVersions.SSLv2.getIntVersion(), certs);
+				report.getServerCert().put(SSLVersions.SSLv2.getIntVersion(), certs);
 			}
 		}
 
-		for (int version : report.supportedSSLVersions) {
+		for (int version : report.getSupportedSSLVersions()) {
 			if (version == SSLVersions.SSLv2.getIntVersion()) {
 				continue;
 			}
 
 			Set<Integer> versionSupportedCiphers = supportedSuites(isa, version);
-			report.supportedCipherSuite.put(version, versionSupportedCiphers);
+			report.getSupportedCipherSuite().put(version, versionSupportedCiphers);
 
 			Set<Certificate> versionCertificates = addCertificates(isa, version);
-			report.serverCert.put(version, versionCertificates);
+			report.getServerCert().put(version, versionCertificates);
 		}
 
 		return report;
@@ -223,15 +225,15 @@ public class ReportBuilder {
 			if (sh == null) {
 				break;
 			}
-			if (!cs.contains(sh.cipherSuite)) {
+			if (!cs.contains(sh.getCipherSuite())) {
 				System.err.printf("[ERR: server wants to use"
 						+ " cipher suite 0x%04X which client"
-						+ " did not announce]", sh.cipherSuite);
+						+ " did not announce]", sh.getCipherSuite());
 				System.err.println();
 				break;
 			}
-			cs.remove(sh.cipherSuite);
-			rs.add(sh.cipherSuite);
+			cs.remove(sh.getCipherSuite());
+			rs.add(sh.getCipherSuite());
 		}
 		return rs;
 	}
@@ -241,8 +243,8 @@ public class ReportBuilder {
 		ServerHello sh = connect(isa, version,
 				CipherSuiteUtil.CIPHER_SUITES.keySet());
 
-		if (sh != null && sh.certificateChain != null) {
-			serverCerts = sh.certificateChain;
+		if (sh != null && sh.getCertificateChain() != null) {
+			serverCerts = sh.getCertificateChain();
 		}
 
 		return serverCerts;

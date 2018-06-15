@@ -26,189 +26,206 @@ SOFTWARE.
 
  */
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.codehaus.jackson.map.ObjectMapper;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.thiemann.ssl.report.model.Certificate;
 import de.thiemann.ssl.report.model.CertificateV3;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.model.SSLv2Certificate;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+import java.util.*;
+
+
+@Component
 public class JsonOutput extends AbstractOutput {
 
-	@Override
-	public String outputReportCollection(Collection<Report> reportCollection) {
-		List<Object> jsonReportList = new ArrayList<Object>();
-		for (Report report : reportCollection) {
-			jsonReportList.add(transferToJSONObject(report));
-		}
+    private Logger log = LoggerFactory.getLogger(JsonOutput.class);
 
-		return transferToString(jsonReportList);
-	}
+    @Override
+    public String outputReportCollection(Collection<Report> reportCollection) {
+        List<Map<String, Object>> jsonReportList = new ArrayList<Map<String, Object>>();
 
-	@Override
-	public String outputReport(Report report) {
-		Map<String, Object> jsonReport = transferToJSONObject(report);
+        for (Report report : reportCollection) {
+            Map<String, Object> jsonObjectMap = transferToJSONObject(report);
+            jsonReportList.add(jsonObjectMap);
+        }
 
-		return transferToString(jsonReport);
-	}
-	
-	private String transferToString(Object jsonObject) {
-		if (jsonObject != null) {
-			ObjectMapper mapper = new ObjectMapper();
+        String jsonString = transferToString(jsonReportList);
 
-			try {
-				String jsonString = mapper.writerWithDefaultPrettyPrinter()
-						.writeValueAsString(jsonObject);
-				return jsonString;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+        return jsonString;
+    }
 
-		return "{ }";
-	}
+    @Override
+    public String outputReport(Report report) {
+        Map<String, Object> jsonReport = transferToJSONObject(report);
 
-	private Map<String, Object> transferToJSONObject(Report report) {
-		if (report.supportedSSLVersions.size() == 0)
-			return null;
+        String jsonString = transferToString(jsonReport);
 
-		Map<String, Object> jsonReport = new HashMap<String, Object>();
+        return jsonString;
+    }
 
-		// output common values
-		jsonReport.put("createdOn",
-				String.format("%1$tF %1$tT", System.currentTimeMillis()));
-		jsonReport.put("host", report.host);
-		jsonReport.put("ipAddress", report.ip.toString());
-		jsonReport.put("port", Integer.toString(report.port));
+    private String transferToString(Object jsonObject) {
+        if (jsonObject != null) {
+            ObjectMapper mapper = new ObjectMapper();
 
-		// protocol
-		List<String> supportedVersions = new ArrayList<String>();
-		for (int version : report.supportedSSLVersions) {
-			supportedVersions.add(versionString(version));
-		}
-		jsonReport.put("supportedSSLVersions", supportedVersions);
-		jsonReport.put("compress", Boolean.toString(report.compress));
+            String jsonString = null;
+            try {
+                jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
+            } catch (JsonProcessingException e) {
+                log.error("Exception while transfaering object to JSON.", e);
+            }
+            return jsonString;
+        }
 
-		// cipher suites
-		Map<String, Object> cipherSuites = new HashMap<String, Object>();
-		for (int version : report.supportedSSLVersions) {
+        return "{ }";
+    }
 
-			List<String> cipherSuitesByVersion = new ArrayList<String>();
-			if (version == SSLVersions.SSLv2.getIntVersion()) {
-				for (int cipherSuite : report.supportedCipherSuite.get(version)) {
-					cipherSuitesByVersion.add(CipherSuiteUtil
-							.cipherSuiteStringV2(cipherSuite));
-				}
+    private Map<String, Object> transferToJSONObject(Report report) {
+        if (report.getSupportedSSLVersions().size() == 0) {
+            return null;
+        }
 
-				cipherSuites.put(
-						versionString(SSLVersions.SSLv2.getIntVersion()),
-						cipherSuitesByVersion);
-			} else {
-				for (int c : report.supportedCipherSuite.get(version)) {
-					cipherSuitesByVersion.add(CipherSuiteUtil
-							.cipherSuiteString(c));
-				}
+        Map<String, Object> jsonReport = map(keyEntry());
 
-				cipherSuites.put(versionString(version), cipherSuitesByVersion);
-			}
+        // output common values
+        jsonReport.put("createdOn",
+                String.format("%1$tF %1$tT", System.currentTimeMillis()));
+        jsonReport.put("host", report.getHost());
+        jsonReport.put("ipAddress", report.getIp().toString());
+        jsonReport.put("port", Integer.toString(report.getPort()));
 
-		}
-		jsonReport.put("cipherSuites", cipherSuites);
+        // protocol
+        List<Object> supportedVersions = new ArrayList<Object>();
+        for (int version : report.getSupportedSSLVersions()) {
+            Map<String, Object> versionEntry = map(keyEntry(), entry("version", versionString(version)));
+            supportedVersions.add(versionEntry);
+        }
+        jsonReport.put("supportedSSLVersions", supportedVersions);
+        jsonReport.put("compress", Boolean.toString(report.isCompress()));
 
-		Map<String, Object> certificates = new HashMap<String, Object>();
-		if (report.serverCert != null && report.serverCert.size() != 0) {
-			for (Integer version : report.serverCert.keySet()) {
-				Set<Certificate> versionCertificates = report.serverCert
-						.get(version);
+        // cipher suites
+        List<Object> cipherSuites = new ArrayList<Object>();
+        for (int version : report.getSupportedSSLVersions()) {
 
-				List<Map<String, Object>> transferedCertificates = new ArrayList<Map<String, Object>>();
-				for (Certificate certificate : versionCertificates) {
-					transferedCertificates
-							.add(transferToJSONObject(certificate));
-				}
+            Map<String, Object> cipherSuitesByVersion = map(keyEntry());
+            cipherSuitesByVersion.put("version", versionString(version));
 
-				certificates
-						.put(versionString(version), transferedCertificates);
-			}
-		}
+            List<Object> listCipherSuiteStrings = new ArrayList<Object>();
+            cipherSuitesByVersion.put("cipherSuiteStrings", listCipherSuiteStrings);
 
-		jsonReport.put("certificates", certificates);
+            if (version == SSLVersions.SSLv2.getIntVersion()) {
+                for (int cipherSuiteId : report.getSupportedCipherSuite().get(version)) {
+                    Map<String, Object> cipherSuiteEntry = map(keyEntry(),
+                            entry("name", CipherSuiteUtil.cipherSuiteStringV2(cipherSuiteId)));
+                    listCipherSuiteStrings.add(cipherSuiteEntry);
+                }
+            } else {
+                for (int cipherSuiteId : report.getSupportedCipherSuite().get(version)) {
+                    Map<String, Object> cipherSuiteEntry = map(keyEntry(),
+                            entry("name", CipherSuiteUtil.cipherSuiteString(cipherSuiteId)));
+                    listCipherSuiteStrings.add(cipherSuiteEntry);
+                }
+            }
 
-		return jsonReport;
-	}
+            cipherSuites.add(cipherSuitesByVersion);
+        }
+        jsonReport.put("cipherSuites", cipherSuites);
 
-	private Map<String, Object> transferToJSONObject(Certificate cert) {
-		if (!cert.isProcessed)
-			cert.processCertificateBytes();
+        // certificates
+        List<Object> certificateList = new ArrayList<Object>();
 
-		Map<String, Object> jsonCert = new HashMap<String, Object>();
-		jsonCert.put("order", cert.order);
+        if (report.getServerCert() != null && report.getServerCert().size() != 0) {
+            for (Integer version : report.getServerCert().keySet()) {
+                Set<Certificate> versionCertificates = report.getServerCert()
+                        .get(version);
 
-		if (cert instanceof SSLv2Certificate) {
-			SSLv2Certificate sslv2Cert = (SSLv2Certificate) cert;
+                List<Object> transferedCertificates = new ArrayList<Object>();
+                for (Certificate certificate : versionCertificates) {
+                    transferedCertificates
+                            .add(transferToJSONObject(certificate));
+                }
 
-			jsonCert.put("fingerprint", sslv2Cert.hash);
-			jsonCert.put("certificate-order", sslv2Cert.order);
-			jsonCert.put("subject", sslv2Cert.name);
+                Map<String, Object> certificatesByVersion = map(keyEntry());
+                certificatesByVersion.put("version", versionString(version));
+                certificatesByVersion.put("certificatesChain", transferedCertificates);
 
-			return jsonCert;
-		} else if (cert instanceof CertificateV3) {
-			CertificateV3 v3Cert = (CertificateV3) cert;
+                certificateList.add(certificatesByVersion);
+            }
+        }
 
-			jsonCert.put("version", v3Cert.certificateVersion);
-			jsonCert.put("subjectName", v3Cert.subjectName);
-			jsonCert.put("alternativeNames", processAlternativeNames(v3Cert.alternativeNames));
-			jsonCert.put("notBefore",
-					String.format("%1$tF %1$tT", v3Cert.notBefore));
-			jsonCert.put("notAfter",
-					String.format("%1$tF %1$tT", v3Cert.notAfter));
-			jsonCert.put("pubKeyName", v3Cert.pubKeyInfo.pubKeyAlgorithm);
-			jsonCert.put("pubKeySize", v3Cert.pubKeyInfo.pubKeySize);
-			jsonCert.put("issuerName", v3Cert.issuerName);
-			jsonCert.put("signatureAlgorithm", v3Cert.signatureAlgorithm);
-			jsonCert.put("fingerprint", v3Cert.fingerprint);
-			jsonCert.put("crlDistributionPoints", v3Cert.crlDistributionPoints);
+        jsonReport.put("certificates", certificateList);
 
-			return jsonCert;
-		}
+        return jsonReport;
+    }
 
-		return null;
-	}
-	
-	private List<String> processAlternativeNames(List<String> alternativeNames) {
-		if(alternativeNames == null)
-			return null;
-		
-		List<String> lines = new ArrayList<String>();
-		
-		StringBuffer lineBuffer = new StringBuffer();
-		Iterator<String> iterator = alternativeNames.iterator();
-		while(iterator.hasNext()) {
-			String alternativeName = iterator.next();
-			
-			lineBuffer.append(alternativeName);
-			
-			if(iterator.hasNext())
-				lineBuffer.append(", ");
-			
-			if(lineBuffer.length() > 80) {
-				lines.add(lineBuffer.toString());
-				lineBuffer.setLength(0);
-			}
-		}
-		
-		return lines;
-	}
+    private Map<String, Object> transferToJSONObject(Certificate cert) {
+        if (!cert.isProcessed()) {
+            cert.processCertificateBytes();
+        }
 
+        Map<String, Object> jsonCert = map(keyEntry());
+        jsonCert.put("order", cert.getOrder());
+
+        if (cert instanceof SSLv2Certificate) {
+            SSLv2Certificate sslv2Cert = (SSLv2Certificate) cert;
+
+            jsonCert.put("fingerprint", sslv2Cert.getHash());
+            jsonCert.put("certificate-order", sslv2Cert.getOrder());
+            jsonCert.put("subject", sslv2Cert.getName());
+
+
+            return jsonCert;
+        } else if (cert instanceof CertificateV3) {
+            CertificateV3 v3Cert = (CertificateV3) cert;
+
+            jsonCert.put("version", v3Cert.getCertificateVersion());
+            jsonCert.put("subjectName", v3Cert.getSubjectName());
+            jsonCert.put("alternativeNames", processAlternativeNames(v3Cert.getAlternativeNames()));
+            jsonCert.put("notBefore",
+                    String.format("%1$tF %1$tT", v3Cert.getNotBefore()));
+            jsonCert.put("notAfter",
+                    String.format("%1$tF %1$tT", v3Cert.getNotAfter()));
+            jsonCert.put("pubKeyName", v3Cert.getPubKeyInfo().getPubKeyAlgorithm());
+            jsonCert.put("pubKeySize", v3Cert.getPubKeyInfo().getPubKeySize());
+            jsonCert.put("issuerName", v3Cert.getIssuerName());
+            jsonCert.put("signatureAlgorithm", v3Cert.getSignatureAlgorithm());
+            jsonCert.put("fingerprint", v3Cert.getFingerprint());
+            jsonCert.put("crlDistributionPoints", v3Cert.getCrlDistributionPoints());
+
+            return jsonCert;
+        }
+
+        return null;
+    }
+
+    private List<String> processAlternativeNames(List<String> alternativeNames) {
+        if (alternativeNames == null) {
+            return null;
+        }
+
+        List<String> lines = new ArrayList<String>();
+
+        StringBuffer lineBuffer = new StringBuffer();
+        Iterator<String> iterator = alternativeNames.iterator();
+        while (iterator.hasNext()) {
+            String alternativeName = iterator.next();
+
+            lineBuffer.append(alternativeName);
+
+            if (iterator.hasNext()) {
+                lineBuffer.append(", ");
+            }
+
+            if (lineBuffer.length() > 80) {
+                lines.add(lineBuffer.toString());
+                lineBuffer.setLength(0);
+            }
+        }
+        return lines;
+    }
 }

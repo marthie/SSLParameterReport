@@ -26,12 +26,14 @@ SOFTWARE.
 
  */
 
+import java.util.UUID;
+
 public abstract class Certificate implements Comparable<Certificate> {
-	
-	public Integer order;
+
+	private Integer order;
 	
 	// for layz processing
-	public boolean isProcessed;
+	private boolean isProcessed;
 
 	public abstract String certificateReport();
 	
@@ -40,5 +42,21 @@ public abstract class Certificate implements Comparable<Certificate> {
 	@Override
 	public int compareTo(Certificate c) {
 		return order.compareTo(c.order);
+	}
+
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
+	}
+
+	public boolean isProcessed() {
+		return isProcessed;
+	}
+
+	public void setProcessed(boolean processed) {
+		isProcessed = processed;
 	}
 }

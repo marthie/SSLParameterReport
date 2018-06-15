@@ -10,46 +10,37 @@ SSLReport is fetching public SSL/TLS information by connecting to a given host. 
 * Cipher suites
 * Certificates
 
-The public SSL/TLS handshake information and the certificate within the host response is displayed on the system console or on a web interface. The information won't be evaluated by SSLreport but is free for the evaluation by individuals.
+The public SSL/TLS handshake information and the certificate within the host response is displayed on a web interface. The information won't be evaluated by SSLreport but is free for the evaluation by individuals.
 
-## Build SSLReport
+## Build prerequisite
 
-SSLReport supports the maven build process. Get the source with git or download it as zip. Next run maven within the SSLReport folder:
+* Java JDK 1.8
+* Node.js Version 8 & npm 5.6
 
-```
-mvn clean package
-```
+## Build Overview
 
-The maven-assembly plugin is used to make a single execution JAR and is bounded to the *package* lifecycle of maven.
+1. Run `npm install` in `SSLReport\src\main\resource\static\react`
+2. Run `npm run build` in `SSLReport\src\main\resource\static\react`
+3. Run `mvn clean package` in `SSLReport\`
 
-*This code is tested with JDK 1.8u45 and JDK 1.7. Other java versions are untested!*
 
-## Run SSLReport
+## Run SSLReport App
 
-### Get help
-
-Get help on command line arguments by executing this command:
+The service is based on Spring Boot. Start the service with:
 
 ```
-java -jar sslreport-<Version>.jar [--help|-?]
+java -jar sslreport-<Version>.jar
 ```
 
-### SSLReport system console
+## Access SSLReport App
 
-To get a SSL/TLS report output on system console from a given host execute this command:
+Access the SSLReport REST service by using Swagger-UI:
 
-```
-java -jar sslreport-<Version>.jar [--host|-h]=<host> [[-p|--port]=<port>]
-```
+[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
-If no port is specified, SSLReport will use Port 443.
 
-### SSLReport web interface
+Access the React-based web interface:
 
-Start the embedded Jetty server to get access to the web interface by executing:
+[http://localhost:8080/sslReportAppV2/index.html](http://localhost:8080/sslReportAppV2/index.html)
 
-```
-java -jar sslreport-<Version>.jar --server
-```
 
-With a http browser you can access the SSLReport web interface by the url: `http://localhost:8080/`

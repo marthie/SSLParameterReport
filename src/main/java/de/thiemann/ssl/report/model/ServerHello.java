@@ -39,14 +39,14 @@ import de.thiemann.ssl.report.util.IOUtil;
 
 public class ServerHello {
 
-	public int recordVersion;
-	public int protoVersion;
-	public long serverTime;
-	public int cipherSuite;
-	public boolean compression;
-	public Set<Certificate> certificateChain;
+	private int recordVersion;
+	private int protoVersion;
+	private long serverTime;
+	private int cipherSuite;
+	private boolean compression;
+	private Set<Certificate> certificateChain;
 	
-	static final int HANDSHAKE = 22;
+	public static final int HANDSHAKE = 22;
 
 	public ServerHello(InputStream in) throws IOException {
 		InputRecord rec = new InputRecord(in);
@@ -171,5 +171,53 @@ public class ServerHello {
 			certificateChain.add(cert);
 
 		}
+	}
+
+	public int getRecordVersion() {
+		return recordVersion;
+	}
+
+	public void setRecordVersion(int recordVersion) {
+		this.recordVersion = recordVersion;
+	}
+
+	public int getProtoVersion() {
+		return protoVersion;
+	}
+
+	public void setProtoVersion(int protoVersion) {
+		this.protoVersion = protoVersion;
+	}
+
+	public long getServerTime() {
+		return serverTime;
+	}
+
+	public void setServerTime(long serverTime) {
+		this.serverTime = serverTime;
+	}
+
+	public int getCipherSuite() {
+		return cipherSuite;
+	}
+
+	public void setCipherSuite(int cipherSuite) {
+		this.cipherSuite = cipherSuite;
+	}
+
+	public boolean isCompression() {
+		return compression;
+	}
+
+	public void setCompression(boolean compression) {
+		this.compression = compression;
+	}
+
+	public Set<Certificate> getCertificateChain() {
+		return certificateChain;
+	}
+
+	public void setCertificateChain(Set<Certificate> certificateChain) {
+		this.certificateChain = certificateChain;
 	}
 }
