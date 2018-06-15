@@ -46,12 +46,7 @@ import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1Integer;
-import org.bouncycastle.asn1.ASN1Object;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.DistributionPointName;
@@ -251,11 +246,11 @@ public class CertificateV3 extends Certificate {
 		try {
 			ASN1Object o = null;
 
-			o = (DEROctetString) ASN1Object.fromByteArray(extension);
+			o = DEROctetString.fromByteArray(extension);
 			if (o instanceof DEROctetString) {
 				DEROctetString octStr = (DEROctetString) o;
 
-				o = ASN1Object.fromByteArray(octStr.getOctets());
+				o = ASN1Sequence.fromByteArray(octStr.getOctets());
 				if (o instanceof ASN1Sequence) {
 					crlDistributionPoints = (ASN1Sequence) o;
 				}
@@ -327,12 +322,12 @@ public class CertificateV3 extends Certificate {
 
 		try {
 			SubjectPublicKeyInfo subPubKeyInfo = new SubjectPublicKeyInfo(
-					(ASN1Sequence) ASN1Object.fromByteArray(encodedPublicKey));
+					(ASN1Sequence) ASN1Sequence.fromByteArray(encodedPublicKey));
 			String asn1PubKeyId = subPubKeyInfo.getAlgorithmId().getAlgorithm()
 					.getId();
 
 			if (asn1PubKeyId.equals(ASN1PublicKeyIds.RSA.getOid())) {
-				DERSequence seq = (DERSequence) subPubKeyInfo.getPublicKey();
+				DLSequence seq = (DLSequence) subPubKeyInfo.getPublicKey();
 				ASN1Integer iModulus = (ASN1Integer) seq.getObjectAt(0);
 				BigInteger modulus = iModulus.getPositiveValue();
 

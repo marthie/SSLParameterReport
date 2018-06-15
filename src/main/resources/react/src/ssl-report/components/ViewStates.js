@@ -25,13 +25,6 @@
 
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {Provider} from 'react-redux';
-import store from './store';
-
-import ReportLayout from './components/ReportLayout';
-
-ReactDOM.render(<Provider store={store}>
-    <ReportLayout />
-</Provider>, document.getElementById("reportApp"));
+export const FORM_VIEW = 'FORM_VIEW';
+export const LOADER_VIEW = 'LOADER_VIEW';
+export const SHEET_VIEW = 'SHEET_VIEW';

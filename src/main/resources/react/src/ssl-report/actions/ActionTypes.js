@@ -25,13 +25,7 @@
 
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {Provider} from 'react-redux';
-import store from './store';
-
-import ReportLayout from './components/ReportLayout';
-
-ReactDOM.render(<Provider store={store}>
-    <ReportLayout />
-</Provider>, document.getElementById("reportApp"));
+export const NEW_REPORT = 'NEW_REPORT';
+export const SUBMIT_FORM = 'SUBMIT_FORM';
+export const FETCH_REPORT_FAILURE = 'FETCH_REPORT_FAILURE';
+export const FETCH_REPORT_RESPONSE = 'FETCH_REPORT_RESPONSE';

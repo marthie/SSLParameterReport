@@ -26,13 +26,12 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
-import ReportPanel from './ReportPanel';
-import ReportTable from './ReportTable';
-import ReportJump from './ReportJump';
+import ReportPanel from './__ReportSheet__/ReportPanel';
+import ReportTable from './__ReportSheet__/ReportTable';
+import ReportJump from './__ReportSheet__/ReportJump';
 
-export default class ReportSheet extends React.Component {
+class ReportSheet extends React.Component {
 
     constructor(props) {
         super(props);
@@ -40,7 +39,9 @@ export default class ReportSheet extends React.Component {
 
     getBack(event) {
         console.log("pushed back to form...");
-        this.props.newReport();
+
+        const {newReport} = this.props;
+        newReport();
     }
 
     reportObjectToArray({sslReports}) {
@@ -74,7 +75,9 @@ export default class ReportSheet extends React.Component {
     }
 
     render() {
-        const sslReports = this.reportObjectToArray(this.props);
+        const {reportState} = this.props;
+
+        const sslReports = this.reportObjectToArray(reportState);
 
         console.log(`SSL\TLS report count: ${sslReports.length}`);
 
@@ -97,11 +100,23 @@ export default class ReportSheet extends React.Component {
             </React.Fragment>);
         }
 
-        return backButton;
+        return this.backButton();
     }
 }
 
-ReportSheet.propTypes = {
-    sslReports: PropTypes.array.isRequired,
-    newReport: PropTypes.func.isRequired
-};
+import {connect} from 'react-redux';
+import {newReport} from '../actions/reportActions'
+
+function mapStateToProps(state) {
+    return {
+        reportState: state
+    };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        newReport: () => dispatch(newReport())
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps) (ReportSheet);

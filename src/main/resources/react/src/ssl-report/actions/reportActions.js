@@ -25,50 +25,33 @@
 
  */
 
-import React from 'react';
-import ReportForm from './ReportForm';
-import ReportSheet from './ReportSheet';
-import ReportLoader from './ReportLoader';
+import {SUBMIT_FORM, FETCH_REPORT_RESPONSE, FETCH_REPORT_FAILURE, NEW_REPORT} from './ActionTypes'
 import {fetchSSLReport} from '../backend/RESTClient';
-import {FORM_VIEW, LOADER_VIEW, SHEET_VIEW} from './ViewStates';
 
 
-class ReportController extends React.Component {
-
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        let currentView = null;
-
-        const {reportState} = this.props;
-
-        switch(reportState.activeState) {
-            case FORM_VIEW:
-                currentView = <ReportForm />;
-                break;
-            case LOADER_VIEW:
-                currentView = <ReportLoader />;
-                break;
-            case SHEET_VIEW:
-                currentView = <ReportSheet />;
-                break;
-            default: {
-                currentView = (<p className="text-danger">`Error: ${reportState.activeState} unknown...`</p>);
-            }
-        }
-
-        return currentView;
-    }
-};
-
-import {connect} from 'react-redux';
-
-function mapStateToProps(state) {
+export function submitReport(formData) {
     return {
-        reportState: state
+        type: SUBMIT_FORM,
+        formData
     };
 }
 
-export default connect(mapStateToProps, null) (ReportController);
+export function fetchResponseOnSuccess(data) {
+    return {
+        type: FETCH_REPORT_RESPONSE,
+        sslReports: data
+    }
+}
+
+export function fetchReport(formData) {
+    return function(dispatch) {
+        return fetchSSLReport(formData)
+            .done((data)=> dispatch(fetchResponseOnSuccess(data)));
+    };
+}
+
+export function newReport() {
+    return {
+        type: NEW_REPORT
+    };
+}

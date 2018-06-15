@@ -25,13 +25,25 @@
 
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {Provider} from 'react-redux';
-import store from './store';
+import {SUBMIT_FORM, FETCH_REPORT_RESPONSE, NEW_REPORT} from '../actions/ActionTypes';
+import {FORM_VIEW, LOADER_VIEW, SHEET_VIEW} from '../components/ViewStates'
 
-import ReportLayout from './components/ReportLayout';
+export function reportReducer(state, action) {
+    let newState = {...state};
 
-ReactDOM.render(<Provider store={store}>
-    <ReportLayout />
-</Provider>, document.getElementById("reportApp"));
+    if(action.type === SUBMIT_FORM) {
+        newState.activeState = LOADER_VIEW;
+        newState.requestData = action.formData;
+    }
+
+    if(action.type === FETCH_REPORT_RESPONSE) {
+        newState.activeState = SHEET_VIEW;
+        newState.sslReports = action.sslReports;
+    }
+
+    if(action.type === NEW_REPORT) {
+        newState.activeState = FORM_VIEW;
+    }
+
+    return newState;
+}

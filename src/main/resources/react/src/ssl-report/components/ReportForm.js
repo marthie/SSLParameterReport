@@ -26,22 +26,22 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
-export default class ReportForm extends React.Component {
+const initState = {
+    host: '',
+    port: ''
+};
+
+class ReportForm extends React.Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {
-            host: '',
-            port: ''
-        }
+        this.state = initState;
     }
 
     onChange(event) {
         const newState = {
-            ...this.state,
             [event.target.name]: event.target.value
         };
 
@@ -52,12 +52,9 @@ export default class ReportForm extends React.Component {
         event.preventDefault();
 
         const {host, port} = this.state;
-        this.props.submitData(host, port);
+        const {submitReport} = this.props;
 
-        this.setState({
-            host: '',
-            port: ''
-        });
+        submitReport({host, port});
     }
 
     form() {
@@ -109,6 +106,13 @@ export default class ReportForm extends React.Component {
     }
 }
 
-ReportForm.propTypes = {
-    submitData: PropTypes.func.isRequired
-};
+import {connect} from 'react-redux';
+import {submitReport} from '../actions/reportActions'
+
+function mapDispatchToProps(dispatch) {
+    return {
+        submitReport: (formData) => dispatch(submitReport(formData))
+    };
+}
+
+export default connect(null, mapDispatchToProps) (ReportForm);

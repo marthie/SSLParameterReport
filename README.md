@@ -23,7 +23,6 @@ The public SSL/TLS handshake information and the certificate within the host res
 2. Run `npm run build` in `SSLReport\src\main\resource\static\react`
 3. Run `mvn clean package` in `SSLReport\`
 
-If you don't want to use the React-based web interface, you can skip step 1 and 2.
 
 ## Run SSLReport App
 
@@ -39,9 +38,6 @@ Access the SSLReport REST service by using Swagger-UI:
 
 [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
-Access the jQuery-based web interface:
-
-[http://localhost:8080/sslReportApp/index.html](http://localhost:8080/sslReportApp/index.html)
 
 Access the React-based web interface:
 

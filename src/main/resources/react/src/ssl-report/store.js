@@ -25,13 +25,18 @@
 
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {Provider} from 'react-redux';
-import store from './store';
+import {createStore, applyMiddleware} from 'redux';
+import thunk from 'redux-thunk';
 
-import ReportLayout from './components/ReportLayout';
+import {reportReducer} from './reducer/reportReducers';
+import {FORM_VIEW} from './components/ViewStates';
 
-ReactDOM.render(<Provider store={store}>
-    <ReportLayout />
-</Provider>, document.getElementById("reportApp"));
+const initialState = {
+    activeState: FORM_VIEW,
+    sslReports: []
+}
+
+
+const store = createStore(reportReducer, initialState, applyMiddleware(thunk));
+
+export default store;

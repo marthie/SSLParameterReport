@@ -26,16 +26,11 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
-export default class ReportLoader extends React.Component {
+class ReportLoader extends React.Component {
 
     constructor(props) {
         super(props);
-    }
-
-    componentWillMount() {
-        this.props.fetchReport();
     }
 
     render() {
@@ -48,8 +43,27 @@ export default class ReportLoader extends React.Component {
             </div>
         </div>);
     }
+
+    componentDidMount() {
+        const {reportState, fetchReport} = this.props;
+
+        fetchReport(reportState.requestData);
+    }
 }
 
-ReportLoader.propTypes = {
-    fetchReport: PropTypes.func.isRequired
+import {connect} from 'react-redux';
+import {fetchReport} from '../actions/reportActions'
+
+function mapStateToProps(state) {
+    return {
+        reportState: state
+    };
 }
+
+function mapDispatchToProps(dispatch) {
+    return {
+        fetchReport: (requestData) => dispatch(fetchReport(requestData))
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps) (ReportLoader);
