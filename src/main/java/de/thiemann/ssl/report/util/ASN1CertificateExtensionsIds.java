@@ -31,8 +31,22 @@ public enum ASN1CertificateExtensionsIds {
 	//From RFC 5280
 	
 	CE("2.5.29"),
-	CRLDistributionPoints(CE.getOid() + ".31");
-	
+	CRLDistributionPoints(CE.getOid() + ".31"),
+	AuthorityKeyIdentifier(CE.getOid() + ".35"),
+	SubjectKeyIdentifier(CE.getOid() + ".14"),
+	KeyUsage(CE.getOid() + ".15"),
+	CertificatePolicies(CE.getOid() + ".15"),
+	PolicyMappings(CE.getOid() + ".33"),
+	SubjectAlternativeName(CE.getOid() + ".17"),
+	IssuerAlternativeName(CE.getOid() + ".18"),
+	SubjectDirectoryAttributes(CE.getOid() + ".9"),
+	BasicConstraints(CE.getOid() + ".19"),
+	NameConstraints(CE.getOid() + ".30"),
+	PolicyConstraints(CE.getOid() + ".36"),
+	ExtendedKeyUsage(CE.getOid() + ".37"),
+	InhibitAnyPolicy(CE.getOid() + ".54"),
+	FreshestCRL(CE.getOid() + ".46");
+
 	private String oid;
 	
 	private ASN1CertificateExtensionsIds(String oid) {
@@ -41,5 +55,9 @@ public enum ASN1CertificateExtensionsIds {
 
 	public String getOid() {
 		return oid;
+	}
+
+	public String toString() {
+		return this.name() + "[" + this.oid + "]";
 	}
 }
