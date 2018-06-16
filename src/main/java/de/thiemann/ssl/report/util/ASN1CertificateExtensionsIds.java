@@ -28,24 +28,25 @@ SOFTWARE.
 
 public enum ASN1CertificateExtensionsIds {
 	
+	
+	
 	//From RFC 5280
 	
-	CE("2.5.29"),
-	CRLDistributionPoints(CE.getOid() + ".31"),
-	AuthorityKeyIdentifier(CE.getOid() + ".35"),
-	SubjectKeyIdentifier(CE.getOid() + ".14"),
-	KeyUsage(CE.getOid() + ".15"),
-	CertificatePolicies(CE.getOid() + ".15"),
-	PolicyMappings(CE.getOid() + ".33"),
-	SubjectAlternativeName(CE.getOid() + ".17"),
-	IssuerAlternativeName(CE.getOid() + ".18"),
-	SubjectDirectoryAttributes(CE.getOid() + ".9"),
-	BasicConstraints(CE.getOid() + ".19"),
-	NameConstraints(CE.getOid() + ".30"),
-	PolicyConstraints(CE.getOid() + ".36"),
-	ExtendedKeyUsage(CE.getOid() + ".37"),
-	InhibitAnyPolicy(CE.getOid() + ".54"),
-	FreshestCRL(CE.getOid() + ".46");
+	CRLDistributionPoints("2.5.29.31"),
+	AuthorityKeyIdentifier("2.5.29.35"),
+	SubjectKeyIdentifier("2.5.29.14"),
+	KeyUsage("2.5.29.15"),
+	CertificatePolicies("2.5.29.15"),
+	PolicyMappings("2.5.29.33"),
+	SubjectAlternativeName("2.5.29.17"),
+	IssuerAlternativeName("2.5.29.18"),
+	SubjectDirectoryAttributes("2.5.29.9"),
+	BasicConstraints("2.5.29.19"),
+	NameConstraints("2.5.29.30"),
+	PolicyConstraints("2.5.29.36"),
+	ExtendedKeyUsage("2.5.29.37"),
+	InhibitAnyPolicy("2.5.29.54"),
+	FreshestCRL("2.5.29.46");
 
 	private String oid;
 	

@@ -27,9 +27,15 @@ package de.thiemann.ssl.report.util;
  * ----------------------------------------------------------------------
  */
 
+import de.thiemann.ssl.report.model.PubKeyInfo;
+import org.bouncycastle.asn1.*;
+import org.bouncycastle.asn1.x509.*;
+
+import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Formatter;
+import java.util.*;
 
 public class CertificateUtil {
 	/*
@@ -66,5 +72,125 @@ public class CertificateUtil {
 			if (f != null)
 				f.close();
 		}
+	}
+
+	public static String transferSignatureAlgorithm(String oid) {
+		StringBuffer sb = new StringBuffer();
+
+		boolean foundAlgorithm = false;
+		for (ASN1SignatureAlgorithmsIds sa : ASN1SignatureAlgorithmsIds
+				.values()) {
+			if (sa.getOid().equals(oid)) {
+				sb.append(sa.name()).append(" (").append(oid).append(')');
+				foundAlgorithm = true;
+				break;
+			}
+		}
+
+		if (!foundAlgorithm)
+			sb.append("Unknown signature algorithm! OID: ").append(oid);
+
+		return sb.toString();
+	}
+
+	public static PubKeyInfo transferPublicKeyInfo(byte[] encodedPublicKey) {
+		PubKeyInfo info = new PubKeyInfo();
+
+		try {
+			SubjectPublicKeyInfo subPubKeyInfo = new SubjectPublicKeyInfo(
+					(ASN1Sequence) ASN1Sequence.fromByteArray(encodedPublicKey));
+			String asn1PubKeyId = subPubKeyInfo.getAlgorithmId().getAlgorithm()
+					.getId();
+
+			if (asn1PubKeyId.equals(ASN1PublicKeyIds.RSA.getOid())) {
+				DLSequence seq = (DLSequence) subPubKeyInfo.getPublicKey();
+				ASN1Integer iModulus = (ASN1Integer) seq.getObjectAt(0);
+				BigInteger modulus = iModulus.getPositiveValue();
+
+				info.setPubKeyAlgorithm(ASN1PublicKeyIds.RSA.name());
+				info.setPubKeySize(modulus.bitLength());
+			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.DSA.getOid())) {
+				info.setPubKeyAlgorithm(ASN1PublicKeyIds.DSA.name());
+			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.Diffie_Hellman
+					.getOid())) {
+				info.setPubKeyAlgorithm(ASN1PublicKeyIds.Diffie_Hellman.name());
+			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.KEA.getOid())) {
+				info.setPubKeyAlgorithm(ASN1PublicKeyIds.KEA.name());
+			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.ECDH.getOid())) {
+				info.setPubKeyAlgorithm(ASN1PublicKeyIds.ECDH.name());
+			} else
+				info.setPubKeyAlgorithm("Unknown public key! OID: " + asn1PubKeyId);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return info;
+	}
+
+	public static List<String> transferAlternativeNames(Collection<List<?>> alternativeNames) {
+		if (alternativeNames == null)
+			return null;
+
+		List<String> l = new ArrayList<String>();
+		for (List<?> entry : alternativeNames) {
+			l.add(entry.get(1).toString());
+		}
+
+		return l;
+	}
+
+	public static List<String> transferDistributionPoints(byte[] extension) {
+		if (extension == null)
+			return null;
+
+		ASN1Sequence crlDistributionPoints = null;
+
+		try {
+			ASN1Object o = null;
+
+			o = DEROctetString.fromByteArray(extension);
+			if (o instanceof DEROctetString) {
+				DEROctetString octStr = (DEROctetString) o;
+
+				o = ASN1Sequence.fromByteArray(octStr.getOctets());
+				if (o instanceof ASN1Sequence) {
+					crlDistributionPoints = (ASN1Sequence) o;
+				}
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if (crlDistributionPoints == null)
+			return null;
+
+		List<String> l = new ArrayList<String>();
+		Enumeration<?> e = crlDistributionPoints.getObjects();
+		while (e.hasMoreElements()) {
+			Object o = e.nextElement();
+
+			if (o instanceof ASN1Sequence) {
+				ASN1Sequence seqDP = (ASN1Sequence) o;
+				DistributionPoint dp = new DistributionPoint(seqDP);
+
+				DistributionPointName dpn = dp.getDistributionPoint();
+				ASN1Encodable enc = dpn.getName();
+
+				if (enc instanceof GeneralNames) {
+					GeneralNames gns = (GeneralNames) enc;
+
+					for (GeneralName gn : gns.getNames()) {
+						l.add(gn.toString());
+					}
+				}
+			}
+		}
+
+		if (!l.isEmpty())
+			return l;
+		else
+			return null;
 	}
 }

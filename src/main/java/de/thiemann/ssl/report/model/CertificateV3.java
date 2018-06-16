@@ -42,6 +42,8 @@ import java.util.*;
 
 import javax.security.auth.x500.X500Principal;
 
+import de.thiemann.ssl.report.model.extensions.BaseExtension;
+import de.thiemann.ssl.report.util.*;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.DistributionPoint;
@@ -50,18 +52,13 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
-import de.thiemann.ssl.report.util.ASN1CertificateExtensionsIds;
-import de.thiemann.ssl.report.util.ASN1PublicKeyIds;
-import de.thiemann.ssl.report.util.ASN1SignatureAlgorithmsIds;
-import de.thiemann.ssl.report.util.CertificateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CertificateV3 extends Certificate {
 
-    private Logger log = LoggerFactory.getLogger(CertificateV3.class);
-
     static CertificateFactory cf = null;
+    private static String NL = System.getProperty("line.separator");
 
     static {
         try {
@@ -71,8 +68,7 @@ public class CertificateV3 extends Certificate {
         }
     }
 
-    private static String NL = System.getProperty("line.separator");
-
+    private Logger log = LoggerFactory.getLogger(CertificateV3.class);
     private byte[] ec;
     private X509Certificate jseX509Cert;
 
@@ -87,6 +83,7 @@ public class CertificateV3 extends Certificate {
     private String signatureAlgorithm;
     private String fingerprint;
     private List<String> crlDistributionPoints;
+    private Map<ASN1CertificateExtensionsIds, BaseExtension> certificateExtensions;
 
     public CertificateV3(int i, byte[] ec) {
         super();
@@ -121,7 +118,7 @@ public class CertificateV3 extends Certificate {
         try {
             Collection<List<?>> alternativeNames = this.jseX509Cert
                     .getSubjectAlternativeNames();
-            this.alternativeNames = transferAlternativeNames(alternativeNames);
+            this.alternativeNames = CertificateUtil.transferAlternativeNames(alternativeNames);
         } catch (CertificateParsingException e) {
             e.printStackTrace();
         }
@@ -142,7 +139,7 @@ public class CertificateV3 extends Certificate {
         PublicKey pubKey = this.jseX509Cert.getPublicKey();
 
         if (pubKey != null)
-            this.pubKeyInfo = transferPublicKeyInfo(pubKey.getEncoded());
+            this.pubKeyInfo = CertificateUtil.transferPublicKeyInfo(pubKey.getEncoded());
 
         // issuer
         X500Principal issuer = this.jseX509Cert.getIssuerX500Principal();
@@ -151,7 +148,7 @@ public class CertificateV3 extends Certificate {
         this.issuerName = issuerName.toString();
 
         // signature algorithm
-        this.signatureAlgorithm = transferSignatureAlgorithm(this.jseX509Cert
+        this.signatureAlgorithm = CertificateUtil.transferSignatureAlgorithm(this.jseX509Cert
                 .getSigAlgOID());
 
         // fingerprint
@@ -164,7 +161,7 @@ public class CertificateV3 extends Certificate {
                 .getExtensionValue(ASN1CertificateExtensionsIds.CRLDistributionPoints
                         .getOid());
 
-        this.crlDistributionPoints = transferDistributionPoints(extension);
+        this.crlDistributionPoints = CertificateUtil.transferDistributionPoints(extension);
 
         return this;
     }
@@ -191,7 +188,7 @@ public class CertificateV3 extends Certificate {
         // alternative names
         if (this.alternativeNames != null)
             sb.append(NL).append("Alternative Names: ")
-                    .append(stringListToString(this.alternativeNames));
+                    .append(ListUtil.stringListToString(this.alternativeNames));
 
         // not before
         if (this.notBefore > 0L)
@@ -205,11 +202,11 @@ public class CertificateV3 extends Certificate {
 
         // public key algorithm & size
         if (this.pubKeyInfo != null) {
-            if (this.pubKeyInfo.pubKeyAlgorithm != null)
-                sb.append(NL).append("Key: ").append(this.pubKeyInfo.pubKeyAlgorithm);
+            if (this.pubKeyInfo.getPubKeyAlgorithm() != null)
+                sb.append(NL).append("Key: ").append(this.pubKeyInfo.getPubKeyAlgorithm());
 
-            if (this.pubKeyInfo.pubKeySize > 0)
-                sb.append(" (").append(this.pubKeyInfo.pubKeySize).append(')');
+            if (this.pubKeyInfo.getPubKeySize() > 0)
+                sb.append(" (").append(this.pubKeyInfo.getPubKeySize()).append(')');
         }
 
         // issuer
@@ -227,146 +224,12 @@ public class CertificateV3 extends Certificate {
 
         sb.append(NL).append("CRL Distribution Points: ");
         if (this.crlDistributionPoints != null)
-            sb.append(stringListToString(this.crlDistributionPoints));
+            sb.append(ListUtil.stringListToString(this.crlDistributionPoints));
         else
             sb.append("No");
 
         sb.append(NL)
                 .append("================================================================================");
-
-        return sb.toString();
-    }
-
-    private List<String> transferDistributionPoints(byte[] extension) {
-        if (extension == null)
-            return null;
-
-        ASN1Sequence crlDistributionPoints = null;
-
-        try {
-            ASN1Object o = null;
-
-            o = DEROctetString.fromByteArray(extension);
-            if (o instanceof DEROctetString) {
-                DEROctetString octStr = (DEROctetString) o;
-
-                o = ASN1Sequence.fromByteArray(octStr.getOctets());
-                if (o instanceof ASN1Sequence) {
-                    crlDistributionPoints = (ASN1Sequence) o;
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (crlDistributionPoints == null)
-            return null;
-
-        List<String> l = new ArrayList<String>();
-        Enumeration<?> e = crlDistributionPoints.getObjects();
-        while (e.hasMoreElements()) {
-            Object o = e.nextElement();
-
-            if (o instanceof ASN1Sequence) {
-                ASN1Sequence seqDP = (ASN1Sequence) o;
-                DistributionPoint dp = new DistributionPoint(seqDP);
-
-                DistributionPointName dpn = dp.getDistributionPoint();
-                ASN1Encodable enc = dpn.getName();
-
-                if (enc instanceof GeneralNames) {
-                    GeneralNames gns = (GeneralNames) enc;
-
-                    for (GeneralName gn : gns.getNames()) {
-                        l.add(gn.toString());
-                    }
-                }
-            }
-        }
-
-        if (!l.isEmpty())
-            return l;
-        else
-            return null;
-    }
-
-    public static String stringListToString(List<String> stringArray) {
-        if (stringArray == null)
-            return new String();
-
-        StringBuffer sb = new StringBuffer();
-        for (String entry : stringArray) {
-            sb.append(' ').append(entry).append(',');
-        }
-
-        sb.deleteCharAt(sb.length() - 1);
-        return sb.toString();
-    }
-
-    private List<String> transferAlternativeNames(
-            Collection<List<?>> alternativeNames) {
-        if (alternativeNames == null)
-            return null;
-
-        List<String> l = new ArrayList<String>();
-        for (List<?> entry : alternativeNames) {
-            l.add(entry.get(1).toString());
-        }
-
-        return l;
-    }
-
-    private PubKeyInfo transferPublicKeyInfo(byte[] encodedPublicKey) {
-        PubKeyInfo info = new PubKeyInfo();
-
-        try {
-            SubjectPublicKeyInfo subPubKeyInfo = new SubjectPublicKeyInfo(
-                    (ASN1Sequence) ASN1Sequence.fromByteArray(encodedPublicKey));
-            String asn1PubKeyId = subPubKeyInfo.getAlgorithmId().getAlgorithm()
-                    .getId();
-
-            if (asn1PubKeyId.equals(ASN1PublicKeyIds.RSA.getOid())) {
-                DLSequence seq = (DLSequence) subPubKeyInfo.getPublicKey();
-                ASN1Integer iModulus = (ASN1Integer) seq.getObjectAt(0);
-                BigInteger modulus = iModulus.getPositiveValue();
-
-                info.pubKeyAlgorithm = ASN1PublicKeyIds.RSA.name();
-                info.pubKeySize = modulus.bitLength();
-            } else if (asn1PubKeyId.equals(ASN1PublicKeyIds.DSA.getOid())) {
-                info.pubKeyAlgorithm = ASN1PublicKeyIds.DSA.name();
-            } else if (asn1PubKeyId.equals(ASN1PublicKeyIds.Diffie_Hellman
-                    .getOid())) {
-                info.pubKeyAlgorithm = ASN1PublicKeyIds.Diffie_Hellman.name();
-            } else if (asn1PubKeyId.equals(ASN1PublicKeyIds.KEA.getOid())) {
-                info.pubKeyAlgorithm = ASN1PublicKeyIds.KEA.name();
-            } else if (asn1PubKeyId.equals(ASN1PublicKeyIds.ECDH.getOid())) {
-                info.pubKeyAlgorithm = ASN1PublicKeyIds.ECDH.name();
-            } else
-                info.pubKeyAlgorithm = "Unknown public key! OID: " + asn1PubKeyId;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return info;
-    }
-
-    public static String transferSignatureAlgorithm(String oid) {
-        StringBuffer sb = new StringBuffer();
-
-        boolean foundAlgorithm = false;
-        for (ASN1SignatureAlgorithmsIds sa : ASN1SignatureAlgorithmsIds
-                .values()) {
-            if (sa.getOid().equals(oid)) {
-                sb.append(sa.name()).append(" (").append(oid).append(')');
-                foundAlgorithm = true;
-                break;
-            }
-        }
-
-        if (!foundAlgorithm)
-            sb.append("Unknown signature algorithm! OID: ").append(oid);
 
         return sb.toString();
     }
@@ -467,24 +330,11 @@ public class CertificateV3 extends Certificate {
         this.crlDistributionPoints = crlDistributionPoints;
     }
 
-    public static class PubKeyInfo {
-        private String pubKeyAlgorithm;
-        private int pubKeySize = 0;
+    public Map<ASN1CertificateExtensionsIds, BaseExtension> getCertificateExtensions() {
+        return certificateExtensions;
+    }
 
-        public String getPubKeyAlgorithm() {
-            return pubKeyAlgorithm;
-        }
-
-        public void setPubKeyAlgorithm(String pubKeyAlgorithm) {
-            this.pubKeyAlgorithm = pubKeyAlgorithm;
-        }
-
-        public int getPubKeySize() {
-            return pubKeySize;
-        }
-
-        public void setPubKeySize(int pubKeySize) {
-            this.pubKeySize = pubKeySize;
-        }
+    public void setCertificateExtensions(Map<ASN1CertificateExtensionsIds, BaseExtension> certificateExtensions) {
+        this.certificateExtensions = certificateExtensions;
     }
 }
