@@ -46,34 +46,20 @@ import de.thiemann.ssl.report.model.extensions.BaseExtension;
 import de.thiemann.ssl.report.util.*;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.DistributionPoint;
-import org.bouncycastle.asn1.x509.DistributionPointName;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.asn1.x509.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CertificateV3 extends Certificate {
 
-    static CertificateFactory cf = null;
     private static String NL = System.getProperty("line.separator");
 
-    static {
-        try {
-            cf = CertificateFactory.getInstance("X.509");
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        }
-    }
+    private static Logger log = LoggerFactory.getLogger(CertificateV3.class);
 
-    private Logger log = LoggerFactory.getLogger(CertificateV3.class);
     private byte[] ec;
-    private X509Certificate jseX509Cert;
 
-
-    private int certificateVersion;
+    private BigInteger certificateVersion;
     private String subjectName;
     private List<String> alternativeNames;
     private long notBefore = 0L;
@@ -94,62 +80,52 @@ public class CertificateV3 extends Certificate {
 
     @Override
     public Certificate processCertificateBytes() {
-        this.jseX509Cert = null;
 
-        if (cf != null) {
-            try {
-                this.jseX509Cert = (X509Certificate) cf
-                        .generateCertificate(new ByteArrayInputStream(ec));
-            } catch (CertificateException e) {
-                e.printStackTrace();
-            }
+        org.bouncycastle.asn1.x509.Certificate x509Certificate = null;
+        try {
+            x509Certificate = org.bouncycastle.asn1.x509.Certificate.getInstance(ASN1Sequence.fromByteArray(ec));
+        } catch (IOException e) {
+            log.error("Excrption: {}", e.getMessage());
+            log.error("{}", e);
+        }
+
+        if(x509Certificate == null) {
+            this.setProcessed(false);
+            return this;
         }
 
         // certificate version
-        this.certificateVersion = this.jseX509Cert.getVersion();
+        this.certificateVersion = x509Certificate.getVersion().getValue().add(BigInteger.valueOf(1));
 
-        // common name
-        X500Principal subject = this.jseX509Cert.getSubjectX500Principal();
-        X500Name subjectName = new X500Name(
-                subject.getName(X500Principal.RFC2253));
-        this.subjectName = subjectName.toString();
+        // subject
+        this.subjectName = x509Certificate.getSubject().toString();
 
         // alternative names
-        try {
-            Collection<List<?>> alternativeNames = this.jseX509Cert
-                    .getSubjectAlternativeNames();
-            this.alternativeNames = CertificateUtil.transferAlternativeNames(alternativeNames);
-        } catch (CertificateParsingException e) {
-            e.printStackTrace();
-        }
+        this.alternativeNames = new ArrayList<>();
+
 
         // not before
-        Date notBefore = this.jseX509Cert.getNotBefore();
+        Date notBefore = x509Certificate.getStartDate().getDate();
 
         if (notBefore != null)
             this.notBefore = notBefore.getTime();
 
         // not after
-        Date notAfter = this.jseX509Cert.getNotAfter();
+        Date notAfter = x509Certificate.getEndDate().getDate();
 
         if (notAfter != null)
             this.notAfter = notAfter.getTime();
 
         // public key algorithm & size
-        PublicKey pubKey = this.jseX509Cert.getPublicKey();
+        this.pubKeyInfo = CertificateUtil.transferPublicKeyInfo(x509Certificate.getSubjectPublicKeyInfo());
 
-        if (pubKey != null)
-            this.pubKeyInfo = CertificateUtil.transferPublicKeyInfo(pubKey.getEncoded());
-
-        // issuer
-        X500Principal issuer = this.jseX509Cert.getIssuerX500Principal();
-        X500Name issuerName = new X500Name(
-                issuer.getName(X500Principal.RFC2253));
-        this.issuerName = issuerName.toString();
+        // issuer name
+        this.issuerName = x509Certificate.getIssuer().toString();
 
         // signature algorithm
-        this.signatureAlgorithm = CertificateUtil.transferSignatureAlgorithm(this.jseX509Cert
-                .getSigAlgOID());
+        AlgorithmIdentifier signatureAlgorithmIdentifier = x509Certificate.getSignatureAlgorithm();
+        ASN1ObjectIdentifier signatureAlgorithmObjectIdentifier = signatureAlgorithmIdentifier.getAlgorithm();
+        this.signatureAlgorithm = CertificateUtil.transferSignatureAlgorithm(signatureAlgorithmObjectIdentifier.getId());
 
         // fingerprint
 
@@ -157,11 +133,14 @@ public class CertificateV3 extends Certificate {
 
         // CRL Distribution Points
 
+        /*
         byte[] extension = this.jseX509Cert
                 .getExtensionValue(ASN1CertificateExtensionsIds.CRLDistributionPoints
                         .getOid());
+                        */
 
-        this.crlDistributionPoints = CertificateUtil.transferDistributionPoints(extension);
+        //this.crlDistributionPoints = CertificateUtil.transferDistributionPoints(extension);
+        this.crlDistributionPoints = new ArrayList<>();
 
         return this;
     }
@@ -242,19 +221,11 @@ public class CertificateV3 extends Certificate {
         this.ec = ec;
     }
 
-    public X509Certificate getJseX509Cert() {
-        return jseX509Cert;
-    }
-
-    public void setJseX509Cert(X509Certificate jseX509Cert) {
-        this.jseX509Cert = jseX509Cert;
-    }
-
-    public int getCertificateVersion() {
+    public BigInteger getCertificateVersion() {
         return certificateVersion;
     }
 
-    public void setCertificateVersion(int certificateVersion) {
+    public void setCertificateVersion(BigInteger certificateVersion) {
         this.certificateVersion = certificateVersion;
     }
 

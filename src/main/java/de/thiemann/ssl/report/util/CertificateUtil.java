@@ -4,7 +4,7 @@ package de.thiemann.ssl.report.util;
  * ----------------------------------------------------------------------
  * Copyright (c) 2012  Thomas Pornin <pornin@bolet.org>
  * Copyright (c) 2015 Marius Thiemann <marius dot thiemann at ploin dot de>
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
  * "Software"), to deal in the Software without restriction, including
@@ -12,10 +12,10 @@ package de.thiemann.ssl.report.util;
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -30,6 +30,8 @@ package de.thiemann.ssl.report.util;
 import de.thiemann.ssl.report.model.PubKeyInfo;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.x509.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -38,159 +40,162 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class CertificateUtil {
-	/*
-	 * Compute the SHA-1 hash of some bytes, returning the hash value in
-	 * hexadecimal.
-	 */
-	public static String computeFingerprint(byte[] buf) {
-		return doSHA1(buf, 0, buf.length);
-	}
-	
-	public static String computeFingerprint(byte[] buf, int off, int len) {
-		return doSHA1(buf, off, len);
-	}
 
-	private static String doSHA1(byte[] buf, int off, int len) {
-		Formatter f = null;
+    private static Logger log = LoggerFactory.getLogger(CertificateUtil.class);
+    /*
+     * Compute the SHA-1 hash of some bytes, returning the hash value in
+     * hexadecimal.
+     */
+    public static String computeFingerprint(byte[] buf) {
+        return doSHA1(buf, 0, buf.length);
+    }
 
-		try {
-			MessageDigest md = MessageDigest.getInstance("SHA1");
-			md.update(buf, off, len);
-			byte[] fingerprintVector = md.digest();
+    public static String computeFingerprint(byte[] buf, int off, int len) {
+        return doSHA1(buf, off, len);
+    }
 
-			f = new Formatter();
-			for (int i = 0; i < fingerprintVector.length; i++) {
-				if (i == fingerprintVector.length - 1)
-					f.format("%02x", fingerprintVector[i] & 0xFF);
-				else
-					f.format("%02x:", fingerprintVector[i] & 0xFF);
-			}
-			return f.toString();
-		} catch (NoSuchAlgorithmException e) {
-			throw new Error(e);
-		} finally {
-			if (f != null)
-				f.close();
-		}
-	}
+    private static String doSHA1(byte[] buf, int off, int len) {
+        Formatter f = null;
 
-	public static String transferSignatureAlgorithm(String oid) {
-		StringBuffer sb = new StringBuffer();
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA1");
+            md.update(buf, off, len);
+            byte[] fingerprintVector = md.digest();
 
-		boolean foundAlgorithm = false;
-		for (ASN1SignatureAlgorithmsIds sa : ASN1SignatureAlgorithmsIds
-				.values()) {
-			if (sa.getOid().equals(oid)) {
-				sb.append(sa.name()).append(" (").append(oid).append(')');
-				foundAlgorithm = true;
-				break;
-			}
-		}
+            f = new Formatter();
+            for (int i = 0; i < fingerprintVector.length; i++) {
+                if (i == fingerprintVector.length - 1)
+                    f.format("%02x", fingerprintVector[i] & 0xFF);
+                else
+                    f.format("%02x:", fingerprintVector[i] & 0xFF);
+            }
+            return f.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new Error(e);
+        } finally {
+            if (f != null)
+                f.close();
+        }
+    }
 
-		if (!foundAlgorithm)
-			sb.append("Unknown signature algorithm! OID: ").append(oid);
+    public static String transferSignatureAlgorithm(String oid) {
+        StringBuffer sb = new StringBuffer();
 
-		return sb.toString();
-	}
+        boolean foundAlgorithm = false;
+        for (ASN1SignatureAlgorithmsIds sa : ASN1SignatureAlgorithmsIds
+                .values()) {
+            if (sa.getOid().equals(oid)) {
+                sb.append(sa.name()).append(" (").append(oid).append(')');
+                foundAlgorithm = true;
+                break;
+            }
+        }
 
-	public static PubKeyInfo transferPublicKeyInfo(byte[] encodedPublicKey) {
-		PubKeyInfo info = new PubKeyInfo();
+        if (!foundAlgorithm)
+            sb.append("Unknown signature algorithm! OID: ").append(oid);
 
-		try {
-			SubjectPublicKeyInfo subPubKeyInfo = new SubjectPublicKeyInfo(
-					(ASN1Sequence) ASN1Sequence.fromByteArray(encodedPublicKey));
-			String asn1PubKeyId = subPubKeyInfo.getAlgorithmId().getAlgorithm()
-					.getId();
+        return sb.toString();
+    }
 
-			if (asn1PubKeyId.equals(ASN1PublicKeyIds.RSA.getOid())) {
-				DLSequence seq = (DLSequence) subPubKeyInfo.getPublicKey();
-				ASN1Integer iModulus = (ASN1Integer) seq.getObjectAt(0);
-				BigInteger modulus = iModulus.getPositiveValue();
+    public static PubKeyInfo transferPublicKeyInfo(SubjectPublicKeyInfo subjectPublicKeyInfo) {
+        PubKeyInfo info = new PubKeyInfo();
 
-				info.setPubKeyAlgorithm(ASN1PublicKeyIds.RSA.name());
-				info.setPubKeySize(modulus.bitLength());
-			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.DSA.getOid())) {
-				info.setPubKeyAlgorithm(ASN1PublicKeyIds.DSA.name());
-			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.Diffie_Hellman
-					.getOid())) {
-				info.setPubKeyAlgorithm(ASN1PublicKeyIds.Diffie_Hellman.name());
-			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.KEA.getOid())) {
-				info.setPubKeyAlgorithm(ASN1PublicKeyIds.KEA.name());
-			} else if (asn1PubKeyId.equals(ASN1PublicKeyIds.ECDH.getOid())) {
-				info.setPubKeyAlgorithm(ASN1PublicKeyIds.ECDH.name());
-			} else
-				info.setPubKeyAlgorithm("Unknown public key! OID: " + asn1PubKeyId);
+        AlgorithmIdentifier algorithmIdentifier = subjectPublicKeyInfo.getAlgorithm();
+        ASN1ObjectIdentifier asn1ObjectIdentifier = algorithmIdentifier.getAlgorithm();
+        String oid = asn1ObjectIdentifier.getId();
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        if (oid.equals(ASN1PublicKeyIds.RSA.getOid())) {
+            info.setPubKeyAlgorithm(ASN1PublicKeyIds.RSA.name());
 
-		return info;
-	}
+            try {
+                ASN1Sequence rsaPublicKeySequence = (ASN1Sequence) subjectPublicKeyInfo.parsePublicKey();
+                ASN1Integer rsaModulus = (ASN1Integer) rsaPublicKeySequence.getObjectAt(0);
+                BigInteger modulus = rsaModulus.getPositiveValue();
 
-	public static List<String> transferAlternativeNames(Collection<List<?>> alternativeNames) {
-		if (alternativeNames == null)
-			return null;
+                info.setPubKeySize(modulus.bitLength());
+            } catch (IOException e) {
+                log.error("{}", e.getMessage());
+                log.error("{}", e);
+            }
+        } else if (oid.equals(ASN1PublicKeyIds.DSA.getOid())) {
+            info.setPubKeyAlgorithm(ASN1PublicKeyIds.DSA.name());
+        } else if (oid.equals(ASN1PublicKeyIds.Diffie_Hellman
+                .getOid())) {
+            info.setPubKeyAlgorithm(ASN1PublicKeyIds.Diffie_Hellman.name());
+        } else if (oid.equals(ASN1PublicKeyIds.KEA.getOid())) {
+            info.setPubKeyAlgorithm(ASN1PublicKeyIds.KEA.name());
+        } else if (oid.equals(ASN1PublicKeyIds.ECDH.getOid())) {
+            info.setPubKeyAlgorithm(ASN1PublicKeyIds.ECDH.name());
+        } else {
+            info.setPubKeyAlgorithm("Unknown public key! OID: " + oid);
+        }
 
-		List<String> l = new ArrayList<String>();
-		for (List<?> entry : alternativeNames) {
-			l.add(entry.get(1).toString());
-		}
+        return info;
+    }
 
-		return l;
-	}
+    public static List<String> transferAlternativeNames(Collection<List<?>> alternativeNames) {
+        if (alternativeNames == null)
+            return null;
 
-	public static List<String> transferDistributionPoints(byte[] extension) {
-		if (extension == null)
-			return null;
+        List<String> l = new ArrayList<String>();
+        for (List<?> entry : alternativeNames) {
+            l.add(entry.get(1).toString());
+        }
 
-		ASN1Sequence crlDistributionPoints = null;
+        return l;
+    }
 
-		try {
-			ASN1Object o = null;
+    public static List<String> transferDistributionPoints(byte[] extension) {
+        if (extension == null)
+            return null;
 
-			o = DEROctetString.fromByteArray(extension);
-			if (o instanceof DEROctetString) {
-				DEROctetString octStr = (DEROctetString) o;
+        ASN1Sequence crlDistributionPoints = null;
 
-				o = ASN1Sequence.fromByteArray(octStr.getOctets());
-				if (o instanceof ASN1Sequence) {
-					crlDistributionPoints = (ASN1Sequence) o;
-				}
-			}
+        try {
+            ASN1Object o = null;
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+            o = DEROctetString.fromByteArray(extension);
+            if (o instanceof DEROctetString) {
+                DEROctetString octStr = (DEROctetString) o;
 
-		if (crlDistributionPoints == null)
-			return null;
+                o = ASN1Sequence.fromByteArray(octStr.getOctets());
+                if (o instanceof ASN1Sequence) {
+                    crlDistributionPoints = (ASN1Sequence) o;
+                }
+            }
 
-		List<String> l = new ArrayList<String>();
-		Enumeration<?> e = crlDistributionPoints.getObjects();
-		while (e.hasMoreElements()) {
-			Object o = e.nextElement();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-			if (o instanceof ASN1Sequence) {
-				ASN1Sequence seqDP = (ASN1Sequence) o;
-				DistributionPoint dp = new DistributionPoint(seqDP);
+        if (crlDistributionPoints == null)
+            return null;
 
-				DistributionPointName dpn = dp.getDistributionPoint();
-				ASN1Encodable enc = dpn.getName();
+        List<String> l = new ArrayList<String>();
+        Enumeration<?> e = crlDistributionPoints.getObjects();
+        while (e.hasMoreElements()) {
+            Object o = e.nextElement();
 
-				if (enc instanceof GeneralNames) {
-					GeneralNames gns = (GeneralNames) enc;
+            if (o instanceof ASN1Sequence) {
+                ASN1Sequence seqDP = (ASN1Sequence) o;
+                DistributionPoint dp = new DistributionPoint(seqDP);
 
-					for (GeneralName gn : gns.getNames()) {
-						l.add(gn.toString());
-					}
-				}
-			}
-		}
+                DistributionPointName dpn = dp.getDistributionPoint();
+                ASN1Encodable enc = dpn.getName();
 
-		if (!l.isEmpty())
-			return l;
-		else
-			return null;
-	}
+                if (enc instanceof GeneralNames) {
+                    GeneralNames gns = (GeneralNames) enc;
+
+                    for (GeneralName gn : gns.getNames()) {
+                        l.add(gn.toString());
+                    }
+                }
+            }
+        }
+
+        if (!l.isEmpty())
+            return l;
+        else
+            return null;
+    }
 }
