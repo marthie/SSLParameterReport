@@ -38,6 +38,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CertificateUtil {
 
@@ -133,14 +134,45 @@ public class CertificateUtil {
         return info;
     }
 
-    public static List<String> transferAlternativeNames(Collection<List<?>> alternativeNames) {
-        if (alternativeNames == null)
+    public static List<String> transferGeneralNames(GeneralNames generalNames) {
+        if (generalNames == null)
             return null;
 
-        List<String> l = new ArrayList<String>();
-        for (List<?> entry : alternativeNames) {
-            l.add(entry.get(1).toString());
-        }
+        List<String> l = Arrays.stream(generalNames.getNames())
+				.filter(gn-> {
+			int tag = gn.getTagNo();
+
+			/*
+				RFC 5280 -> 4.2.1.6.  Subject Alternative Name
+				GeneralName ::= CHOICE {
+        			otherName                       [0]     OtherName,
+        			rfc822Name                      [1]     IA5String,
+        			dNSName                         [2]     IA5String,
+        			x400Address                     [3]     ORAddress,
+        			directoryName                   [4]     Name,
+        			ediPartyName                    [5]     EDIPartyName,
+        			uniformResourceIdentifier       [6]     IA5String,
+        			iPAddress                       [7]     OCTET STRING,
+        			registeredID                    [8]     OBJECT IDENTIFIER }
+			 */
+			if(tag == 1 || tag == 2 || tag == 6 || tag == 7) {
+				return true;
+			}
+
+			return false;
+		}).map(gn -> {
+			int tag = gn.getTagNo();
+
+			if(tag == 1 || tag == 2 || tag == 6) {
+				return ((DERIA5String)gn.getName()).getString();
+			}
+
+			if(tag == 7) {
+				return ((ASN1OctetString)gn.getName()).toString();
+			}
+
+			return "[Wrong tag value!]";
+		}).collect(Collectors.toList());
 
         return l;
     }

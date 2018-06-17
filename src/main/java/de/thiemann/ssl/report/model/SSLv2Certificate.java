@@ -40,11 +40,6 @@ public class SSLv2Certificate extends Certificate {
 	}
 
 	@Override
-	public String certificateReport() {
-		return hash + ": " + name;
-	}
-
-	@Override
 	public Certificate processCertificateBytes() {
 		return this;
 	}

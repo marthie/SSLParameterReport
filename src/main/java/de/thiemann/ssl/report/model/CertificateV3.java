@@ -53,15 +53,15 @@ import org.slf4j.LoggerFactory;
 
 public class CertificateV3 extends Certificate {
 
-    private static String NL = System.getProperty("line.separator");
-
     private static Logger log = LoggerFactory.getLogger(CertificateV3.class);
 
     private byte[] ec;
 
     private BigInteger certificateVersion;
+    private BigInteger certificateSerialNumber;
     private String subjectName;
-    private List<String> alternativeNames;
+    private List<String> subjectAlternativeNames;
+    private List<String> issuerAlternativeNames;
     private long notBefore = 0L;
     private long notAfter = 0L;
     private PubKeyInfo pubKeyInfo;
@@ -69,7 +69,6 @@ public class CertificateV3 extends Certificate {
     private String signatureAlgorithm;
     private String fingerprint;
     private List<String> crlDistributionPoints;
-    private Map<ASN1CertificateExtensionsIds, BaseExtension> certificateExtensions;
 
     public CertificateV3(int i, byte[] ec) {
         super();
@@ -94,15 +93,21 @@ public class CertificateV3 extends Certificate {
             return this;
         }
 
+        Extensions certificateExtensions = x509Certificate.getTBSCertificate().getExtensions();
+
         // certificate version
         this.certificateVersion = x509Certificate.getVersion().getValue().add(BigInteger.valueOf(1));
+
+        // serial number
+        this.certificateSerialNumber = x509Certificate.getSerialNumber().getValue();
 
         // subject
         this.subjectName = x509Certificate.getSubject().toString();
 
-        // alternative names
-        this.alternativeNames = new ArrayList<>();
-
+        // subject alternative names
+        GeneralNames subjectAlternativeNames = GeneralNames.fromExtensions(certificateExtensions,
+                ASN1CertificateExtensionsIds.SubjectAlternativeName.getASN1ObjectIdentifier());
+        this.subjectAlternativeNames = CertificateUtil.transferGeneralNames(subjectAlternativeNames);
 
         // not before
         Date notBefore = x509Certificate.getStartDate().getDate();
@@ -121,6 +126,11 @@ public class CertificateV3 extends Certificate {
 
         // issuer name
         this.issuerName = x509Certificate.getIssuer().toString();
+
+        // issuer alternative names
+        GeneralNames issuerAlternativeNames = GeneralNames.fromExtensions(certificateExtensions,
+                ASN1CertificateExtensionsIds.IssuerAlternativeName.getASN1ObjectIdentifier());
+        this.issuerAlternativeNames = CertificateUtil.transferGeneralNames(issuerAlternativeNames);
 
         // signature algorithm
         AlgorithmIdentifier signatureAlgorithmIdentifier = x509Certificate.getSignatureAlgorithm();
@@ -145,74 +155,6 @@ public class CertificateV3 extends Certificate {
         return this;
     }
 
-    @Override
-    public String certificateReport() {
-        if (!this.isProcessed()) {
-            this.processCertificateBytes();
-        }
-
-        StringBuffer sb = new StringBuffer();
-
-        sb.append(NL)
-                .append("=========================== Server Certificate #")
-                .append(this.getOrder()).append(" ==============================");
-
-        // certificate version
-        sb.append(NL).append("Certificate Version: ")
-                .append(this.certificateVersion);
-
-        // common name
-        sb.append(NL).append("Subject: ").append(this.subjectName);
-
-        // alternative names
-        if (this.alternativeNames != null)
-            sb.append(NL).append("Alternative Names: ")
-                    .append(ListUtil.stringListToString(this.alternativeNames));
-
-        // not before
-        if (this.notBefore > 0L)
-            sb.append(NL).append("Not Before: ")
-                    .append(String.format("%1$tF %1$tT", this.notBefore));
-
-        // not after
-        if (this.notAfter > 0L)
-            sb.append(NL).append("Not After: ")
-                    .append(String.format("%1$tF %1$tT", this.notAfter));
-
-        // public key algorithm & size
-        if (this.pubKeyInfo != null) {
-            if (this.pubKeyInfo.getPubKeyAlgorithm() != null)
-                sb.append(NL).append("Key: ").append(this.pubKeyInfo.getPubKeyAlgorithm());
-
-            if (this.pubKeyInfo.getPubKeySize() > 0)
-                sb.append(" (").append(this.pubKeyInfo.getPubKeySize()).append(')');
-        }
-
-        // issuer
-        sb.append(NL).append("Issuer: ").append(this.issuerName);
-
-        // signature algorithm
-        sb.append(NL).append("Signature Algorithm: ")
-                .append(this.signatureAlgorithm);
-
-        // fingerprint
-        sb.append(NL).append("Fingerprint: ")
-                .append(this.fingerprint);
-
-        // CRL Distribution Points
-
-        sb.append(NL).append("CRL Distribution Points: ");
-        if (this.crlDistributionPoints != null)
-            sb.append(ListUtil.stringListToString(this.crlDistributionPoints));
-        else
-            sb.append("No");
-
-        sb.append(NL)
-                .append("================================================================================");
-
-        return sb.toString();
-    }
-
     public byte[] getEc() {
         return ec;
     }
@@ -235,14 +177,6 @@ public class CertificateV3 extends Certificate {
 
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName;
-    }
-
-    public List<String> getAlternativeNames() {
-        return alternativeNames;
-    }
-
-    public void setAlternativeNames(List<String> alternativeNames) {
-        this.alternativeNames = alternativeNames;
     }
 
     public long getNotBefore() {
@@ -301,11 +235,27 @@ public class CertificateV3 extends Certificate {
         this.crlDistributionPoints = crlDistributionPoints;
     }
 
-    public Map<ASN1CertificateExtensionsIds, BaseExtension> getCertificateExtensions() {
-        return certificateExtensions;
+    public BigInteger getCertificateSerialNumber() {
+        return certificateSerialNumber;
     }
 
-    public void setCertificateExtensions(Map<ASN1CertificateExtensionsIds, BaseExtension> certificateExtensions) {
-        this.certificateExtensions = certificateExtensions;
+    public void setCertificateSerialNumber(BigInteger certificateSerialNumber) {
+        this.certificateSerialNumber = certificateSerialNumber;
+    }
+
+    public List<String> getSubjectAlternativeNames() {
+        return subjectAlternativeNames;
+    }
+
+    public void setSubjectAlternativeNames(List<String> subjectAlternativeNames) {
+        this.subjectAlternativeNames = subjectAlternativeNames;
+    }
+
+    public List<String> getIssuerAlternativeNames() {
+        return issuerAlternativeNames;
+    }
+
+    public void setIssuerAlternativeNames(List<String> issuerAlternativeNames) {
+        this.issuerAlternativeNames = issuerAlternativeNames;
     }
 }

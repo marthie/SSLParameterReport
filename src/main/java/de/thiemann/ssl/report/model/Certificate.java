@@ -34,8 +34,6 @@ public abstract class Certificate implements Comparable<Certificate> {
 	
 	// for layz processing
 	private boolean isProcessed;
-
-	public abstract String certificateReport();
 	
 	public abstract Certificate processCertificateBytes();
 	

@@ -184,8 +184,9 @@ public class JsonOutput extends AbstractOutput {
             CertificateV3 v3Cert = (CertificateV3) cert;
 
             jsonCert.put("version", v3Cert.getCertificateVersion());
+            jsonCert.put("serialNumber", v3Cert.getCertificateSerialNumber());
             jsonCert.put("subjectName", v3Cert.getSubjectName());
-            jsonCert.put("alternativeNames", processAlternativeNames(v3Cert.getAlternativeNames()));
+            jsonCert.put("subjectAlternativeNames", processAlternativeNames(v3Cert.getSubjectAlternativeNames()));
             jsonCert.put("notBefore",
                     String.format("%1$tF %1$tT", v3Cert.getNotBefore()));
             jsonCert.put("notAfter",
@@ -193,6 +194,7 @@ public class JsonOutput extends AbstractOutput {
             jsonCert.put("pubKeyName", v3Cert.getPubKeyInfo().getPubKeyAlgorithm());
             jsonCert.put("pubKeySize", v3Cert.getPubKeyInfo().getPubKeySize());
             jsonCert.put("issuerName", v3Cert.getIssuerName());
+            jsonCert.put("issuerAlternativeNames", processAlternativeNames(v3Cert.getIssuerAlternativeNames()));
             jsonCert.put("signatureAlgorithm", v3Cert.getSignatureAlgorithm());
             jsonCert.put("fingerprint", v3Cert.getFingerprint());
             jsonCert.put("crlDistributionPoints", v3Cert.getCrlDistributionPoints());
@@ -205,7 +207,7 @@ public class JsonOutput extends AbstractOutput {
 
     private List<String> processAlternativeNames(List<String> alternativeNames) {
         if (alternativeNames == null) {
-            return null;
+            return new ArrayList<>();
         }
 
         List<String> lines = new ArrayList<String>();

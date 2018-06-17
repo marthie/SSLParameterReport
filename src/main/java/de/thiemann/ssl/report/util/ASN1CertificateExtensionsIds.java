@@ -26,6 +26,8 @@ SOFTWARE.
 
  */
 
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+
 public enum ASN1CertificateExtensionsIds {
 	
 	
@@ -57,6 +59,8 @@ public enum ASN1CertificateExtensionsIds {
 	public String getOid() {
 		return oid;
 	}
+
+	public ASN1ObjectIdentifier getASN1ObjectIdentifier() { return new ASN1ObjectIdentifier(this.oid); }
 
 	public String toString() {
 		return this.name() + "[" + this.oid + "]";
