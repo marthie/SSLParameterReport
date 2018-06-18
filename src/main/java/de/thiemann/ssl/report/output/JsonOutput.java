@@ -198,6 +198,8 @@ public class JsonOutput extends AbstractOutput {
             jsonCert.put("signatureAlgorithm", v3Cert.getSignatureAlgorithm());
             jsonCert.put("fingerprint", v3Cert.getFingerprint());
             jsonCert.put("crlDistributionPoints", v3Cert.getCrlDistributionPoints());
+            jsonCert.put("keyUsageList", v3Cert.getKeyUsageList());
+            jsonCert.put("extensionInfoList", v3Cert.getExtensionInfoList());
 
             return jsonCert;
         }

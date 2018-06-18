@@ -39,6 +39,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -69,6 +70,8 @@ public class CertificateV3 extends Certificate {
     private String signatureAlgorithm;
     private String fingerprint;
     private List<String> crlDistributionPoints;
+    private List<String> keyUsageList;
+    private List<ExtensionInfo> extensionInfoList;
 
     public CertificateV3(int i, byte[] ec) {
         super();
@@ -105,8 +108,7 @@ public class CertificateV3 extends Certificate {
         this.subjectName = x509Certificate.getSubject().toString();
 
         // subject alternative names
-        GeneralNames subjectAlternativeNames = GeneralNames.fromExtensions(certificateExtensions,
-                ASN1CertificateExtensionsIds.SubjectAlternativeName.getASN1ObjectIdentifier());
+        GeneralNames subjectAlternativeNames = GeneralNames.fromExtensions(certificateExtensions, Extension.subjectAlternativeName);
         this.subjectAlternativeNames = CertificateUtil.transferGeneralNames(subjectAlternativeNames);
 
         // not before
@@ -129,7 +131,7 @@ public class CertificateV3 extends Certificate {
 
         // issuer alternative names
         GeneralNames issuerAlternativeNames = GeneralNames.fromExtensions(certificateExtensions,
-                ASN1CertificateExtensionsIds.IssuerAlternativeName.getASN1ObjectIdentifier());
+                Extension.issuerAlternativeName);
         this.issuerAlternativeNames = CertificateUtil.transferGeneralNames(issuerAlternativeNames);
 
         // signature algorithm
@@ -142,15 +144,30 @@ public class CertificateV3 extends Certificate {
         this.fingerprint = CertificateUtil.computeFingerprint(this.ec);
 
         // CRL Distribution Points
+        Extension cRLDistributionPointsExtension = certificateExtensions.getExtension(Extension.cRLDistributionPoints);
+        this.crlDistributionPoints = CertificateUtil.transferDistributionPoints(cRLDistributionPointsExtension);
 
-        /*
-        byte[] extension = this.jseX509Cert
-                .getExtensionValue(ASN1CertificateExtensionsIds.CRLDistributionPoints
-                        .getOid());
-                        */
+        // Key Usage
+        this.keyUsageList = new ArrayList<>();
+        KeyUsage keyUsage = KeyUsage.fromExtensions(certificateExtensions);
 
-        //this.crlDistributionPoints = CertificateUtil.transferDistributionPoints(extension);
-        this.crlDistributionPoints = new ArrayList<>();
+        if(keyUsage != null) {
+            Arrays.stream(CertificateKeyUsage.values()).forEach(certificateKeyUsage -> {
+                if(keyUsage.hasUsages(certificateKeyUsage.getTag())) {
+                    keyUsageList.add(certificateKeyUsage.getPrintableName());
+                }
+            });
+        }
+
+        this.extensionInfoList = Arrays.stream(ExtensionIdentifier.values()).map(extensionIdentifier -> {
+            Extension extension = certificateExtensions.getExtension(extensionIdentifier.getId());
+            if(extension != null) {
+                return new ExtensionInfo(extensionIdentifier.getId().getId(),
+                        extensionIdentifier.getDescription(), extension.isCritical());
+            }
+
+            return null;
+        }).filter(extensionInfo -> extensionInfo != null).collect(Collectors.toList());
 
         return this;
     }
@@ -257,5 +274,21 @@ public class CertificateV3 extends Certificate {
 
     public void setIssuerAlternativeNames(List<String> issuerAlternativeNames) {
         this.issuerAlternativeNames = issuerAlternativeNames;
+    }
+
+    public List<String> getKeyUsageList() {
+        return keyUsageList;
+    }
+
+    public void setKeyUsageList(List<String> keyUsageList) {
+        this.keyUsageList = keyUsageList;
+    }
+
+    public List<ExtensionInfo> getExtensionInfoList() {
+        return extensionInfoList;
+    }
+
+    public void setExtensionInfoList(List<ExtensionInfo> extensionInfoList) {
+        this.extensionInfoList = extensionInfoList;
     }
 }

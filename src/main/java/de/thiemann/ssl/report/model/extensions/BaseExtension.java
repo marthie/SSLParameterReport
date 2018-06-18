@@ -1,18 +1,18 @@
 package de.thiemann.ssl.report.model.extensions;
 
-import de.thiemann.ssl.report.util.ASN1CertificateExtensionsIds;
+import de.thiemann.ssl.report.util.ExtensionIdentifier;
 
 public class BaseExtension {
 
-    private ASN1CertificateExtensionsIds id;
+    private ExtensionIdentifier id;
 
     private byte[] extension;
 
-    public ASN1CertificateExtensionsIds getId() {
+    public ExtensionIdentifier getId() {
         return id;
     }
 
-    public void setId(ASN1CertificateExtensionsIds id) {
+    public void setId(ExtensionIdentifier id) {
         this.id = id;
     }
 

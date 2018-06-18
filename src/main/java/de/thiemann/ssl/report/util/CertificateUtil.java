@@ -139,8 +139,8 @@ public class CertificateUtil {
             return null;
 
         List<String> l = Arrays.stream(generalNames.getNames())
-				.filter(gn-> {
-			int tag = gn.getTagNo();
+				.filter(generalName -> {
+			int tag = generalName.getTagNo();
 
 			/*
 				RFC 5280 -> 4.2.1.6.  Subject Alternative Name
@@ -160,15 +160,15 @@ public class CertificateUtil {
 			}
 
 			return false;
-		}).map(gn -> {
-			int tag = gn.getTagNo();
+		}).map(generalName -> {
+			int tag = generalName.getTagNo();
 
 			if(tag == 1 || tag == 2 || tag == 6) {
-				return ((DERIA5String)gn.getName()).getString();
+				return ((DERIA5String)generalName.getName()).getString();
 			}
 
 			if(tag == 7) {
-				return ((ASN1OctetString)gn.getName()).toString();
+				return ((ASN1OctetString)generalName.getName()).toString();
 			}
 
 			return "[Wrong tag value!]";
@@ -177,57 +177,38 @@ public class CertificateUtil {
         return l;
     }
 
-    public static List<String> transferDistributionPoints(byte[] extension) {
-        if (extension == null)
-            return null;
-
-        ASN1Sequence crlDistributionPoints = null;
-
-        try {
-            ASN1Object o = null;
-
-            o = DEROctetString.fromByteArray(extension);
-            if (o instanceof DEROctetString) {
-                DEROctetString octStr = (DEROctetString) o;
-
-                o = ASN1Sequence.fromByteArray(octStr.getOctets());
-                if (o instanceof ASN1Sequence) {
-                    crlDistributionPoints = (ASN1Sequence) o;
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static List<String> transferDistributionPoints(Extension extension) {
+        if(extension == null) {
+            return new ArrayList<>();
         }
 
-        if (crlDistributionPoints == null)
-            return null;
+        List<String> listCrlDistPoint = new ArrayList<>();
 
-        List<String> l = new ArrayList<String>();
-        Enumeration<?> e = crlDistributionPoints.getObjects();
-        while (e.hasMoreElements()) {
-            Object o = e.nextElement();
+        CRLDistPoint crlDistPoint = CRLDistPoint.getInstance(extension.getParsedValue());
 
-            if (o instanceof ASN1Sequence) {
-                ASN1Sequence seqDP = (ASN1Sequence) o;
-                DistributionPoint dp = new DistributionPoint(seqDP);
+        List<DistributionPointName> distributionPointNameList = Arrays.stream(crlDistPoint.getDistributionPoints())
+                .filter(distributionPoint -> distributionPoint.getDistributionPoint() != null)
+                .map(distributionPoint -> distributionPoint.getDistributionPoint())
+                .collect(Collectors.toList());
 
-                DistributionPointName dpn = dp.getDistributionPoint();
-                ASN1Encodable enc = dpn.getName();
-
-                if (enc instanceof GeneralNames) {
-                    GeneralNames gns = (GeneralNames) enc;
-
-                    for (GeneralName gn : gns.getNames()) {
-                        l.add(gn.toString());
+        distributionPointNameList.stream()
+                .forEach(distributionPointName -> {
+                    /*
+                    DistributionPointName ::= CHOICE {
+                        fullName                 [0] GeneralNames,
+                        nameRelativeToCRLIssuer  [1] RDN
                     }
-                }
-            }
-        }
+                    */
+                    if(distributionPointName.getType() == DistributionPointName.FULL_NAME) {
+                        GeneralNames generalNames = GeneralNames.getInstance(distributionPointName.getName());
+                        List<String> listGeneralNames = transferGeneralNames(generalNames);
 
-        if (!l.isEmpty())
-            return l;
-        else
-            return null;
+                        if(listGeneralNames != null && listGeneralNames.size() > 0) {
+                            listCrlDistPoint.addAll(listGeneralNames);
+                        }
+                    }
+                });
+
+        return listCrlDistPoint;
     }
 }
