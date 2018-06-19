@@ -30,27 +30,22 @@ package de.thiemann.ssl.report.model;
  * Copyright (c) 2015  Marius Thiemann <marius dot thiemann at ploin dot de>
  */
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.PublicKey;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.security.auth.x500.X500Principal;
-
-import de.thiemann.ssl.report.model.extensions.BaseExtension;
-import de.thiemann.ssl.report.util.*;
-import org.bouncycastle.asn1.*;
-import org.bouncycastle.asn1.x500.X500Name;
+import de.thiemann.ssl.report.util.CertificateKeyUsage;
+import de.thiemann.ssl.report.util.CertificateUtil;
+import de.thiemann.ssl.report.util.ExtensionIdentifier;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x509.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CertificateV3 extends Certificate {
 

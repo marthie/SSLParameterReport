@@ -26,8 +26,6 @@ SOFTWARE.
 
  */
 
-import java.util.UUID;
-
 public abstract class Certificate implements Comparable<Certificate> {
 
 	private Integer order;

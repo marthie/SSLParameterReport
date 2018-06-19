@@ -2,6 +2,7 @@ package de.thiemann.ssl.report.model;
 
 public class ExtensionInfo {
 
+
     private String oid;
     private String description;
     private boolean isCritical;

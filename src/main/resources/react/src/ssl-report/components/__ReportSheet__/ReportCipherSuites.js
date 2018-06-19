@@ -35,7 +35,7 @@ export default function ReportCipherSuitesTable({reportCipherSuites}) {
         console.log("rendering cipher suites for version " + cipherSuiteObject.version + " with "
             + cipherSuiteObject.cipherSuiteStrings.length + " items...");
 
-        cipherSuitesRows.push(<CipherSuitesRow key={cipherSuiteObject.key}
+        cipherSuitesRows.push(<CipherSuitesRow key={cipherSuiteObject.uiKey}
                                                version={cipherSuiteObject.version}
                                                cipherSuiteStrings={cipherSuiteObject.cipherSuiteStrings}/>);
     });
@@ -54,7 +54,7 @@ function CipherSuitesRow({version, cipherSuiteStrings}) {
     const row = (<tr>
         <th scope="row">{version}</th>
         <td>
-            {cipherSuiteStrings.map((cipherSuiteString) => <p key={cipherSuiteString.key}>{cipherSuiteString.name}</p>)}
+            {cipherSuiteStrings.map((cipherSuiteString) => <p key={cipherSuiteString.uiKey}>{cipherSuiteString.name}</p>)}
         </td>
     </tr>);
 

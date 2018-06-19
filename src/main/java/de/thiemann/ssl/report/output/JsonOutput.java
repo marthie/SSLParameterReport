@@ -28,10 +28,7 @@ SOFTWARE.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.thiemann.ssl.report.model.Certificate;
-import de.thiemann.ssl.report.model.CertificateV3;
-import de.thiemann.ssl.report.model.Report;
-import de.thiemann.ssl.report.model.SSLv2Certificate;
+import de.thiemann.ssl.report.model.*;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
 import org.slf4j.Logger;
@@ -39,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -199,12 +197,23 @@ public class JsonOutput extends AbstractOutput {
             jsonCert.put("fingerprint", v3Cert.getFingerprint());
             jsonCert.put("crlDistributionPoints", v3Cert.getCrlDistributionPoints());
             jsonCert.put("keyUsageList", v3Cert.getKeyUsageList());
-            jsonCert.put("extensionInfoList", v3Cert.getExtensionInfoList());
+
+            List<Map<String, Object>> extensionInfoList = processExtensionInfo(v3Cert.getExtensionInfoList());
+            jsonCert.put("extensionInfoList", extensionInfoList);
 
             return jsonCert;
         }
 
         return null;
+    }
+
+    private List<Map<String, Object>> processExtensionInfo(List<ExtensionInfo> extensionInfoList) {
+        return extensionInfoList.stream().map(extensionInfo -> {
+            return map( keyEntry(),
+                    entry("oid", extensionInfo.getOid()),
+                    entry("description", extensionInfo.getDescription()),
+                    entry("isCritical", extensionInfo.isCritical()) );
+        }).collect(Collectors.toList());
     }
 
     private List<String> processAlternativeNames(List<String> alternativeNames) {

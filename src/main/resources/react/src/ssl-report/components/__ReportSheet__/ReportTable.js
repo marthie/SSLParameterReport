@@ -40,7 +40,7 @@ export default class ReportTable extends React.Component {
     reportTable() {
         const {report} = this.props;
 
-        console.log(`Start render report: ${report.key}`);
+        console.log(`Start render report: ${report.uiKey}`);
 
         const reportTable = (<React.Fragment>
             <div className="page-header">

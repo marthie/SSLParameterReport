@@ -52,7 +52,7 @@ public abstract class AbstractOutput implements Output {
 	}
 
 	public static Map.Entry<String, Object> keyEntry() {
-		return entry("key", UUID.randomUUID().toString());
+		return entry("uiKey", UUID.randomUUID().toString());
 	}
 
 	public static Map<String, Object> map(Map.Entry<String, Object>...entries) {

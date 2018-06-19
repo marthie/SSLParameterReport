@@ -91,8 +91,8 @@ class ReportSheet extends React.Component {
                             const title = `${report.ipAddress}:${report.port}`;
                             console.log("rendering report for" + title);
 
-                            return (<ReportPanel key={'panel-' + report.key} panelTitle={title}>
-                                <ReportTable key={'table-' + report.key} report={report}/>
+                            return (<ReportPanel key={'panel-' + report.uiKey} panelTitle={title}>
+                                <ReportTable key={'table-' + report.uiKey} report={report}/>
                             </ReportPanel>);
                         }
                     )}

@@ -37,7 +37,7 @@ export default function ReportCertificates({certificates}) {
 
         certificateSections.push(<CertificateRows version={certificateObject.version}
                                                   certificateChain={certificateObject.certificatesChain}
-                                                  key={certificateObject.key}/>);
+                                                  key={certificateObject.uiKey}/>);
     });
 
     return (<table className="table table-bordered">
@@ -55,7 +55,7 @@ function CertificateRows({version, certificateChain}) {
     const certificateDetailRows = [];
 
     certificateChain.map((certificate)=>{
-        certificateDetailRows.push(<CertificateDetailRow key={certificate.key} version={version} certificate={certificate} />);
+        certificateDetailRows.push(<CertificateDetailRow key={certificate.uiKey} version={version} certificate={certificate} />);
     });
 
     return (<React.Fragment>{certificateDetailRows}</React.Fragment>);
