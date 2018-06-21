@@ -29,7 +29,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import ReportCipherSuites from './ReportCipherSuites';
-import ReportCertificates from './ReportCertificates';
+import ReportCertificates from './__Certificates__/ReportCertificates';
 
 export default class ReportTable extends React.Component {
 
