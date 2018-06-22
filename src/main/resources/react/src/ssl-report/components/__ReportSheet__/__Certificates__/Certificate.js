@@ -29,6 +29,9 @@ import React from 'react';
 import PropTypes from "prop-types";
 
 import CertificateDetail  from './CertificateDetail';
+import CertificateExtensionDetail from './CertificateExtensionDetails'
+
+import * as uuid from 'uuid/v4';
 
 export default class Certificate extends React.Component {
 
@@ -36,32 +39,68 @@ export default class Certificate extends React.Component {
         super(props);
     }
 
-    getDetail() {
+    getDetails() {
         const {certificate} = this.props;
 
-        const detailRow = (<React.Fragment>
-            <CertificateDetail label="Certificate Version:" value={`${certificate.version}`} />
-            <CertificateDetail label="Subject" value={certificate.subjectName} />
-            <CertificateDetail label="Issuer:" value={certificate.issuerName} />
-            <CertificateDetail label="Alternative Names:" value={certificate.alternativeNames} />
-            <CertificateDetail label="Not Before:" value={certificate.notBefore}/>
-            <CertificateDetail label="Not After:" value={certificate.notAfter}/>
-            <CertificateDetail label="Public Key Algorithm:" value={certificate.pubKeyName}/>
-            <CertificateDetail label="Public Key Size:" value={certificate.pubKeySize}/>
-            <CertificateDetail label="Signature Algorithm:" value={certificate.signatureAlgorithm}/>
-            <CertificateDetail label="Fingerprint:" value={certificate.fingerprint}/>
-            <CertificateDetail label="CRL Distribution Points:" value={certificate.crlDistributionPoints}/>
-        </React.Fragment>);
+        let displayDetailsInOrder = [];
+        let element = null;
 
-        console.log(React.Children.count(detailRow.props.children));
+        displayDetailsInOrder.push((<CertificateDetail key={uuid.default()} label="Certificate Version:" value={`${certificate.version}`} />));
+        displayDetailsInOrder.push((<CertificateDetail key={uuid.default()} label="Certificate Serial Number:" value={`${certificate.serialNumber}`} />));
+        displayDetailsInOrder.push((<CertificateDetail key={uuid.default()} label="Subject" value={certificate.subjectName} />));
 
-        return detailRow;
+        element = this.renderArray("Subject Alternative Names:", certificate.subjectAlternativeNames);
+        if(element != null) { displayDetailsInOrder.push(element); }
+
+        displayDetailsInOrder.push((<CertificateDetail key={uuid.default()} label="Issuer:" value={certificate.issuerName} />));
+
+        element = this.renderArray("Issuer Alternative Names:", certificate.issuerAlternativeNames);
+        if(element != null) { displayDetailsInOrder.push(element); }
+
+        displayDetailsInOrder.push((<CertificateDetail key={uuid.default()} label="Not Before:" value={certificate.notBefore}/>));
+        displayDetailsInOrder.push((<CertificateDetail key={uuid.default()} label="Not After:" value={certificate.notAfter}/>));
+        displayDetailsInOrder.push((<CertificateDetail key={uuid.default()} label="Public Key Algorithm:" value={certificate.pubKeyName}/>));
+
+        element = this.renderValue("Public Key Size:", certificate.pubKeySize);
+        if(element != null) { displayDetailsInOrder.push(element); }
+
+        element = this.renderArray("Key Usage:", certificate.keyUsageList);
+        if(element != null) { displayDetailsInOrder.push(element); }
+
+        displayDetailsInOrder.push((<CertificateDetail key={uuid.default()} label="Signature Algorithm:" value={certificate.signatureAlgorithm}/>));
+        displayDetailsInOrder.push((<CertificateDetail key={uuid.default()} label="Fingerprint:" value={certificate.fingerprint}/>));
+
+        element = this.renderArray("CRL Distribution Points:", certificate.crlDistributionPoints);
+        if(element != null) { displayDetailsInOrder.push(element); }
+
+        displayDetailsInOrder.push((<CertificateExtensionDetail label="Included Certificate Extensions:" extensionList={certificate.extensionInfoList} />));
+
+        const details = (<React.Fragment>{displayDetailsInOrder}</React.Fragment>);
+
+        return details;
+    }
+
+    renderArray(label, values) {
+        if(values && values.length && values.length > 0) {
+            let stringValue = values.reduce((acc, cv) => acc + ", " + cv);
+            return (<CertificateDetail key={uuid.default()} label={label} value={stringValue} />);
+        } else {
+            return null;
+        }
+    }
+
+    renderValue(label, value) {
+        if(value) {
+            return (<CertificateDetail key={uuid.default()} label={label} value={value} />);
+        } else {
+            return null;
+        }
     }
 
     render() {
         const {version, certificate} = this.props;
 
-        const certificateDetails = this.getDetail();
+        const certificateDetails = this.getDetails();
         var count = React.Children.count(certificateDetails.props.children);
 
         console.log("children count: " + count);
@@ -72,7 +111,7 @@ export default class Certificate extends React.Component {
                 <th scope="row">Send in order:</th>
                 <td>{certificate.order}</td>
             </tr>
-            {this.getDetail()}
+            {certificateDetails}
         </React.Fragment>);
 
         return row;
