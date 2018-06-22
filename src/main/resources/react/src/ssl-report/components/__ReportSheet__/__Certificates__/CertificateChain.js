@@ -26,42 +26,21 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-export default function ReportCipherSuitesTable({reportCipherSuites}) {
-    const cipherSuitesRows = [];
+import Certificate from './Certificate';
 
-    reportCipherSuites.map((cipherSuiteObject) => {
-        console.log("rendering cipher suites for version " + cipherSuiteObject.version + " with "
-            + cipherSuiteObject.cipherSuiteStrings.length + " items...");
+export default function CertificateChain({version, chain}) {
+    const certificates = [];
 
-        cipherSuitesRows.push(<CipherSuitesRow key={cipherSuiteObject.uiKey}
-                                               version={cipherSuiteObject.version}
-                                               cipherSuiteStrings={cipherSuiteObject.cipherSuiteStrings}/>);
+    chain.map((certificate)=>{
+        certificates.push(<Certificate key={certificate.uiKey} version={version} certificate={certificate} />);
     });
 
-
-    return (<table className="table table-bordered">
-        <tbody>{cipherSuitesRows}</tbody>
-    </table>);
+    return (<React.Fragment>{certificates}</React.Fragment>);
 }
 
-ReportCipherSuitesTable.propTypes = {
-    reportCipherSuites: PropTypes.array.isRequired
-}
-
-function CipherSuitesRow({version, cipherSuiteStrings}) {
-    const row = (<tr>
-        <th scope="row">{version}</th>
-        <td>
-            {cipherSuiteStrings.map((cipherSuiteString) => <p key={cipherSuiteString.uiKey}>{cipherSuiteString.name}</p>)}
-        </td>
-    </tr>);
-
-    return row;
-}
-
-CipherSuitesRow.propTypes = {
+CertificateChain.propTypes = {
     version: PropTypes.string.isRequired,
-    cipherSuiteStrings: PropTypes.array.isRequired
-}
+    chain: PropTypes.array.isRequired
+};

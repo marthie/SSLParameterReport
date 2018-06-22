@@ -28,40 +28,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default function ReportCipherSuitesTable({reportCipherSuites}) {
-    const cipherSuitesRows = [];
+import CertificateChain from './CertificateChain';
 
-    reportCipherSuites.map((cipherSuiteObject) => {
-        console.log("rendering cipher suites for version " + cipherSuiteObject.version + " with "
-            + cipherSuiteObject.cipherSuiteStrings.length + " items...");
+export default function ReportCertificates({certificates}) {
+    const certificateSections = [];
 
-        cipherSuitesRows.push(<CipherSuitesRow key={cipherSuiteObject.uiKey}
-                                               version={cipherSuiteObject.version}
-                                               cipherSuiteStrings={cipherSuiteObject.cipherSuiteStrings}/>);
+    certificates.map((certificateObject)=> {
+        console.log("rendeering " + certificateObject.certificatesChain.length +
+            " certificates for version " + certificateObject.version);
+
+        certificateSections.push(<CertificateChain version={certificateObject.version}
+                                                  chain={certificateObject.certificatesChain}
+                                                  key={certificateObject.uiKey}/>);
     });
 
-
     return (<table className="table table-bordered">
-        <tbody>{cipherSuitesRows}</tbody>
+        <tbody>
+        {certificateSections}
+        </tbody>
     </table>);
 }
 
-ReportCipherSuitesTable.propTypes = {
-    reportCipherSuites: PropTypes.array.isRequired
-}
-
-function CipherSuitesRow({version, cipherSuiteStrings}) {
-    const row = (<tr>
-        <th scope="row">{version}</th>
-        <td>
-            {cipherSuiteStrings.map((cipherSuiteString) => <p key={cipherSuiteString.uiKey}>{cipherSuiteString.name}</p>)}
-        </td>
-    </tr>);
-
-    return row;
-}
-
-CipherSuitesRow.propTypes = {
-    version: PropTypes.string.isRequired,
-    cipherSuiteStrings: PropTypes.array.isRequired
-}
+ReportCertificates.propTypes = {
+    certificates: PropTypes.array.isRequired
+};

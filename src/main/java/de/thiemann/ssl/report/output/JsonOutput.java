@@ -28,10 +28,7 @@ SOFTWARE.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.thiemann.ssl.report.model.Certificate;
-import de.thiemann.ssl.report.model.CertificateV3;
-import de.thiemann.ssl.report.model.Report;
-import de.thiemann.ssl.report.model.SSLv2Certificate;
+import de.thiemann.ssl.report.model.*;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
 import org.slf4j.Logger;
@@ -39,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -184,8 +182,9 @@ public class JsonOutput extends AbstractOutput {
             CertificateV3 v3Cert = (CertificateV3) cert;
 
             jsonCert.put("version", v3Cert.getCertificateVersion());
+            jsonCert.put("serialNumber", v3Cert.getCertificateSerialNumber());
             jsonCert.put("subjectName", v3Cert.getSubjectName());
-            jsonCert.put("alternativeNames", processAlternativeNames(v3Cert.getAlternativeNames()));
+            jsonCert.put("subjectAlternativeNames", processAlternativeNames(v3Cert.getSubjectAlternativeNames()));
             jsonCert.put("notBefore",
                     String.format("%1$tF %1$tT", v3Cert.getNotBefore()));
             jsonCert.put("notAfter",
@@ -193,9 +192,14 @@ public class JsonOutput extends AbstractOutput {
             jsonCert.put("pubKeyName", v3Cert.getPubKeyInfo().getPubKeyAlgorithm());
             jsonCert.put("pubKeySize", v3Cert.getPubKeyInfo().getPubKeySize());
             jsonCert.put("issuerName", v3Cert.getIssuerName());
+            jsonCert.put("issuerAlternativeNames", processAlternativeNames(v3Cert.getIssuerAlternativeNames()));
             jsonCert.put("signatureAlgorithm", v3Cert.getSignatureAlgorithm());
             jsonCert.put("fingerprint", v3Cert.getFingerprint());
             jsonCert.put("crlDistributionPoints", v3Cert.getCrlDistributionPoints());
+            jsonCert.put("keyUsageList", v3Cert.getKeyUsageList());
+
+            List<Map<String, Object>> extensionInfoList = processExtensionInfo(v3Cert.getExtensionInfoList());
+            jsonCert.put("extensionInfoList", extensionInfoList);
 
             return jsonCert;
         }
@@ -203,9 +207,18 @@ public class JsonOutput extends AbstractOutput {
         return null;
     }
 
+    private List<Map<String, Object>> processExtensionInfo(List<ExtensionInfo> extensionInfoList) {
+        return extensionInfoList.stream().map(extensionInfo -> {
+            return map( keyEntry(),
+                    entry("oid", extensionInfo.getOid()),
+                    entry("description", extensionInfo.getDescription()),
+                    entry("isCritical", extensionInfo.isCritical()) );
+        }).collect(Collectors.toList());
+    }
+
     private List<String> processAlternativeNames(List<String> alternativeNames) {
         if (alternativeNames == null) {
-            return null;
+            return new ArrayList<>();
         }
 
         List<String> lines = new ArrayList<String>();

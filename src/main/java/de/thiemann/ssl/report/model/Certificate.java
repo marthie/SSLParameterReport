@@ -26,16 +26,12 @@ SOFTWARE.
 
  */
 
-import java.util.UUID;
-
 public abstract class Certificate implements Comparable<Certificate> {
 
 	private Integer order;
 	
 	// for layz processing
 	private boolean isProcessed;
-
-	public abstract String certificateReport();
 	
 	public abstract Certificate processCertificateBytes();
 	

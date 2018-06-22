@@ -29,7 +29,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import ReportCipherSuites from './ReportCipherSuites';
-import ReportCertificates from './ReportCertificates';
+import ReportCertificates from './__Certificates__/ReportCertificates';
 
 export default class ReportTable extends React.Component {
 
@@ -40,7 +40,7 @@ export default class ReportTable extends React.Component {
     reportTable() {
         const {report} = this.props;
 
-        console.log(`Start render report: ${report.key}`);
+        console.log(`Start render report: ${report.uiKey}`);
 
         const reportTable = (<React.Fragment>
             <div className="page-header">
