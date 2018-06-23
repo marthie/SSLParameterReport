@@ -28,17 +28,21 @@ package de.thiemann.ssl.report.service;
 
 import de.thiemann.ssl.report.build.Lookup;
 import de.thiemann.ssl.report.build.ReportBuilder;
+import de.thiemann.ssl.report.exceptions.*;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.output.Output;
 import de.thiemann.ssl.report.cache.ReportCache;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -60,7 +64,7 @@ public class SSLReportService {
 
     @RequestMapping(method = RequestMethod.POST, path = "/service/sslReport", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getSSlReports(@RequestBody SSLReportRequest request) {
+    public String getSSlReports(@RequestBody SSLReportRequest request) throws LookupException, ServerHelloReadException, CreateClientHelloException, ReportOutputException, ClientHelloWriteException, ParsingSSLv2ServerHelloException {
 
         if (request == null) {
             log.error("Host name may not be empty or null!");
@@ -103,7 +107,7 @@ public class SSLReportService {
 
     }
 
-    public String getSingleReport(InetAddress ipAddress, Integer port) {
+    public String getSingleReport(InetAddress ipAddress, Integer port) throws ServerHelloReadException, CreateClientHelloException, ClientHelloWriteException, ParsingSSLv2ServerHelloException, ReportOutputException {
         Report report = null;
         if (reportCache.isReportCached(ipAddress)) {
             log.debug("Get request {}:{}  from cache", ipAddress.toString(), port);
@@ -121,7 +125,7 @@ public class SSLReportService {
         return output.outputReport(report);
     }
 
-    public String getMultipleReports(InetAddress[] ips, Integer port) {
+    public String getMultipleReports(InetAddress[] ips, Integer port) throws ServerHelloReadException, CreateClientHelloException, ClientHelloWriteException, ParsingSSLv2ServerHelloException, ReportOutputException {
         List<InetAddress> ipList = new ArrayList<InetAddress>(
                 Arrays.asList(ips));
 
@@ -165,5 +169,12 @@ public class SSLReportService {
         String reportOutput = output.outputReportCollection(reportList);
 
         return reportOutput;
+    }
+
+    @ExceptionHandler(value = {ClientHelloWriteException.class, CreateClientHelloException.class, LookupException.class,
+            ParsingSSLv2ServerHelloException.class, ProcessCertificateException.class, ReportOutputException.class,
+            ServerHelloReadException.class, TransferException.class})
+    public ResponseEntity<String> handleExceptions(Exception e) {
+        return null;
     }
 }

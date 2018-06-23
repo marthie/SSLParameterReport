@@ -26,6 +26,8 @@ SOFTWARE.
 
  */
 
+import de.thiemann.ssl.report.exceptions.ProcessCertificateException;
+
 public abstract class Certificate implements Comparable<Certificate> {
 
 	private Integer order;
@@ -33,7 +35,7 @@ public abstract class Certificate implements Comparable<Certificate> {
 	// for layz processing
 	private boolean isProcessed;
 	
-	public abstract Certificate processCertificateBytes();
+	public abstract Certificate processCertificateBytes() throws ProcessCertificateException;
 	
 	@Override
 	public int compareTo(Certificate c) {

@@ -28,11 +28,12 @@ SOFTWARE.
 
 import java.util.Collection;
 
+import de.thiemann.ssl.report.exceptions.ReportOutputException;
 import de.thiemann.ssl.report.model.Report;
 
 public interface Output {
 
-	public String outputReport(Report report);
+	public String outputReport(Report report) throws ReportOutputException;
 	
-	public String outputReportCollection(Collection<Report> reportCollection);
+	public String outputReportCollection(Collection<Report> reportCollection) throws ReportOutputException;
 }

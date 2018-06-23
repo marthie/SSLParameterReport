@@ -28,6 +28,9 @@ SOFTWARE.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.thiemann.ssl.report.exceptions.ProcessCertificateException;
+import de.thiemann.ssl.report.exceptions.ReportOutputException;
+import de.thiemann.ssl.report.exceptions.TransferException;
 import de.thiemann.ssl.report.model.*;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
@@ -45,29 +48,37 @@ public class JsonOutput extends AbstractOutput {
     private Logger log = LoggerFactory.getLogger(JsonOutput.class);
 
     @Override
-    public String outputReportCollection(Collection<Report> reportCollection) {
-        List<Map<String, Object>> jsonReportList = new ArrayList<Map<String, Object>>();
+    public String outputReportCollection(Collection<Report> reportCollection) throws ReportOutputException {
+        try {
+            List<Map<String, Object>> jsonReportList = new ArrayList<Map<String, Object>>();
 
-        for (Report report : reportCollection) {
-            Map<String, Object> jsonObjectMap = transferToJSONObject(report);
-            jsonReportList.add(jsonObjectMap);
+            for (Report report : reportCollection) {
+                Map<String, Object> jsonObjectMap = transferToJSONObject(report);
+                jsonReportList.add(jsonObjectMap);
+            }
+
+            String jsonString = transferToString(jsonReportList);
+
+            return jsonString;
+        } catch (ProcessCertificateException | TransferException e) {
+            throw new ReportOutputException(e);
         }
-
-        String jsonString = transferToString(jsonReportList);
-
-        return jsonString;
     }
 
     @Override
-    public String outputReport(Report report) {
-        Map<String, Object> jsonReport = transferToJSONObject(report);
+    public String outputReport(Report report) throws ReportOutputException {
+        try {
+            Map<String, Object> jsonReport = transferToJSONObject(report);
 
-        String jsonString = transferToString(jsonReport);
+            String jsonString = transferToString(jsonReport);
 
-        return jsonString;
+            return jsonString;
+        } catch (ProcessCertificateException | TransferException e) {
+            throw new ReportOutputException(e);
+        }
     }
 
-    private String transferToString(Object jsonObject) {
+    private String transferToString(Object jsonObject) throws TransferException {
         if (jsonObject != null) {
             ObjectMapper mapper = new ObjectMapper();
 
@@ -75,15 +86,16 @@ public class JsonOutput extends AbstractOutput {
             try {
                 jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
             } catch (JsonProcessingException e) {
-                log.error("Exception while transfaering object to JSON.", e);
+                log.error("Exception while transferring object to JSON.", e);
+                throw new TransferException(e);
             }
             return jsonString;
         }
 
-        return "{ }";
+        return "{}";
     }
 
-    private Map<String, Object> transferToJSONObject(Report report) {
+    private Map<String, Object> transferToJSONObject(Report report) throws ProcessCertificateException {
         if (report.getSupportedSSLVersions().size() == 0) {
             return null;
         }
@@ -161,7 +173,7 @@ public class JsonOutput extends AbstractOutput {
         return jsonReport;
     }
 
-    private Map<String, Object> transferToJSONObject(Certificate cert) {
+    private Map<String, Object> transferToJSONObject(Certificate cert) throws ProcessCertificateException {
         if (!cert.isProcessed()) {
             cert.processCertificateBytes();
         }

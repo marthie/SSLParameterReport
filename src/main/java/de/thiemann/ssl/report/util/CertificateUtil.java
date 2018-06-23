@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 public class CertificateUtil {
 
-    private static Logger log = LoggerFactory.getLogger(CertificateUtil.class);
+    private static Logger LOG = LoggerFactory.getLogger(CertificateUtil.class);
     /*
      * Compute the SHA-1 hash of some bytes, returning the hash value in
      * hexadecimal.
@@ -72,11 +72,13 @@ public class CertificateUtil {
             }
             return f.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new Error(e);
+            LOG.error("Error: {}", e);
         } finally {
             if (f != null)
                 f.close();
         }
+
+        return null;
     }
 
     public static String transferSignatureAlgorithm(String oid) {
@@ -115,8 +117,8 @@ public class CertificateUtil {
 
                 info.setPubKeySize(modulus.bitLength());
             } catch (IOException e) {
-                log.error("{}", e.getMessage());
-                log.error("{}", e);
+                LOG.error("{}", e.getMessage());
+                LOG.error("{}", e);
             }
         } else if (oid.equals(ASN1PublicKeyIds.DSA.getOid())) {
             info.setPubKeyAlgorithm(ASN1PublicKeyIds.DSA.name());

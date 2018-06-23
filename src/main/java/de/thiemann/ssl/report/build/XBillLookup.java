@@ -27,6 +27,9 @@
 
 package de.thiemann.ssl.report.build;
 
+import de.thiemann.ssl.report.exceptions.LookupException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.xbill.DNS.Address;
 
@@ -36,15 +39,16 @@ import java.net.UnknownHostException;
 @Component
 public class XBillLookup implements Lookup {
 
+	private final static Logger LOG = LoggerFactory.getLogger(XBillLookup.class);
+
 	@Override
-	public InetAddress[] getAllByName(String host) {	
+	public InetAddress[] getAllByName(String host) throws LookupException {
 		try {
 			return Address.getAllByName(host);
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			LOG.error("Error: {}", e);
+			throw new LookupException(e);
 		}
-		
-		return null;
 	}
 
 }
