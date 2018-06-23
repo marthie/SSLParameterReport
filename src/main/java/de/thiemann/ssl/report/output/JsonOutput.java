@@ -182,7 +182,7 @@ public class JsonOutput extends AbstractOutput {
             CertificateV3 v3Cert = (CertificateV3) cert;
 
             jsonCert.put("version", v3Cert.getCertificateVersion());
-            jsonCert.put("serialNumber", v3Cert.getCertificateSerialNumber());
+            jsonCert.put("serialNumber", String.format("%1$d", v3Cert.getCertificateSerialNumber()));
             jsonCert.put("subjectName", v3Cert.getSubjectName());
             jsonCert.put("subjectAlternativeNames", processAlternativeNames(v3Cert.getSubjectAlternativeNames()));
             jsonCert.put("notBefore",
