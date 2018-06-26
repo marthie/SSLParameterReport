@@ -84,7 +84,6 @@ public class CertificateV3 extends Certificate {
             x509Certificate = org.bouncycastle.asn1.x509.Certificate.getInstance(ASN1Sequence.fromByteArray(ec));
         } catch (IOException e) {
             log.error("Excrption: {}", e.getMessage());
-            log.error("{}", e);
 
             throw new ProcessCertificateException(e);
         }

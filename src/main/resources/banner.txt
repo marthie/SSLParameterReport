@@ -8,3 +8,8 @@
                                   |_|
                                    --== (Release 1.2) ==--
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Access over:
+    http://localhost:8080/sslReportApp/index.html
+    http://localhost:8080/swagger-ui.html
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

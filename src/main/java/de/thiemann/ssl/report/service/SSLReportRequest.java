@@ -27,9 +27,20 @@
 
 package de.thiemann.ssl.report.service;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
 public class SSLReportRequest {
 
+    @NotNull
+    @Pattern(regexp = "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$")
+    @Size(max = 255)
     private String host;
+
+    @NotNull
+    @Pattern(regexp = "^(\\d{1,5})$")
+    @Size(max = 5)
     private String port;
 
     public SSLReportRequest() {

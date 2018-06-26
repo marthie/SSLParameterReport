@@ -5,4 +5,5 @@ public class ProcessCertificateException extends Exception {
     public ProcessCertificateException(Throwable cause) {
         super(cause);
     }
+
 }

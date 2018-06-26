@@ -72,7 +72,7 @@ public class CertificateUtil {
             }
             return f.toString();
         } catch (NoSuchAlgorithmException e) {
-            LOG.error("Error: {}", e);
+            LOG.error("Error: ", e);
         } finally {
             if (f != null)
                 f.close();
@@ -212,5 +212,17 @@ public class CertificateUtil {
                 });
 
         return listCrlDistPoint;
+    }
+
+    public static String versionString(int version) {
+        if (version == 0x0200) {
+            return "SSLv2";
+        } else if (version == 0x0300) {
+            return "SSLv3";
+        } else if ((version >>> 8) == 0x03) {
+            return "TLSv1." + ((version & 0xFF) - 1);
+        } else {
+            return String.format("UNKNOWN_VERSION:0x%04X", version);
+        }
     }
 }

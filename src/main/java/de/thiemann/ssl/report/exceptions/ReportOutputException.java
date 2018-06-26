@@ -6,4 +6,7 @@ public class ReportOutputException extends Exception {
         super(cause);
     }
 
+    public ReportOutputException(String message) {
+        super(message);
+    }
 }

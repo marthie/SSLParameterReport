@@ -33,7 +33,5 @@ import de.thiemann.ssl.report.model.Report;
 
 public interface Output {
 
-	public String outputReport(Report report) throws ReportOutputException;
-	
-	public String outputReportCollection(Collection<Report> reportCollection) throws ReportOutputException;
+	public String outputReports(Collection<Report> reportCollection) throws ReportOutputException;
 }

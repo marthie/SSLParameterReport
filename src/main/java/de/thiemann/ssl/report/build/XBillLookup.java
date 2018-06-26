@@ -46,7 +46,7 @@ public class XBillLookup implements Lookup {
 		try {
 			return Address.getAllByName(host);
 		} catch (UnknownHostException e) {
-			LOG.error("Error: {}", e);
+			LOG.error("Error: ", e);
 			throw new LookupException(e);
 		}
 	}

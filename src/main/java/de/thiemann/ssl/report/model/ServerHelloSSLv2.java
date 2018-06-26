@@ -37,7 +37,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import de.thiemann.ssl.report.exceptions.ParsingSSLv2ServerHelloException;
 import de.thiemann.ssl.report.util.CertificateUtil;
 import de.thiemann.ssl.report.util.IOUtil;
 import org.slf4j.Logger;
@@ -51,27 +50,22 @@ public class ServerHelloSSLv2 {
 	private String serverCertName;
 	private String serverCertHash;
 
-	public ServerHelloSSLv2(InputStream in) throws ParsingSSLv2ServerHelloException {
+	public ServerHelloSSLv2(InputStream in) throws IOException {
 		// assume a the 2-byte record without padding
 		byte[] buf = new byte[2];
 
-		try {
-			IOUtil.readFully(in, buf);
-		} catch (IOException e) {
-			LOG.error("Error: {}", e);
-			throw new ParsingSSLv2ServerHelloException(e);
-		}
+		IOUtil.readFully(in, buf);
 
 		// check for record without padding
 		int len = IOUtil.dec16be(buf, 0);
 		if ((len & 0x8000) == 0) {
-			throw new ParsingSSLv2ServerHelloException("not a SSLv2 record");
+			throw new IOException("not a SSLv2 record");
 		}
 
 		// read record length
 		len &= 0x7FFF;
 		if (len < 11) {
-			throw new ParsingSSLv2ServerHelloException("not a SSLv2 server hello");
+			throw new IOException("not a SSLv2 server hello");
 		}
 
 		/*
@@ -98,15 +92,11 @@ public class ServerHelloSSLv2 {
 		 * buf[10] = char CONNECTION-ID-LENGTH-LSB
 		 */
 		buf = new byte[11];
-		try {
-			IOUtil.readFully(in, buf);
-		} catch (IOException e) {
-			LOG.error("Error: {}", e);
-			throw new ParsingSSLv2ServerHelloException(e);
-		}
+		IOUtil.readFully(in, buf);
+
 
 		if (buf[0] != 0x04) {
-			throw new ParsingSSLv2ServerHelloException("not a SSLv2 server hello");
+			throw new IOException("not a SSLv2 server hello");
 		}
 
 		// read certificate data length
@@ -120,11 +110,11 @@ public class ServerHelloSSLv2 {
 
 		// check server hello message
 		if (len != 11 + certLen + csLen + connIdLen) {
-			throw new ParsingSSLv2ServerHelloException("not a SSLv2 server hello");
+			throw new IOException("not a SSLv2 server hello");
 		}
 
 		if (csLen == 0 || csLen % 3 != 0) {
-			throw new ParsingSSLv2ServerHelloException("not a SSLv2 server hello");
+			throw new IOException("not a SSLv2 server hello");
 		}
 
 		/*
@@ -136,26 +126,14 @@ public class ServerHelloSSLv2 {
 		 */
 
 		byte[] cert = new byte[certLen];
-		try {
-			IOUtil.readFully(in, cert);
-		} catch (IOException e) {
-			LOG.error("Error: {}", e);
-			throw new ParsingSSLv2ServerHelloException(e);
-		}
+		IOUtil.readFully(in, cert);
+
 		byte[] cs = new byte[csLen];
-		try {
-			IOUtil.readFully(in, cs);
-		} catch (IOException e) {
-			LOG.error("Error: {}", e);
-			throw new ParsingSSLv2ServerHelloException(e);
-		}
+		IOUtil.readFully(in, cs);
+
 		byte[] connId = new byte[connIdLen];
-		try {
-			IOUtil.readFully(in, connId);
-		} catch (IOException e) {
-			LOG.error("Error: {}", e);
-			throw new ParsingSSLv2ServerHelloException(e);
-		}
+		IOUtil.readFully(in, connId);
+
 
 		cipherSuites = new int[csLen / 3];
 		for (int i = 0, j = 0; i < csLen; i += 3, j++) {
@@ -169,7 +147,7 @@ public class ServerHelloSSLv2 {
 			serverCertName = xc.getSubjectX500Principal().toString();
 			serverCertHash = CertificateUtil.computeFingerprint(cert);
 		} catch (CertificateException e) {
-			LOG.error("Error: {}", e);
+			LOG.error("Error: {}", e.getMessage());
 		}
 	}
 

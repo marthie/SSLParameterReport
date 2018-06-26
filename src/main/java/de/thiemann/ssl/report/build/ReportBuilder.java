@@ -13,16 +13,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-import de.thiemann.ssl.report.exceptions.ClientHelloWriteException;
-import de.thiemann.ssl.report.exceptions.CreateClientHelloException;
-import de.thiemann.ssl.report.exceptions.ParsingSSLv2ServerHelloException;
-import de.thiemann.ssl.report.exceptions.ServerHelloReadException;
 import de.thiemann.ssl.report.model.Certificate;
 import de.thiemann.ssl.report.model.Report;
 import de.thiemann.ssl.report.model.SSLv2Certificate;
 import de.thiemann.ssl.report.model.ServerHello;
 import de.thiemann.ssl.report.model.ServerHelloSSLv2;
+import de.thiemann.ssl.report.util.CertificateUtil;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.IOUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
@@ -109,26 +107,7 @@ public class ReportBuilder {
 
     private static final SecureRandom RNG = new SecureRandom();
 
-    public List<Report> generateMultipleReport(InetAddress[] ips, int port) throws ServerHelloReadException, CreateClientHelloException, ClientHelloWriteException, ParsingSSLv2ServerHelloException {
-        if (ips != null && ips.length > 0) {
-            List<Report> reportList = new ArrayList<Report>();
-            for (InetAddress ip : ips) {
-                Report r = generateReport(ip, port);
-
-                if (r != null)
-                    reportList.add(r);
-            }
-
-            if (reportList.isEmpty())
-                return null;
-
-            return reportList;
-        }
-
-        return null;
-    }
-
-    public List<Report> generateMultipleReport(Collection<InetAddress> ips, int port) throws ServerHelloReadException, CreateClientHelloException, ClientHelloWriteException, ParsingSSLv2ServerHelloException {
+    public List<Report> generateReports(Collection<InetAddress> ips, int port) {
         if (ips != null && ips.size() > 0) {
             List<Report> reportList = new ArrayList<Report>();
             for (InetAddress ip : ips) {
@@ -147,7 +126,9 @@ public class ReportBuilder {
         return null;
     }
 
-    public Report generateReport(InetAddress ip, int port) throws CreateClientHelloException, ServerHelloReadException, ClientHelloWriteException, ParsingSSLv2ServerHelloException {
+    private Report generateReport(InetAddress ip, int port) {
+        LOG.debug("start generateReport(ip: {}, port: {})", ip.toString(), port);
+
         Report report = new Report(ip, port);
 
         InetSocketAddress isa = new InetSocketAddress(ip, port);
@@ -161,10 +142,12 @@ public class ReportBuilder {
                 continue;
 
             ServerHello serverHello = connect(isa, version.getIntVersion(),
-                    CipherSuiteUtil.CIPHER_SUITES.keySet());
+                        CipherSuiteUtil.CIPHER_SUITES.keySet());
+
             if (serverHello == null) {
                 continue;
             }
+
             report.getSupportedSSLVersions().add(serverHello.getProtoVersion());
             report.setCompress(serverHello.isCompression());
         }
@@ -216,6 +199,8 @@ public class ReportBuilder {
             report.getServerCert().put(version, versionCertificates);
         }
 
+        LOG.debug("end generateReport(ip: {}, port: {})", ip.toString(), port);
+
         return report;
     }
 
@@ -225,29 +210,29 @@ public class ReportBuilder {
      * suites the suite which the server just selected. We keep on until the
      * server can no longer respond to us with a ServerHello.
      */
-    public Set<Integer> supportedSuites(InetSocketAddress isa, int version) throws ServerHelloReadException, CreateClientHelloException, ClientHelloWriteException {
+    private Set<Integer> supportedSuites(InetSocketAddress isa, int version)  {
         Set<Integer> cs = new TreeSet<Integer>(
                 CipherSuiteUtil.CIPHER_SUITES.keySet());
         Set<Integer> rs = new TreeSet<Integer>();
         for (; ; ) {
             ServerHello sh = connect(isa, version, cs);
+
             if (sh == null) {
                 break;
             }
+
             if (!cs.contains(sh.getCipherSuite())) {
-                System.err.printf("[ERR: server wants to use"
-                        + " cipher suite 0x%04X which client"
-                        + " did not announce]", sh.getCipherSuite());
-                System.err.println();
+                LOG.error("Server wants to use cipher suite {} which client did not announce!", sh.getCipherSuite());
                 break;
             }
+
             cs.remove(sh.getCipherSuite());
             rs.add(sh.getCipherSuite());
         }
         return rs;
     }
 
-    public Set<Certificate> addCertificates(InetSocketAddress isa, int version) throws ServerHelloReadException, CreateClientHelloException, ClientHelloWriteException {
+    private Set<Certificate> addCertificates(InetSocketAddress isa, int version) {
         Set<Certificate> serverCerts = null;
         ServerHello sh = connect(isa, version,
                 CipherSuiteUtil.CIPHER_SUITES.keySet());
@@ -263,8 +248,14 @@ public class ReportBuilder {
      * Connect to the server, send a ClientHello, and decode the response
      * (ServerHello). On error, null is returned.
      */
-    public ServerHello connect(InetSocketAddress isa, int version,
-                               Collection<Integer> cipherSuites) throws ClientHelloWriteException, ServerHelloReadException, CreateClientHelloException {
+    private ServerHello connect(InetSocketAddress isa, int version,
+                               Collection<Integer> cipherSuites) {
+
+        String versionString = "";
+        if(LOG.isDebugEnabled()) {
+            versionString = CertificateUtil.versionString(version);
+            LOG.debug("start connect(isa: {}, version: {})", isa.toString(), versionString);
+        }
 
         Socket s = null;
 
@@ -281,15 +272,13 @@ public class ReportBuilder {
                 orec.write(ch);
                 orec.flush();
             } catch (IOException e) {
-                LOG.error("Error: {}", e);
-                throw new ClientHelloWriteException(e);
+                LOG.debug("Error: ", e);
             }
 
             try {
                 return new ServerHello(s.getInputStream());
             } catch (IOException e) {
-                LOG.error("Error: {}", e);
-                throw new ServerHelloReadException(e);
+                LOG.debug("Error: ", e);
             }
         } finally {
             try {
@@ -297,14 +286,20 @@ public class ReportBuilder {
             } catch (IOException ioe) {
                 // ignored
             }
+
+            LOG.debug("end connect(isa: {}, version: {})", isa.toString(), versionString);
         }
+
+        return null;
     }
 
     /*
      * Connect to the server, send a SSLv2 CLIENT HELLO, and decode the response
      * (SERVER HELLO). On error, null is returned.
      */
-    public ServerHelloSSLv2 connectV2(InetSocketAddress isa) throws ClientHelloWriteException, ServerHelloReadException, ParsingSSLv2ServerHelloException {
+    private ServerHelloSSLv2 connectV2(InetSocketAddress isa) {
+        LOG.debug("start connectV2(isa: {})", isa.toString());
+
         Socket s = null;
         try {
             s = new Socket();
@@ -314,15 +309,13 @@ public class ReportBuilder {
                 OutputStream os = s.getOutputStream();
                 os.write(SSL2_CLIENT_HELLO);
             } catch (IOException e) {
-                LOG.error("Error: {}", e);
-                throw new ClientHelloWriteException(e);
+                LOG.debug("Error: ", e);
             }
 
             try {
                 return new ServerHelloSSLv2(s.getInputStream());
             } catch (IOException e) {
-                LOG.error("Error: {}", e);
-                throw new ServerHelloReadException(e);
+                LOG.debug("Error: ", e);
             }
         } finally {
             try {
@@ -330,23 +323,28 @@ public class ReportBuilder {
             } catch (IOException ioe) {
                 // ignored
             }
+
+            LOG.debug("end connectV2(isa: {})", isa.toString());
         }
+
+        return null;
     }
 
     /*
      * Build a ClientHello message, with the specified maximum supported
      * version, and list of cipher suites.
      */
-    public byte[] makeClientHello(int version, Collection<Integer> cipherSuites) throws CreateClientHelloException {
+    private byte[] makeClientHello(int version, Collection<Integer> cipherSuites)  {
         try {
             return makeClientHello0(version, cipherSuites);
         } catch (IOException e) {
-            LOG.error("Error: {}", e);
-            throw new CreateClientHelloException(e);
+            LOG.debug("Error: ", e);
         }
+
+        return new byte[0];
     }
 
-    public byte[] makeClientHello0(int version, Collection<Integer> cipherSuites)
+    private byte[] makeClientHello0(int version, Collection<Integer> cipherSuites)
             throws IOException {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
 
