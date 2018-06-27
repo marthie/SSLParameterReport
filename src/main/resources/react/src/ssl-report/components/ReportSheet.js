@@ -62,11 +62,13 @@ class ReportSheet extends React.Component {
             <ReportJump/>
             <div className="row">
                 <div className="col-xs-12">
-                    <button className="btn btn-default"
+                    <div className="well center-block">
+                    <button className="btn btn-default btn-block"
                             onClick={(e) => this.getBack()}>
                         <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
                         Back
                     </button>
+                    </div>
                 </div>
             </div>
         </React.Fragment>);

@@ -38,6 +38,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(CustomExceptionHandler.class);
 
+    private final static String TYPE = "";
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         LOG.debug("handleMethodArgumentNotValid()");
@@ -138,7 +140,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
         LOG.debug("handleExceptionInternal()");
-        return super.handleExceptionInternal(ex, body, headers, status, request);
+        ErrorResponse e = new ErrorResponse("",ex.getMessage());
+        return ResponseEntity.status(500).contentType(MediaType.APPLICATION_JSON).body(e);
     }
 }
 
