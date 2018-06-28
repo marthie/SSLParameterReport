@@ -51,6 +51,7 @@
         <jersey.version>2.11</jersey.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
+        <sslReport.version>1.2.1</sslReport.version>
     </properties>
 
     <dependencies>
@@ -143,6 +144,7 @@
             <resource>
                 <directory>src/main/resources/react/dist</directory>
                 <targetPath>static/sslReportApp</targetPath>
+                <filtering>true</filtering>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
@@ -150,6 +152,7 @@
                     <include>logback.xml</include>
                     <include>banner.txt</include>
                 </includes>
+                <filtering>true</filtering>
             </resource>
         </resources>
 
