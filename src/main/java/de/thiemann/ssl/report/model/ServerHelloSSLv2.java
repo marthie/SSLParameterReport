@@ -39,8 +39,12 @@ import java.security.cert.X509Certificate;
 
 import de.thiemann.ssl.report.util.CertificateUtil;
 import de.thiemann.ssl.report.util.IOUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ServerHelloSSLv2 {
+
+	private final static Logger LOG = LoggerFactory.getLogger(ServerHelloSSLv2.class);
 
 	private int[] cipherSuites;
 	private String serverCertName;
@@ -49,6 +53,7 @@ public class ServerHelloSSLv2 {
 	public ServerHelloSSLv2(InputStream in) throws IOException {
 		// assume a the 2-byte record without padding
 		byte[] buf = new byte[2];
+
 		IOUtil.readFully(in, buf);
 
 		// check for record without padding
@@ -88,6 +93,8 @@ public class ServerHelloSSLv2 {
 		 */
 		buf = new byte[11];
 		IOUtil.readFully(in, buf);
+
+
 		if (buf[0] != 0x04) {
 			throw new IOException("not a SSLv2 server hello");
 		}
@@ -120,10 +127,13 @@ public class ServerHelloSSLv2 {
 
 		byte[] cert = new byte[certLen];
 		IOUtil.readFully(in, cert);
+
 		byte[] cs = new byte[csLen];
 		IOUtil.readFully(in, cs);
+
 		byte[] connId = new byte[connIdLen];
 		IOUtil.readFully(in, connId);
+
 
 		cipherSuites = new int[csLen / 3];
 		for (int i = 0, j = 0; i < csLen; i += 3, j++) {
@@ -137,7 +147,7 @@ public class ServerHelloSSLv2 {
 			serverCertName = xc.getSubjectX500Principal().toString();
 			serverCertHash = CertificateUtil.computeFingerprint(cert);
 		} catch (CertificateException e) {
-			// ignored
+			LOG.error("Error: {}", e.getMessage());
 		}
 	}
 

@@ -27,10 +27,12 @@ package de.thiemann.ssl.report.build;
 
  */
 
+import de.thiemann.ssl.report.exceptions.LookupException;
+
 import java.net.InetAddress;
 
 public interface Lookup {
 	
-	public InetAddress[] getAllByName(String host);
+	public InetAddress[] getAllByName(String host) throws LookupException;
 	
 }

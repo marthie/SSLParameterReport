@@ -35,18 +35,6 @@ import java.util.UUID;
 
 public abstract class AbstractOutput implements Output {
 
-	public String versionString(int version) {
-		if (version == 0x0200) {
-			return "SSLv2";
-		} else if (version == 0x0300) {
-			return "SSLv3";
-		} else if ((version >>> 8) == 0x03) {
-			return "TLSv1." + ((version & 0xFF) - 1);
-		} else {
-			return String.format("UNKNOWN_VERSION:0x%04X", version);
-		}
-	}
-
 	public static Map.Entry<String, Object> entry(String key, Object value) {
 		return new AbstractMap.SimpleEntry(key, value);
 	}

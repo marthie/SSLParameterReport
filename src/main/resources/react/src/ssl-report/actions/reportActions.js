@@ -25,11 +25,11 @@
 
  */
 
-import {SUBMIT_FORM, FETCH_REPORT_RESPONSE, FETCH_REPORT_FAILURE, NEW_REPORT} from './ActionTypes'
+import {SUBMIT_FORM, FETCH_REPORT_RESPONSE, FETCH_REPORT_FAILURE, NEW_REPORT, CLEAR_FORM} from './ActionTypes'
 import {fetchSSLReport} from '../backend/RESTClient';
 
 
-export function submitReport(formData) {
+export function submitForm(formData) {
     return {
         type: SUBMIT_FORM,
         formData
@@ -40,18 +40,34 @@ export function fetchResponseOnSuccess(data) {
     return {
         type: FETCH_REPORT_RESPONSE,
         sslReports: data
-    }
+    };
+}
+
+export function fetchResponseOnFailure(error) {
+    return {
+        type: FETCH_REPORT_FAILURE,
+        fetchError: error
+    };
 }
 
 export function fetchReport(formData) {
     return function(dispatch) {
         return fetchSSLReport(formData)
-            .done((data)=> dispatch(fetchResponseOnSuccess(data)));
+            .done((data)=> dispatch(fetchResponseOnSuccess(data))).fail((jqXHR, textStatus, errorThrown) => {
+                let error = JSON.parse(jqXHR.responseText);
+                dispatch(fetchResponseOnFailure(error));
+            });
     };
 }
 
 export function newReport() {
     return {
         type: NEW_REPORT
+    };
+}
+
+export function clearForm() {
+    return {
+      type: CLEAR_FORM
     };
 }

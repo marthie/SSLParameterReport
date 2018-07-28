@@ -28,7 +28,10 @@ SOFTWARE.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.thiemann.ssl.report.exceptions.ProcessCertificateException;
+import de.thiemann.ssl.report.exceptions.ReportOutputException;
 import de.thiemann.ssl.report.model.*;
+import de.thiemann.ssl.report.util.CertificateUtil;
 import de.thiemann.ssl.report.util.CipherSuiteUtil;
 import de.thiemann.ssl.report.util.SSLVersions;
 import org.slf4j.Logger;
@@ -45,29 +48,26 @@ public class JsonOutput extends AbstractOutput {
     private Logger log = LoggerFactory.getLogger(JsonOutput.class);
 
     @Override
-    public String outputReportCollection(Collection<Report> reportCollection) {
-        List<Map<String, Object>> jsonReportList = new ArrayList<Map<String, Object>>();
+    public String outputReports(Collection<Report> reportCollection) throws ReportOutputException {
+        try {
+            List<Map<String, Object>> jsonReportList = new ArrayList<Map<String, Object>>();
 
-        for (Report report : reportCollection) {
-            Map<String, Object> jsonObjectMap = transferToJSONObject(report);
-            jsonReportList.add(jsonObjectMap);
+            for (Report report : reportCollection) {
+                Map<String, Object> jsonObjectMap = transferToJSONObject(report);
+                jsonReportList.add(jsonObjectMap);
+            }
+
+            String jsonString = transferToString(jsonReportList);
+
+            return jsonString;
+        } catch (ProcessCertificateException e) {
+            log.error("error: {}", e.getMessage());
+
+            throw new ReportOutputException(e);
         }
-
-        String jsonString = transferToString(jsonReportList);
-
-        return jsonString;
     }
 
-    @Override
-    public String outputReport(Report report) {
-        Map<String, Object> jsonReport = transferToJSONObject(report);
-
-        String jsonString = transferToString(jsonReport);
-
-        return jsonString;
-    }
-
-    private String transferToString(Object jsonObject) {
+    private String transferToString(Object jsonObject) throws ReportOutputException {
         if (jsonObject != null) {
             ObjectMapper mapper = new ObjectMapper();
 
@@ -75,15 +75,16 @@ public class JsonOutput extends AbstractOutput {
             try {
                 jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
             } catch (JsonProcessingException e) {
-                log.error("Exception while transfaering object to JSON.", e);
+                log.error("Exception while transferring object to JSON.", e);
+                throw new ReportOutputException(e);
             }
             return jsonString;
         }
 
-        return "{ }";
+        return "{}";
     }
 
-    private Map<String, Object> transferToJSONObject(Report report) {
+    private Map<String, Object> transferToJSONObject(Report report) throws ProcessCertificateException {
         if (report.getSupportedSSLVersions().size() == 0) {
             return null;
         }
@@ -100,7 +101,7 @@ public class JsonOutput extends AbstractOutput {
         // protocol
         List<Object> supportedVersions = new ArrayList<Object>();
         for (int version : report.getSupportedSSLVersions()) {
-            Map<String, Object> versionEntry = map(keyEntry(), entry("version", versionString(version)));
+            Map<String, Object> versionEntry = map(keyEntry(), entry("version", CertificateUtil.versionString(version)));
             supportedVersions.add(versionEntry);
         }
         jsonReport.put("supportedSSLVersions", supportedVersions);
@@ -111,7 +112,7 @@ public class JsonOutput extends AbstractOutput {
         for (int version : report.getSupportedSSLVersions()) {
 
             Map<String, Object> cipherSuitesByVersion = map(keyEntry());
-            cipherSuitesByVersion.put("version", versionString(version));
+            cipherSuitesByVersion.put("version", CertificateUtil.versionString(version));
 
             List<Object> listCipherSuiteStrings = new ArrayList<Object>();
             cipherSuitesByVersion.put("cipherSuiteStrings", listCipherSuiteStrings);
@@ -149,7 +150,7 @@ public class JsonOutput extends AbstractOutput {
                 }
 
                 Map<String, Object> certificatesByVersion = map(keyEntry());
-                certificatesByVersion.put("version", versionString(version));
+                certificatesByVersion.put("version", CertificateUtil.versionString(version));
                 certificatesByVersion.put("certificatesChain", transferedCertificates);
 
                 certificateList.add(certificatesByVersion);
@@ -161,7 +162,7 @@ public class JsonOutput extends AbstractOutput {
         return jsonReport;
     }
 
-    private Map<String, Object> transferToJSONObject(Certificate cert) {
+    private Map<String, Object> transferToJSONObject(Certificate cert) throws ProcessCertificateException {
         if (!cert.isProcessed()) {
             cert.processCertificateBytes();
         }
@@ -182,7 +183,7 @@ public class JsonOutput extends AbstractOutput {
             CertificateV3 v3Cert = (CertificateV3) cert;
 
             jsonCert.put("version", v3Cert.getCertificateVersion());
-            jsonCert.put("serialNumber", v3Cert.getCertificateSerialNumber());
+            jsonCert.put("serialNumber", String.format("%1$d", v3Cert.getCertificateSerialNumber()));
             jsonCert.put("subjectName", v3Cert.getSubjectName());
             jsonCert.put("subjectAlternativeNames", processAlternativeNames(v3Cert.getSubjectAlternativeNames()));
             jsonCert.put("notBefore",
@@ -209,10 +210,10 @@ public class JsonOutput extends AbstractOutput {
 
     private List<Map<String, Object>> processExtensionInfo(List<ExtensionInfo> extensionInfoList) {
         return extensionInfoList.stream().map(extensionInfo -> {
-            return map( keyEntry(),
+            return map(keyEntry(),
                     entry("oid", extensionInfo.getOid()),
                     entry("description", extensionInfo.getDescription()),
-                    entry("isCritical", extensionInfo.isCritical()) );
+                    entry("isCritical", extensionInfo.isCritical()));
         }).collect(Collectors.toList());
     }
 

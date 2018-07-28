@@ -27,7 +27,7 @@
 
 import React from 'react';
 
-const initState = {
+const initLocalState = {
     host: '',
     port: ''
 };
@@ -37,7 +37,13 @@ class ReportForm extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = initState;
+        const {reportState} = props;
+
+        if(reportState.requestData) {
+            this.state = reportState.requestData;
+        } else {
+            this.state = initLocalState;
+        }
     }
 
     onChange(event) {
@@ -48,25 +54,32 @@ class ReportForm extends React.Component {
         this.setState(newState);
     }
 
-    onClick(event) {
+    submit(event) {
         event.preventDefault();
 
         const {host, port} = this.state;
-        const {submitReport} = this.props;
+        const {submitForm} = this.props;
 
-        submitReport({host, port});
+        submitForm({host, port});
+    }
+
+    clear(event) {
+        event.preventDefault();
+
+        const {clearForm} = this.props;
+        clearForm();
+        this.setState(initLocalState);
     }
 
     form() {
         return (<div className="row">
             <div className="col-xs-12">
                 <div className="panel panel-primary">
-                    <div className="panel-heading">Input</div>
+                    <div className="panel-heading">Generate SSL/TLS Report for...</div>
                     <div className="panel-body">
-                        <form className="form-inline">
+                        <form>
                             <div className="form-group">
-                                <label htmlFor="host"
-                                       style={{marginLeft: 5 + 'px', marginRight: 5 + 'px'}}>Host:</label>
+                                <label htmlFor="host">Host</label>
                                 <input type='text'
                                        placeholder='Host/IP'
                                        name='host'
@@ -76,8 +89,7 @@ class ReportForm extends React.Component {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="port"
-                                       style={{marginLeft: 5 + 'px', marginRight: 5 + 'px'}}>Port:</label>
+                                <label htmlFor="port">Port</label>
                                 <input type='text'
                                        placeholder='Port'
                                        name='port'
@@ -86,13 +98,16 @@ class ReportForm extends React.Component {
                                        className="form-control"
                                 />
                             </div>
+                            <div className="well center-block">
                             <button
-                                onClick={(e) => this.onClick(e)}
-                                className="btn btn-primary"
-                                style={{marginLeft: 15 + 'px'}}>
+                                onClick={(e) => this.submit(e)}
+                                className="btn btn-primary btn-block">
                                 Get SSL Report
                                 <span className="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
                             </button>
+                            <button className="btn btn-default btn-block"
+                                    onClick={(e)=> this.clear(e)}>Clear</button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -100,19 +115,44 @@ class ReportForm extends React.Component {
         </div>);
     }
 
+    alert() {
+        const {reportState} = this.props;
+
+        return (<div className="row">
+            <div className="col-xs-12">
+                <div className="alert alert-danger" role="alert">
+                    <strong>Error: {reportState.fetchError.type} (type)</strong>
+                    <p>Message = {reportState.fetchError.message} </p>
+                </div>
+            </div>
+        </div>);
+    }
+
 
     render() {
-        return this.form();
+        const {reportState} = this.props;
+
+        return (<React.Fragment>
+            {this.form()}
+            {reportState.fetchError? this.alert() : null}
+        </React.Fragment>);
     }
 }
 
 import {connect} from 'react-redux';
-import {submitReport} from '../actions/reportActions'
+import {submitForm, clearForm} from '../actions/reportActions'
 
-function mapDispatchToProps(dispatch) {
+function mapStateToProps(state) {
     return {
-        submitReport: (formData) => dispatch(submitReport(formData))
+        reportState: state
     };
 }
 
-export default connect(null, mapDispatchToProps) (ReportForm);
+function mapDispatchToProps(dispatch) {
+    return {
+        submitForm: (formData) => dispatch(submitForm(formData)),
+        clearForm: () => dispatch(clearForm())
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps) (ReportForm);

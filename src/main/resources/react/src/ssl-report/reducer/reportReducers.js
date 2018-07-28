@@ -25,7 +25,7 @@
 
  */
 
-import {SUBMIT_FORM, FETCH_REPORT_RESPONSE, NEW_REPORT} from '../actions/ActionTypes';
+import {SUBMIT_FORM, FETCH_REPORT_RESPONSE, NEW_REPORT, FETCH_REPORT_FAILURE, CLEAR_FORM} from '../actions/ActionTypes';
 import {FORM_VIEW, LOADER_VIEW, SHEET_VIEW} from '../components/ViewStates'
 
 export function reportReducer(state, action) {
@@ -34,6 +34,10 @@ export function reportReducer(state, action) {
     if(action.type === SUBMIT_FORM) {
         newState.activeState = LOADER_VIEW;
         newState.requestData = action.formData;
+
+        if(newState.fetchError) {
+            newState.fetchError = null;
+        }
     }
 
     if(action.type === FETCH_REPORT_RESPONSE) {
@@ -41,8 +45,21 @@ export function reportReducer(state, action) {
         newState.sslReports = action.sslReports;
     }
 
+    if(action.type === FETCH_REPORT_FAILURE) {
+        newState.activeState = FORM_VIEW;
+        newState.fetchError = action.fetchError;
+    }
+
     if(action.type === NEW_REPORT) {
         newState.activeState = FORM_VIEW;
+    }
+
+    if(action.type === CLEAR_FORM) {
+        newState.activeState = FORM_VIEW;
+        if(newState.requestData) {
+            newState.requestData = null;
+        }
+
     }
 
     return newState;

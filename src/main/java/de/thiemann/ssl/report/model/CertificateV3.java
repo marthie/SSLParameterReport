@@ -30,6 +30,7 @@ package de.thiemann.ssl.report.model;
  * Copyright (c) 2015  Marius Thiemann <marius dot thiemann at ploin dot de>
  */
 
+import de.thiemann.ssl.report.exceptions.ProcessCertificateException;
 import de.thiemann.ssl.report.util.CertificateKeyUsage;
 import de.thiemann.ssl.report.util.CertificateUtil;
 import de.thiemann.ssl.report.util.ExtensionIdentifier;
@@ -76,14 +77,15 @@ public class CertificateV3 extends Certificate {
     }
 
     @Override
-    public Certificate processCertificateBytes() {
+    public Certificate processCertificateBytes() throws ProcessCertificateException {
 
         org.bouncycastle.asn1.x509.Certificate x509Certificate = null;
         try {
             x509Certificate = org.bouncycastle.asn1.x509.Certificate.getInstance(ASN1Sequence.fromByteArray(ec));
         } catch (IOException e) {
             log.error("Excrption: {}", e.getMessage());
-            log.error("{}", e);
+
+            throw new ProcessCertificateException(e);
         }
 
         if(x509Certificate == null) {

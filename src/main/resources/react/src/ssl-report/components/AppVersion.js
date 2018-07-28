@@ -25,28 +25,4 @@
 
  */
 
-import React from 'react';
-import ReportController from './ReportController';
-import {appVersion} from './AppVersion';
-
-export default class Layout extends React.Component {
-
-    render() {
-
-        let version = "1.0";
-        if(appVersion && appVersion.match(/\d+\.\d+(\.\d+)?/)) {
-            version = appVersion;
-        }
-
-        const layout = (<div className="container">
-            <div className="row">
-                <div className="page-header">
-                    <h1>SSL Report <small>(Version {version})</small></h1>
-                </div>
-            </div>
-            <ReportController/>
-        </div>);
-
-        return layout;
-    }
-}
+export const appVersion = '@sslReport.version@';
