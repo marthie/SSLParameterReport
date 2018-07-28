@@ -143,9 +143,22 @@
         <resources>
             <resource>
                 <directory>src/main/resources/react/dist</directory>
+                <includes>
+                    <include>**/*.js</include>
+                </includes>
                 <targetPath>static/sslReportApp</targetPath>
                 <filtering>true</filtering>
             </resource>
+
+            <resource>
+                <directory>src/main/resources/react/dist</directory>
+                <excludes>
+                    <exclude>**/*.js</exclude>
+                </excludes>
+                <targetPath>static/sslReportApp</targetPath>
+                <filtering>false</filtering>
+            </resource>
+
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
